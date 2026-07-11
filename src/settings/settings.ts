@@ -1,8 +1,9 @@
 // Pure settings model — no `obsidian` import, so tests can import it.
 export interface LazyCampaignPluginSettings {
-	exampleOption: boolean;
+	/** Root folder for campaign folders/notes, relative to the vault root. */
+	campaignRoot: string;
 }
 
 export const DEFAULT_SETTINGS: LazyCampaignPluginSettings = {
-	exampleOption: true,
+	campaignRoot: "Campaigns",
 };

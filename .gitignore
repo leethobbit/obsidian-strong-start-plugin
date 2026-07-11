@@ -8,6 +8,7 @@ data.json
 
 # dev scratch vault — `npm run dev` deploys here; open it in Obsidian to test.
 # Never commit it, never point the deploy at a real vault.
+lazy-dev-vault/
 dev-vault/
 
 # local, machine-specific agent instructions (AGENTS.md is the committed guide)

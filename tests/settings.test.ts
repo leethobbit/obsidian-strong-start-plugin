@@ -6,6 +6,6 @@ import { DEFAULT_SETTINGS } from "../src/settings/settings";
 // obsidian import into a pure module.
 describe("settings model", () => {
 	it("has defaults", () => {
-		expect(DEFAULT_SETTINGS.exampleOption).toBe(true);
+		expect(DEFAULT_SETTINGS.campaignRoot).toBe("Campaigns");
 	});
 });

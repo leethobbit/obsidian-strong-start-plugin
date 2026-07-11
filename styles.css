@@ -3,6 +3,202 @@
    var(--interactive-accent), ...) — never hardcoded colors or inline styles,
    so themes and snippets can restyle the plugin. */
 
-.lazy-campaign-container {
+/* ---- View shell -------------------------------------------------------- */
+
+.lazy-campaign-view {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
 	color: var(--text-normal);
+}
+
+.lazy-campaign-main {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 100%;
+}
+
+/* ---- Icon rail ----------------------------------------------------------
+   Phone bottom-bar collapse is a later milestone (M1 just ensures nothing
+   breaks at narrow widths — the rail stays a rail). */
+
+.lazy-campaign-rail {
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 auto;
+	width: var(--size-4-12);
+	padding: var(--size-4-2) 0;
+	background-color: var(--background-secondary);
+	border-right: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-rail-group {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--size-4-1);
+	padding-bottom: var(--size-4-2);
+	margin-bottom: var(--size-4-2);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-rail-group:last-of-type {
+	border-bottom: none;
+}
+
+.lazy-campaign-rail-footer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: auto;
+	padding-top: var(--size-4-2);
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-rail-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--size-4-8);
+	height: var(--size-4-8);
+	margin: var(--size-4-1) 0;
+	color: var(--text-muted);
+	background: transparent;
+	border: none;
+	border-radius: var(--radius-m);
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-rail-button:hover {
+	color: var(--text-normal);
+	background-color: var(--background-modifier-hover);
+}
+
+.lazy-campaign-rail-button.is-active {
+	color: var(--text-on-accent);
+	background-color: var(--interactive-accent);
+}
+
+.lazy-campaign-rail-button.is-active:hover {
+	background-color: var(--interactive-accent-hover);
+}
+
+/* ---- Header (persistent, outside the swapped body) ---------------------- */
+
+.lazy-campaign-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex: 0 0 auto;
+	gap: var(--size-4-2);
+	padding: var(--size-4-2) var(--size-4-4);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-header-selector select {
+	font-weight: var(--font-medium);
+}
+
+.lazy-campaign-header-menu {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-muted);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-header-menu:hover {
+	color: var(--text-normal);
+}
+
+/* ---- Body / panels ------------------------------------------------------ */
+
+.lazy-campaign-body {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	padding: var(--size-4-4);
+}
+
+.lazy-campaign-panel {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-4);
+	height: 100%;
+}
+
+/* ---- Dashboard cards ------------------------------------------------------ */
+
+.lazy-campaign-card {
+	padding: var(--size-4-4);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-card h3 {
+	margin-top: 0;
+}
+
+.lazy-campaign-card-action {
+	display: flex;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-session-list {
+	margin: 0;
+	padding-left: var(--size-4-4);
+}
+
+.lazy-campaign-session-link {
+	cursor: var(--cursor-link);
+}
+
+/* ---- Empty states --------------------------------------------------------- */
+
+.lazy-campaign-empty-state {
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+.lazy-campaign-empty-state-action {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--size-4-2);
+	max-width: 32em;
+	margin: var(--size-4-8) auto;
+	padding: var(--size-4-6);
+	text-align: center;
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-empty-state-title {
+	margin: 0;
+	font-size: var(--font-ui-large);
+	font-weight: var(--font-semibold);
+}
+
+.lazy-campaign-empty-state-body {
+	margin: 0;
+	color: var(--text-muted);
+}
+
+.lazy-campaign-empty-state-buttons {
+	display: flex;
+	gap: var(--size-4-2);
+}
+
+/* ---- Form modal (create campaign, etc.) ----------------------------------- */
+
+.lazy-campaign-form-modal-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-4);
 }

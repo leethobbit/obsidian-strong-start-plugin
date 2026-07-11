@@ -24,7 +24,7 @@ Obsidian plugin conventions (toolchain, Vault API rules, deferred views, mobile,
 | Lint (store-review mirror — run before every release) | `npm run lint` |
 | Tests (pure logic only) | `npm test` |
 | Reload plugin in vault | use the `obsidian-cli` skill, not a manual restart |
-| Deploy target | `dev-vault/` in this repo (git-ignored) — override with `LAZY_CAMPAIGN_VAULT`. Never a real user vault. |
+| Deploy target | `lazy-dev-vault/` in this repo (git-ignored; named uniquely so Obsidian's vault switcher/CLI can target it) — override with `LAZY_CAMPAIGN_VAULT`. Never a real user vault. |
 
 ## Architecture rules
 

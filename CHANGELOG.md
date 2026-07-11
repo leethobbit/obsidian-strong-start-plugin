@@ -10,3 +10,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 ### Added
 
 - Initial scaffold.
+- Campaign manager view: single host view with icon-rail navigation (Home, Prep, Run, Secrets, Tables, Help).
+- Create campaign: quick-create form (name + optional system) that scaffolds a campaign note and folder.
+- Sessions: auto-numbered session notes with a managed body scaffold (no secret carry-over yet).
+- Dashboard: next-session card and recent-sessions list, with a zero-campaign empty state.
