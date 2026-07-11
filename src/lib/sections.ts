@@ -93,3 +93,11 @@ function appendSection(body: string, heading: string, rendered: string): string 
 export function buildScaffold(headings: readonly string[]): string {
 	return healSections("", headings);
 }
+
+/** Convenience: one section's content (trailing whitespace trimmed), or ""
+ * if the heading isn't present yet. Used by the prep board's step editors to
+ * read a section without re-implementing the heading match. */
+export function sectionContent(body: string, heading: string): string {
+	const match = parseSections(body).find((s) => s.heading.toLowerCase() === heading.toLowerCase());
+	return match ? match.content.replace(/\s+$/, "") : "";
+}

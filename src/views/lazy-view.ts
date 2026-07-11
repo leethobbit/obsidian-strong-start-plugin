@@ -3,12 +3,17 @@ import type LazyCampaignPlugin from "../../main";
 import { DESTINATIONS, type NavDestination, type NavGroup, type NavMode } from "./nav-model";
 import { renderEmptyState } from "./panel-kit";
 import { DashboardPanel } from "./home/dashboard-panel";
+import { PrepPanel } from "./prep/prep-panel";
 import { CreateCampaignModal } from "../campaigns/create-campaign";
 
 export const VIEW_TYPE_LAZY = "lazy-campaign";
 
 interface Panel {
-	render(): void;
+	/** `changedPaths` is only passed on a campaign-store notification (never
+	 * on a fresh mount/mode switch) — see `prep/prep-panel.ts` for the panel
+	 * that actually uses it (self-write/focus-preserve gating). Panels that
+	 * don't care can keep the parameterless `render(): void` signature. */
+	render(changedPaths?: ReadonlySet<string>): void;
 }
 
 /** Sentence-case, honest "not yet" panel for every destination beyond the M1
@@ -77,9 +82,9 @@ export class LazyCampaignView extends ItemView {
 
 		const store = this.plugin.store;
 		if (store) {
-			this.unsubscribe = store.subscribe(() => {
+			this.unsubscribe = store.subscribe((changedPaths) => {
 				this.renderHeader();
-				this.renderActivePanel();
+				this.renderActivePanel(changedPaths);
 			});
 		}
 	}
@@ -107,7 +112,12 @@ export class LazyCampaignView extends ItemView {
 		for (const dest of DESTINATIONS) {
 			const el = this.bodyEl.createDiv({ cls: "lazy-campaign-panel" });
 			el.hide();
-			const panel: Panel = dest.mode === "home" ? new DashboardPanel(this, el) : new PlaceholderPanel(el, dest.label);
+			const panel: Panel =
+				dest.mode === "home"
+					? new DashboardPanel(this, el)
+					: dest.mode === "prep"
+						? new PrepPanel(this, el)
+						: new PlaceholderPanel(el, dest.label);
 			this.panels.set(dest.mode, { el, panel });
 		}
 	}
@@ -173,11 +183,11 @@ export class LazyCampaignView extends ItemView {
 		});
 	}
 
-	private renderActivePanel(): void {
+	private renderActivePanel(changedPaths?: ReadonlySet<string>): void {
 		for (const [mode, entry] of this.panels) {
 			if (mode === this.mode) {
 				entry.el.show();
-				entry.panel.render();
+				entry.panel.render(changedPaths);
 			} else {
 				entry.el.hide();
 			}

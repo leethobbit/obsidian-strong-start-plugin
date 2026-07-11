@@ -1,5 +1,6 @@
 import { Notice } from "obsidian";
 import { createNextSession } from "../../sessions/session-files";
+import { STEPS } from "../../sessions/steps";
 import { tryFileOp } from "../../lib/notify";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
 import { CreateCampaignModal } from "../../campaigns/create-campaign";
@@ -52,18 +53,33 @@ export class DashboardPanel {
 		if (!latest) {
 			card.createEl("p", { text: "No sessions yet." });
 			const button = actions.createEl("button", { cls: "mod-cta", text: "Prep session 1" });
-			this.view.registerDomEvent(button, "click", () => void this.newSession(campaign));
+			this.view.registerDomEvent(button, "click", () => this.view.setMode("prep"));
 			return;
 		}
 
-		const status = latest.status === "played" ? "Played" : "In prep";
-		card.createEl("p", { text: `Session ${latest.session} — ${status}` });
-
-		const newSessionBtn = actions.createEl("button", { cls: "mod-cta", text: "New session" });
-		this.view.registerDomEvent(newSessionBtn, "click", () => void this.newSession(campaign));
+		if (latest.status === "prep") {
+			this.renderProgressDots(card, latest);
+			const continueBtn = actions.createEl("button", { cls: "mod-cta", text: "Continue prep" });
+			this.view.registerDomEvent(continueBtn, "click", () => this.view.setMode("prep"));
+		} else {
+			card.createEl("p", { text: `Session ${latest.session} — Played` });
+			const nextBtn = actions.createEl("button", { cls: "mod-cta", text: `Prep session ${latest.session + 1}` });
+			this.view.registerDomEvent(nextBtn, "click", () => void this.prepNextSession(campaign));
+		}
 
 		const openBtn = actions.createEl("button", { text: "Open note" });
 		this.view.registerDomEvent(openBtn, "click", () => void this.openSessionNote(latest.path));
+	}
+
+	private renderProgressDots(card: HTMLElement, session: SessionModel): void {
+		const dots = card.createDiv({ cls: "lazy-campaign-progress-dots" });
+		for (const step of STEPS) {
+			const done = session.stepsDone.includes(step.id);
+			dots.createSpan({
+				cls: `lazy-campaign-progress-dot${done ? " is-done" : ""}`,
+				attr: { "aria-label": step.shortLabel },
+			});
+		}
 	}
 
 	private renderRecentSessions(sessions: SessionModel[]): void {
@@ -91,7 +107,9 @@ export class DashboardPanel {
 		}
 	}
 
-	private async newSession(campaign: CampaignModel): Promise<void> {
+	/** "Prep session N+1" (latest session already played) — create the next
+	 * session and jump straight to the board, rather than the raw note. */
+	private async prepNextSession(campaign: CampaignModel): Promise<void> {
 		const plugin = this.view.plugin;
 		const store = plugin.store;
 		if (!store) return;
@@ -101,7 +119,7 @@ export class DashboardPanel {
 			"Couldn't create the session note — check the console for details."
 		);
 		if (!file) return;
-		await this.openSessionNote(file.path);
+		this.view.setMode("prep");
 	}
 
 	private async openSessionNote(path: string): Promise<void> {

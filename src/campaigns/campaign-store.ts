@@ -2,8 +2,10 @@ import { Component, TFile, type App } from "obsidian";
 import { asLazy } from "../lib/frontmatter";
 import { readCampaignFm } from "./campaign-schema";
 import { readSessionFm } from "../sessions/session-schema";
+import { readLocationFm, readNpcFm, readPcFm } from "../roster/entity-schema";
 import type { CampaignModel } from "./types";
 import type { SessionModel } from "../sessions/types";
+import type { LocationNoteModel, NpcNoteModel, PcModel } from "../roster/types";
 
 type ManagedType = "campaign" | "session" | "session-zero" | "pc" | "npc" | "location" | "table";
 
@@ -144,6 +146,58 @@ export class CampaignStore extends Component {
 			models.push({ ...fm, path: note.path });
 		}
 		return models.sort((a, b) => b.session - a.session);
+	}
+
+	/** PC notes (`type: pc`) belonging to `campaignPath`, name-sorted — the
+	 * Characters step's roster (prep board step 1). */
+	pcsOf(campaignPath: string): PcModel[] {
+		const models: PcModel[] = [];
+		for (const note of this.index.values()) {
+			if (note.type !== "pc") continue;
+			const fm = readPcFm(note.fm);
+			if (!fm) continue;
+			const dest = this.resolveWikilink(fm.campaign, note.path);
+			if (!dest || dest.path !== campaignPath) continue;
+			models.push({ path: note.path, name: note.file.basename, campaign: fm.campaign, player: fm.player, role: fm.role });
+		}
+		return models.sort((a, b) => a.name.localeCompare(b.name));
+	}
+
+	/** NPC notes (`type: npc`) belonging to `campaignPath` — the NPCs step's
+	 * typeahead suggestion source. */
+	npcNotesOf(campaignPath: string): NpcNoteModel[] {
+		const models: NpcNoteModel[] = [];
+		for (const note of this.index.values()) {
+			if (note.type !== "npc") continue;
+			const fm = readNpcFm(note.fm);
+			if (!fm) continue;
+			const dest = this.resolveWikilink(fm.campaign, note.path);
+			if (!dest || dest.path !== campaignPath) continue;
+			models.push({
+				path: note.path,
+				name: note.file.basename,
+				campaign: fm.campaign,
+				role: fm.role,
+				location: fm.location,
+				status: fm.status,
+			});
+		}
+		return models.sort((a, b) => a.name.localeCompare(b.name));
+	}
+
+	/** Location notes (`type: location`) belonging to `campaignPath` — the
+	 * Locations step's typeahead suggestion source. */
+	locationNotesOf(campaignPath: string): LocationNoteModel[] {
+		const models: LocationNoteModel[] = [];
+		for (const note of this.index.values()) {
+			if (note.type !== "location") continue;
+			const fm = readLocationFm(note.fm);
+			if (!fm) continue;
+			const dest = this.resolveWikilink(fm.campaign, note.path);
+			if (!dest || dest.path !== campaignPath) continue;
+			models.push({ path: note.path, name: note.file.basename, campaign: fm.campaign });
+		}
+		return models.sort((a, b) => a.name.localeCompare(b.name));
 	}
 
 	private resolveWikilink(raw: string, sourcePath: string): TFile | null {

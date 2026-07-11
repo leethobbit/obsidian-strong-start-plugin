@@ -3,6 +3,7 @@ import {
 	readSessionFm,
 	SESSION_BODY_SECTIONS,
 	sessionBodyScaffold,
+	toSessionFm,
 	writeSessionFm,
 } from "../src/sessions/session-schema";
 
@@ -100,6 +101,25 @@ describe("writeSessionFm", () => {
 			locations: [],
 			monsters: [],
 		});
+	});
+});
+
+describe("toSessionFm", () => {
+	it("strips `path` and round-trips through writeSessionFm", () => {
+		const fm = toSessionFm({
+			path: "Campaigns/Greenhollow/Sessions/Session 4.md",
+			campaign: "[[Greenhollow]]",
+			session: 4,
+			date: "2026-07-18",
+			status: "prep",
+			stepsDone: ["characters"],
+			secrets: [],
+			npcs: [],
+			locations: [],
+			monsters: [],
+		});
+		expect(fm).not.toHaveProperty("path");
+		expect(writeSessionFm(fm).stepsDone).toEqual(["characters"]);
 	});
 });
 

@@ -100,6 +100,23 @@ export function writeSessionFm(model: SessionFm): Record<string, unknown> {
 	};
 }
 
+/** Strip `path` (not part of the frontmatter contract) back out of a live
+ * `SessionModel` — the read side of the prep panel's read-modify-write
+ * helper, paired with `writeSessionFm`. */
+export function toSessionFm(model: SessionModel): SessionFm {
+	return {
+		campaign: model.campaign,
+		session: model.session,
+		date: model.date,
+		status: model.status,
+		stepsDone: model.stepsDone,
+		secrets: model.secrets,
+		npcs: model.npcs,
+		locations: model.locations,
+		monsters: model.monsters,
+	};
+}
+
 export const SESSION_BODY_SECTIONS = ["Strong start", "Scenes", "Rewards", "Log"] as const;
 
 /** Fresh session note body: one empty managed section per heading, in order. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildScaffold, healSections, parseSections, replaceSection } from "../src/lib/sections";
+import { buildScaffold, healSections, parseSections, replaceSection, sectionContent } from "../src/lib/sections";
 
 const SCAFFOLD = "## Campaign pitch\n\n## Six truths\n\n## Fronts\n\n## House rules\n";
 
@@ -75,5 +75,20 @@ describe("buildScaffold", () => {
 	it("produces one empty section per heading", () => {
 		const scaffold = buildScaffold(["Pitch", "Truths"]);
 		expect(parseSections(scaffold).map((s) => s.heading)).toEqual(["Pitch", "Truths"]);
+	});
+});
+
+describe("sectionContent", () => {
+	it("returns one section's trimmed content", () => {
+		const body = "## Strong start\nDrop them in the fight.\n\n## Scenes\n- one\n";
+		expect(sectionContent(body, "Strong start")).toBe("Drop them in the fight.");
+	});
+
+	it("matches case-insensitively", () => {
+		expect(sectionContent("## strong start\ntext\n", "Strong Start")).toBe("text");
+	});
+
+	it("returns an empty string when the heading is missing", () => {
+		expect(sectionContent("## Other\ntext\n", "Strong start")).toBe("");
 	});
 });

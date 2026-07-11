@@ -194,6 +194,286 @@
 	gap: var(--size-4-2);
 }
 
+/* ---- Dashboard progress dots ----------------------------------------------- */
+
+.lazy-campaign-progress-dots {
+	display: flex;
+	gap: var(--size-4-1);
+	margin: var(--size-4-2) 0;
+}
+
+.lazy-campaign-progress-dot {
+	width: var(--size-4-2);
+	height: var(--size-4-2);
+	background-color: var(--background-modifier-border);
+	border-radius: var(--radius-full);
+}
+
+.lazy-campaign-progress-dot.is-done {
+	background-color: var(--interactive-accent);
+}
+
+/* ---- Prep board ------------------------------------------------------------ */
+
+.lazy-campaign-prep-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-4);
+	height: 100%;
+}
+
+.lazy-campaign-prep-toolbar {
+	display: flex;
+	align-items: center;
+	flex: 0 0 auto;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-prep-progress {
+	margin-left: auto;
+	color: var(--text-muted);
+}
+
+.lazy-campaign-prep-board {
+	display: flex;
+	flex: 1 1 auto;
+	gap: var(--size-4-4);
+	min-height: 0;
+	container-type: inline-size;
+}
+
+.lazy-campaign-prep-master {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	width: 14rem;
+	overflow-y: auto;
+	border-right: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-prep-workspace {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-y: auto;
+	padding-left: var(--size-4-4);
+}
+
+.lazy-campaign-step-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: var(--size-4-2);
+	cursor: var(--cursor-link);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-step-row:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.lazy-campaign-step-row.is-active {
+	background-color: var(--background-modifier-active-hover);
+}
+
+.lazy-campaign-step-circle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--size-4-6);
+	height: var(--size-4-6);
+	flex: 0 0 auto;
+	color: var(--text-muted);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-step-circle.is-done {
+	color: var(--text-success);
+}
+
+.lazy-campaign-step-circle.is-auto {
+	color: var(--text-accent);
+}
+
+.lazy-campaign-step-number {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-step-label {
+	flex: 1 1 auto;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.lazy-campaign-step-summary {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+/* Master list collapses to a horizontal scrollable strip in a narrow panel
+ * (the full phone shell is a later milestone — this just keeps M2 from
+ * breaking narrow). */
+@container (max-width: 700px) {
+	.lazy-campaign-prep-board {
+		flex-direction: column;
+	}
+
+	.lazy-campaign-prep-master {
+		flex-direction: row;
+		width: 100%;
+		overflow-x: auto;
+		overflow-y: visible;
+		border-right: none;
+		border-bottom: 1px solid var(--background-modifier-border);
+	}
+
+	.lazy-campaign-step-row {
+		flex: 0 0 auto;
+	}
+
+	.lazy-campaign-step-label {
+		white-space: nowrap;
+	}
+
+	.lazy-campaign-prep-workspace {
+		padding-left: 0;
+	}
+}
+
+.lazy-campaign-hint {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-strong-start-textarea {
+	width: 100%;
+	resize: vertical;
+}
+
+.lazy-campaign-malformed-banner {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: var(--size-4-2);
+	background-color: var(--background-modifier-error-hover);
+	border-radius: var(--radius-m);
+}
+
+/* ---- List rows (Scenes/Rewards) --------------------------------------------- */
+
+.lazy-campaign-list-rows {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-list-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-list-row-input {
+	flex: 1 1 auto;
+}
+
+.lazy-campaign-list-row-controls {
+	display: flex;
+	flex: 0 0 auto;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-icon-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--size-4-6);
+	height: var(--size-4-6);
+	color: var(--text-muted);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-icon-button:hover {
+	color: var(--text-normal);
+}
+
+/* ---- Secrets step ----------------------------------------------------------- */
+
+.lazy-campaign-progress-text {
+	color: var(--text-muted);
+}
+
+.lazy-campaign-secret-rows {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+	margin-bottom: var(--size-4-2);
+}
+
+.lazy-campaign-secret-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-secret-row.is-archived {
+	opacity: 0.6;
+}
+
+.lazy-campaign-secret-input,
+.lazy-campaign-secret-add-input {
+	flex: 1 1 auto;
+}
+
+/* ---- Chip editor (Locations/NPCs/Monsters) ---------------------------------- */
+
+.lazy-campaign-chip-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--size-4-2);
+	margin-bottom: var(--size-4-2);
+}
+
+.lazy-campaign-chip {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	padding: var(--size-4-1) var(--size-4-2);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-l);
+}
+
+.lazy-campaign-chip-label.is-linked {
+	color: var(--link-color);
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-chip-create {
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-chip-input-row {
+	display: flex;
+}
+
+.lazy-campaign-chip-input {
+	width: 100%;
+}
+
+/* ---- Roster (Characters step) ----------------------------------------------- */
+
+.lazy-campaign-roster-list {
+	margin: 0 0 var(--size-4-2);
+	padding-left: var(--size-4-4);
+}
+
 /* ---- Form modal (create campaign, etc.) ----------------------------------- */
 
 .lazy-campaign-form-modal-buttons {
