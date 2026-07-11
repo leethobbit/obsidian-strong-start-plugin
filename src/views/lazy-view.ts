@@ -4,6 +4,7 @@ import { DESTINATIONS, type NavDestination, type NavGroup, type NavMode } from "
 import { renderEmptyState } from "./panel-kit";
 import { DashboardPanel } from "./home/dashboard-panel";
 import { PrepPanel } from "./prep/prep-panel";
+import { TablesPanel } from "./tables/tables-panel";
 import { CreateCampaignModal } from "../campaigns/create-campaign";
 
 export const VIEW_TYPE_LAZY = "lazy-campaign";
@@ -117,7 +118,9 @@ export class LazyCampaignView extends ItemView {
 					? new DashboardPanel(this, el)
 					: dest.mode === "prep"
 						? new PrepPanel(this, el)
-						: new PlaceholderPanel(el, dest.label);
+						: dest.mode === "tables"
+							? new TablesPanel(this, el)
+							: new PlaceholderPanel(el, dest.label);
 			this.panels.set(dest.mode, { el, panel });
 		}
 	}

@@ -1,6 +1,7 @@
 import { normalizePath, type App, PluginSettingTab, Setting } from "obsidian";
 import type LazyCampaignPlugin from "../../main";
 import { DEFAULT_SETTINGS } from "./settings";
+import { ATTRIBUTION_TEXT, ATTRIBUTION_URL } from "../content/attribution";
 
 export class LazyCampaignPluginSettingTab extends PluginSettingTab {
 	plugin: LazyCampaignPlugin;
@@ -31,5 +32,16 @@ export class LazyCampaignPluginSettingTab extends PluginSettingTab {
 						await this.plugin.persist();
 					})
 			);
+
+		new Setting(containerEl).setName("About").setHeading();
+
+		const aboutEl = containerEl.createDiv({ cls: "lazy-campaign-settings-about" });
+		aboutEl.createEl("p", { text: ATTRIBUTION_TEXT });
+		aboutEl.createEl("a", {
+			// Document title, not a sentence — keep the source's own capitalization.
+			text: "Lazy GM's Resource Document",
+			href: ATTRIBUTION_URL,
+			attr: { target: "_blank", rel: "noopener" },
+		});
 	}
 }

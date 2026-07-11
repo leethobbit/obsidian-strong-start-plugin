@@ -1,8 +1,19 @@
 import { debounce } from "obsidian";
 import { sectionContent } from "../../../lib/sections";
+import { rollTable } from "../../../tables/roll";
+import { renderInspireControl } from "../../roll-chip";
 import type { StepContext } from "../step-context";
 
 const HEADING = "Strong start";
+
+// The four "Example Strong Starts" environments (src/content/strong-starts.ts)
+// — a compact pill picker above the roll chip, per docs/plan.md.
+const STRONG_START_TABLE_IDS = [
+	"strong-starts-city",
+	"strong-starts-sewers",
+	"strong-starts-wilderness",
+	"strong-starts-dungeon",
+] as const;
 
 export function renderStrongStartStep(container: HTMLElement, ctx: StepContext): void {
 	container.createEl("h3", { text: "Create a strong start" });
@@ -22,4 +33,17 @@ export function renderStrongStartStep(container: HTMLElement, ctx: StepContext):
 
 	ctx.registerDomEvent(textarea, "input", () => debouncedWrite());
 	ctx.registerDomEvent(textarea, "blur", () => debouncedWrite.run());
+
+	renderInspireControl({
+		container,
+		tableIds: STRONG_START_TABLE_IDS,
+		getTable: (id) => ctx.plugin.tables?.get(id),
+		rollTable: (id) => (ctx.plugin.tables ? rollTable(id, ctx.plugin.tables, ctx.plugin.rng) : null),
+		registerDomEvent: ctx.registerDomEvent,
+		onInsert: (text) => {
+			const existing = textarea.value.trim();
+			textarea.value = existing.length > 0 ? `${existing}\n\n${text}` : text;
+			debouncedWrite.run();
+		},
+	});
 }

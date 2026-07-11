@@ -25,3 +25,9 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
   - Characters: a read-only roster scanned from `type: pc` notes, plus a "Create character note" form.
   - Focus-preserving re-renders: the plugin's own frontmatter/section writes take a "soft" path that skips rebuilding the active editor, and an external write to the open session note defers the rebuild until the field loses focus — the caret survives either way.
 - Dashboard: the next-session card's primary action now opens the Prep board directly ("Continue prep"/"Prep session N") instead of the raw note, with 8-dot step progress; "Open note" stays as a secondary action.
+- Rolling engine: seedable dice roller (full `NdM±K`, bare `dM`, constants), weighted table rolls, and `{{...}}` template expansion (dice or nested table references, recursion-capped and cycle-safe).
+- Built-in tables: the four "Example strong starts" lists (cities and towns/sewers/wilderness/dungeons), the four "Secrets and clues" prompt categories, and the NPC generator's first/last name lists — vendored from the Lazy GM's Resource Document (CC-BY 4.0), with a combined `npc-names` table demonstrating template expansion.
+- Uniform inspiration-roll chip (result + Insert/Reroll/Dismiss; rolls never auto-insert) wired into the Strong start step (environment picker), the Secrets step (category picker, inserts as a new secret), and the NPCs step ("Roll a name", fills the add-NPC input without creating a note).
+- Tables panel: replaces the placeholder — category-grouped table list, roll button, a session-only result stack with Copy/Reroll and an expandable "How this rolled" trace, and a CC-BY attribution footer.
+- Command: "Roll on a table" — fuzzy-pick any registered table and roll it once as a Notice.
+- Settings: an About section with the Lazy GM's Resource Document attribution and source link.

@@ -482,3 +482,204 @@
 	gap: var(--size-4-2);
 	margin-top: var(--size-4-4);
 }
+
+/* ---- Inspire control + roll chip (uniform inspiration-roll pattern) -------- */
+
+.lazy-campaign-inspire {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-3);
+}
+
+.lazy-campaign-inspire-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-inspire-pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-inspire-pill {
+	padding: var(--size-4-1) var(--size-4-2);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	background-color: var(--background-secondary);
+	border: none;
+	border-radius: var(--radius-l);
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-inspire-pill.is-active {
+	color: var(--text-on-accent);
+	background-color: var(--interactive-accent);
+}
+
+.lazy-campaign-inspire-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.lazy-campaign-roll-chip {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+	max-width: 32em;
+	padding: var(--size-4-2) var(--size-4-3);
+	background-color: var(--background-secondary);
+	border-left: 2px solid var(--interactive-accent);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-roll-chip-text {
+	color: var(--text-normal);
+	white-space: pre-wrap;
+}
+
+.lazy-campaign-roll-chip-source {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-roll-chip-buttons {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-1);
+}
+
+/* ---- Tables panel ------------------------------------------------------------ */
+
+.lazy-campaign-tables-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-3);
+	height: 100%;
+}
+
+.lazy-campaign-tables-board {
+	display: flex;
+	flex: 1 1 auto;
+	gap: var(--size-4-4);
+	min-height: 0;
+	container-type: inline-size;
+}
+
+.lazy-campaign-tables-list {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	width: 16rem;
+	overflow-y: auto;
+	border-right: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-tables-category {
+	margin: var(--size-4-3) 0 var(--size-4-1);
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+	text-transform: uppercase;
+}
+
+.lazy-campaign-tables-category:first-child {
+	margin-top: 0;
+}
+
+.lazy-campaign-tables-row {
+	padding: var(--size-4-1) var(--size-4-2);
+	text-align: left;
+	color: var(--text-normal);
+	background: transparent;
+	border: none;
+	border-radius: var(--radius-m);
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-tables-row:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.lazy-campaign-tables-row.is-active {
+	background-color: var(--background-modifier-active-hover);
+}
+
+.lazy-campaign-tables-detail {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-y: auto;
+	padding-left: var(--size-4-4);
+}
+
+.lazy-campaign-tables-roll-button {
+	margin: var(--size-4-2) 0 var(--size-4-3);
+}
+
+.lazy-campaign-tables-result-stack {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-tables-result-card {
+	padding: var(--size-4-2) var(--size-4-3);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-tables-result-text {
+	white-space: pre-wrap;
+}
+
+.lazy-campaign-tables-result-buttons {
+	display: flex;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-1);
+}
+
+.lazy-campaign-tables-trace {
+	margin-top: var(--size-4-1);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-tables-trace ul {
+	margin: var(--size-4-1) 0 0;
+	padding-left: var(--size-4-4);
+}
+
+.lazy-campaign-tables-footer {
+	flex: 0 0 auto;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+/* Two-pane collapses to a single column in a narrow phone-emulation panel. */
+@container (max-width: 700px) {
+	.lazy-campaign-tables-board {
+		flex-direction: column;
+	}
+
+	.lazy-campaign-tables-list {
+		width: 100%;
+		border-right: none;
+		border-bottom: 1px solid var(--background-modifier-border);
+	}
+
+	.lazy-campaign-tables-detail {
+		padding-left: 0;
+	}
+}
+
+/* ---- Settings: About -------------------------------------------------------- */
+
+.lazy-campaign-settings-about p {
+	color: var(--text-muted);
+}

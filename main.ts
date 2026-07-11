@@ -6,6 +6,10 @@ import { CreateCampaignModal } from "./src/campaigns/create-campaign";
 import type { CampaignModel } from "./src/campaigns/types";
 import { createNextSession } from "./src/sessions/session-files";
 import { tryFileOp } from "./src/lib/notify";
+import { createRng } from "./src/lib/rng";
+import { buildRegistry, type TableRegistry } from "./src/tables/registry";
+import { CORE_TABLES } from "./src/content";
+import { RollTableSuggestModal } from "./src/views/tables/roll-table-modal";
 import { LazyCampaignView, VIEW_TYPE_LAZY } from "./src/views/lazy-view";
 import type { NavMode } from "./src/views/nav-model";
 
@@ -31,6 +35,12 @@ export default class LazyCampaignPlugin extends Plugin {
 	ui: PersistedData["ui"] = { ...DEFAULT_UI };
 	hints: PersistedData["hints"] = { dismissed: [] };
 	store: CampaignStore | null = null;
+	/** Core-only for now; M5 rebuilds this with `buildRegistry(CORE_TABLES,
+	 * userTables)` once user tables exist — same seam, no call-site churn. */
+	tables: TableRegistry | null = null;
+	/** One long-lived, unseeded generator reused for every UI roll (tests
+	 * build their own seeded one via `createRng(seed)` for determinism). */
+	rng: () => number = createRng();
 
 	async onload(): Promise<void> {
 		// onload is a budget: settings, commands, views, post-processors only.
@@ -72,10 +82,21 @@ export default class LazyCampaignPlugin extends Plugin {
 			},
 		});
 
+		this.addCommand({
+			id: "roll-table",
+			name: "Roll on a table",
+			checkCallback: (checking) => {
+				if (!this.tables) return false;
+				if (!checking) new RollTableSuggestModal(this.app, this).open();
+				return true;
+			},
+		});
+
 		// Anything that scans the vault or attaches vault file-event listeners
 		// belongs here — vault.on("create") fires per file during startup.
 		this.app.workspace.onLayoutReady(() => {
 			this.store = this.addChild(new CampaignStore(this.app));
+			this.tables = buildRegistry(CORE_TABLES);
 		});
 	}
 

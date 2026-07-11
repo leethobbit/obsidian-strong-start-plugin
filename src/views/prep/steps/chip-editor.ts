@@ -42,13 +42,22 @@ class VaultNoteSuggest extends AbstractInputSuggest<string> {
 	}
 }
 
+export interface ChipEditorHandle {
+	/** Populate the pending "add" input without committing it — used by the
+	 * NPCs step's "Roll a name" inspire control, which fills the input for the
+	 * GM to accept/edit rather than creating a chip outright (docs/plan.md:
+	 * "insert puts the name into the chip-editor input; does not create a
+	 * note"). */
+	setInputValue(value: string): void;
+}
+
 /**
  * Shared link-chip editor over a session frontmatter string array — used by
  * the Locations, NPCs, and Monsters steps. Keeps its own local `links` array
  * (mirrors `list-section-editor.ts`'s `rows` pattern) so it never has to read
  * back through the (snapshot) `ctx.session` after its own edit.
  */
-export function renderChipEditor(container: HTMLElement, ctx: StepContext, options: ChipEditorOptions): void {
+export function renderChipEditor(container: HTMLElement, ctx: StepContext, options: ChipEditorOptions): ChipEditorHandle {
 	let links = [...ctx.session[options.fmKey]];
 
 	const chipRow = container.createDiv({ cls: "lazy-campaign-chip-row" });
@@ -134,4 +143,11 @@ export function renderChipEditor(container: HTMLElement, ctx: StepContext, optio
 	}
 
 	renderChips();
+
+	return {
+		setInputValue(value: string) {
+			input.value = value;
+			input.focus();
+		},
+	};
 }

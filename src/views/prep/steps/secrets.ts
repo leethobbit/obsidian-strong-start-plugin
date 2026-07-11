@@ -1,9 +1,19 @@
 import { setIcon } from "obsidian";
 import { newId } from "../../../lib/id";
 import { addSecret, editSecretText, removeSecret } from "../../../sessions/secrets-ops";
+import { rollTable } from "../../../tables/roll";
+import { renderInspireControl } from "../../roll-chip";
 import type { StepContext } from "../step-context";
 
 const TARGET = 10;
+
+// The four "Creating Secrets and Clues" categories (src/content/secrets-clues.ts).
+const SECRETS_TABLE_IDS = [
+	"secrets-character",
+	"secrets-historical",
+	"secrets-npc-villain",
+	"secrets-plot",
+] as const;
 
 /**
  * Frontmatter CRUD on `secrets[]` via the session codec. No reveal checkbox
@@ -34,6 +44,19 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 		addInput.value = "";
 		commit();
 		renderRows();
+	});
+
+	renderInspireControl({
+		container,
+		tableIds: SECRETS_TABLE_IDS,
+		getTable: (id) => ctx.plugin.tables?.get(id),
+		rollTable: (id) => (ctx.plugin.tables ? rollTable(id, ctx.plugin.tables, ctx.plugin.rng) : null),
+		registerDomEvent: ctx.registerDomEvent,
+		onInsert: (text) => {
+			secrets = addSecret(secrets, newId("s"), text);
+			commit();
+			renderRows();
+		},
 	});
 
 	function updateProgress(): void {
