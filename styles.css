@@ -1,0 +1,8 @@
+/* All plugin CSS lives here, prefixed .lazy-campaign- so it never collides.
+   Use Obsidian CSS variables (var(--text-normal), var(--background-secondary),
+   var(--interactive-accent), ...) — never hardcoded colors or inline styles,
+   so themes and snippets can restyle the plugin. */
+
+.lazy-campaign-container {
+	color: var(--text-normal);
+}

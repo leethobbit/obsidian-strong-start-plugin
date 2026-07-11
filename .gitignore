@@ -1,0 +1,27 @@
+# build / deps
+node_modules/
+main.js
+*.js.map
+
+# obsidian
+data.json
+
+# dev scratch vault — `npm run dev` deploys here; open it in Obsidian to test.
+# Never commit it, never point the deploy at a real vault.
+dev-vault/
+
+# local, machine-specific agent instructions (AGENTS.md is the committed guide)
+CLAUDE.md
+
+# obsidian notes surfaced via junction (DKB owns these)
+docs/
+
+# editor / os
+.DS_Store
+Thumbs.db
+.idea/
+*.log
+
+# test artifacts
+coverage/
+.vitest/

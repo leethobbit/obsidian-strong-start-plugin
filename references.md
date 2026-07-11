@@ -1,0 +1,1 @@
+https://slyflourish.com/lazy_gm_resource_document.html
