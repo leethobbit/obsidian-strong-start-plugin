@@ -106,6 +106,15 @@ export class LazyCampaignView extends ItemView {
 		this.renderActivePanel();
 	}
 
+	/** Called by the plugin after `refreshRegistry()` rebuilds the table
+	 * registry off a `TableStore` invalidation (M5) — an out-of-band
+	 * re-render for the one panel whose data lives outside the campaign
+	 * store's own notifications. Every other panel already re-renders off
+	 * that store's `subscribe` callback. */
+	notifyTablesChanged(): void {
+		this.renderActivePanel();
+	}
+
 	private isNavMode(value: string | undefined): value is NavMode {
 		return DESTINATIONS.some((d) => d.mode === value);
 	}

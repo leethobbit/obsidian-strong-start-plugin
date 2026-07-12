@@ -20,7 +20,7 @@ export interface FormModalButtonsOptions {
  */
 export abstract class FormModal extends Modal {
 	private submitting = false;
-	private firstInput: HTMLInputElement | null = null;
+	private firstInput: HTMLInputElement | HTMLTextAreaElement | null = null;
 
 	constructor(app: App) {
 		super(app);
@@ -44,7 +44,7 @@ export abstract class FormModal extends Modal {
 	protected abstract render(): void;
 
 	/** Call once, on the field that should be focused + text-selected on open. */
-	protected registerFirstInput(input: HTMLInputElement): void {
+	protected registerFirstInput(input: HTMLInputElement | HTMLTextAreaElement): void {
 		if (!this.firstInput) this.firstInput = input;
 	}
 

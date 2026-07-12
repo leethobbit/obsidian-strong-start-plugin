@@ -15,11 +15,20 @@ export interface RollTable {
 	 * the same id). Never rename an existing table's id. */
 	id: string;
 	/** Sentence-case display name shown in the tables panel and roll-chip
-	 * source lines. */
+	 * source lines. For a user table this is always the note's basename —
+	 * the display name lives on the filesystem, not in frontmatter. */
 	name: string;
-	category: TableCategory;
+	/** Absent for user tables: the fixed five categories are a core-content
+	 * organizing device, not something a GM picks when pasting in a list. The
+	 * tables panel groups user tables into their own "My tables" section by
+	 * `source`, not `category`. */
+	category?: TableCategory;
 	source: "core" | "user";
 	rows: TableRow[];
+	/** Vault path of the backing note — only set for `source: "user"` tables
+	 * (core tables are vendored TS, not notes). Powers the tables panel's
+	 * Edit/Open note affordances. */
+	path?: string;
 }
 
 /** One step of a roll's derivation — a table pick or a `{{dice}}` sub-roll —

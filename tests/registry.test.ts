@@ -35,4 +35,16 @@ describe("buildRegistry", () => {
 		const registry = buildRegistry([table("a", "Core A")]);
 		expect(registry.all()).toHaveLength(1);
 	});
+
+	it("a user table restores the built-in once it's dropped from a later rebuild (M5 invalidation)", () => {
+		// Simulates `TableStore`/`refreshRegistry()`: the same core list, rebuilt
+		// once with the shadowing user table present and once after it's gone
+		// (deleted/renamed away from the shared id).
+		const core = [table("a", "Core A")];
+		const shadowed = buildRegistry(core, [table("a", "User A", "user")]);
+		expect(shadowed.get("a")?.source).toBe("user");
+
+		const restored = buildRegistry(core, []);
+		expect(restored.get("a")).toEqual({ id: "a", name: "Core A", category: "plots", source: "core", rows: [{ text: "row" }] });
+	});
 });

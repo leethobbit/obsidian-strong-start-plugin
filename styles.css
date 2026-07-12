@@ -766,6 +766,126 @@
 	font-size: var(--font-ui-smaller);
 }
 
+/* ---- Tables panel: shadowed core rows ("hidden — replaced by your table") --- */
+
+.lazy-campaign-tables-row-shadowed {
+	display: flex;
+	flex-wrap: wrap;
+	color: var(--text-faint);
+}
+
+.lazy-campaign-tables-shadowed-label {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+	font-style: italic;
+}
+
+.lazy-campaign-tables-shadow-banner {
+	padding: var(--size-4-2) var(--size-4-3);
+	margin-bottom: var(--size-4-2);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	background-color: var(--background-secondary);
+	border-left: 2px solid var(--text-faint);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-tables-peek-list {
+	margin: 0;
+	padding-left: var(--size-4-4);
+	color: var(--text-muted);
+}
+
+/* ---- Tables panel: My tables (M5 custom tables) ----------------------------- */
+
+.lazy-campaign-tables-mytables-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--size-4-2);
+	margin: var(--size-4-3) 0 var(--size-4-1);
+}
+
+.lazy-campaign-tables-mytables-header .lazy-campaign-tables-category {
+	margin: 0;
+}
+
+.lazy-campaign-tables-new-button {
+	padding: var(--size-4-1) var(--size-4-2);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-tables-user-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	padding: var(--size-4-1) var(--size-4-2);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-tables-user-row:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.lazy-campaign-tables-user-row.is-active {
+	background-color: var(--background-modifier-active-hover);
+}
+
+.lazy-campaign-tables-row-name {
+	flex: 1 1 auto;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--text-normal);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-tables-badge {
+	flex: 0 0 auto;
+	padding: 0 var(--size-4-1);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	background-color: var(--background-modifier-border);
+	border-radius: var(--radius-s);
+}
+
+.lazy-campaign-tables-user-row-actions {
+	display: flex;
+	flex: 0 0 auto;
+	gap: var(--size-4-1);
+}
+
+/* ---- Table editor modal (create/edit a custom table, M5) -------------------- */
+
+.lazy-campaign-table-editor-textarea-wrap {
+	margin-top: var(--size-4-2);
+}
+
+.lazy-campaign-table-editor-textarea {
+	width: 100%;
+	resize: vertical;
+}
+
+.lazy-campaign-table-editor-footer {
+	margin-top: var(--size-4-1);
+}
+
+.lazy-campaign-table-editor-preview-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-3);
+}
+
+.lazy-campaign-table-editor-preview-result {
+	color: var(--text-normal);
+}
+
 /* Two-pane collapses to a single column in a narrow phone-emulation panel. */
 @container (max-width: 700px) {
 	.lazy-campaign-tables-board {

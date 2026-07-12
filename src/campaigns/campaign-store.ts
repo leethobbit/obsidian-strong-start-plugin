@@ -200,6 +200,19 @@ export class CampaignStore extends Component {
 		return models.sort((a, b) => a.name.localeCompare(b.name));
 	}
 
+	/** Table notes (`type: table`) anywhere in the vault — tables are
+	 * vault-global, not scoped to a campaign (AGENTS.md, SCHEMA.md). Consumed
+	 * by `tables/table-store.ts` to build the user-table half of the rolling
+	 * registry. */
+	tableNotes(): { path: string; file: TFile; fm: Record<string, unknown> }[] {
+		const models: { path: string; file: TFile; fm: Record<string, unknown> }[] = [];
+		for (const note of this.index.values()) {
+			if (note.type !== "table") continue;
+			models.push({ path: note.path, file: note.file, fm: note.fm });
+		}
+		return models;
+	}
+
 	private resolveWikilink(raw: string, sourcePath: string): TFile | null {
 		const match = /^\[\[([^\]|]+)/.exec(raw.trim());
 		const linkpath = match ? match[1] : raw.trim();

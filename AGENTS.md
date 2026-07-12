@@ -79,4 +79,4 @@ Semver; pre-1.0 breaking changes bump MINOR. Keep `package.json`, `manifest.json
 
 ## Gotchas
 
-1. (none yet — add symptom → cause → fix entries as they bite)
+1. `vault.process`'s callback receives the whole raw file (frontmatter + body) — `sections.ts`'s H2 helpers get away with treating that as "the body" because frontmatter always precedes the first heading, so it's never inside any section's span. A note type that doesn't use managed H2 sections (custom tables' free-form body) can't rely on that trick and must split/rejoin frontmatter explicitly — see `src/lib/body-split.ts`.

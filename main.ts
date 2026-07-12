@@ -8,6 +8,7 @@ import { createNextSession } from "./src/sessions/session-files";
 import { tryFileOp } from "./src/lib/notify";
 import { createRng } from "./src/lib/rng";
 import { buildRegistry, type TableRegistry } from "./src/tables/registry";
+import { TableStore } from "./src/tables/table-store";
 import { CORE_TABLES } from "./src/content";
 import { RollTableSuggestModal } from "./src/views/tables/roll-table-modal";
 import { LazyCampaignView, VIEW_TYPE_LAZY } from "./src/views/lazy-view";
@@ -35,8 +36,15 @@ export default class LazyCampaignPlugin extends Plugin {
 	ui: PersistedData["ui"] = { ...DEFAULT_UI };
 	hints: PersistedData["hints"] = { dismissed: [] };
 	store: CampaignStore | null = null;
-	/** Core-only for now; M5 rebuilds this with `buildRegistry(CORE_TABLES,
-	 * userTables)` once user tables exist — same seam, no call-site churn. */
+	/** Parses/caches `type: table` notes into the user half of the rolling
+	 * registry (M5) — `refreshRegistry()` folds it into `tables` alongside
+	 * `CORE_TABLES`, user tables shadowing core ones by id. */
+	tableStore: TableStore | null = null;
+	/** The merged core+user registry every roller reads at roll time
+	 * (`plugin.tables?.get(...)`/`.all()`) — always reassigned wholesale by
+	 * `refreshRegistry()`, never mutated in place, so consumers that read it
+	 * fresh on each roll (never captured at construction) pick up rebuilds
+	 * automatically. */
 	tables: TableRegistry | null = null;
 	/** One long-lived, unseeded generator reused for every UI roll (tests
 	 * build their own seeded one via `createRng(seed)` for determinism). */
@@ -96,7 +104,20 @@ export default class LazyCampaignPlugin extends Plugin {
 		// belongs here — vault.on("create") fires per file during startup.
 		this.app.workspace.onLayoutReady(() => {
 			this.store = this.addChild(new CampaignStore(this.app));
-			this.tables = buildRegistry(CORE_TABLES);
+			this.tableStore = this.addChild(new TableStore(this.app, this.store));
+			this.refreshRegistry();
+
+			this.tableStore.setOnRefresh(() => {
+				this.refreshRegistry();
+				for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_LAZY)) {
+					if (leaf.view instanceof LazyCampaignView) leaf.view.notifyTablesChanged();
+				}
+			});
+			// The campaign store's initial scan already ran (synchronously,
+			// inside its own `onload()` above) by the time `tableStore` subscribed
+			// to it — this kicks the first parse of whatever table notes already
+			// exist, same as any later `ensureFresh()` call from that subscription.
+			void this.tableStore.ensureFresh();
 		});
 	}
 
@@ -132,6 +153,13 @@ export default class LazyCampaignPlugin extends Plugin {
 
 		const leaf = this.app.workspace.getLeaf(true);
 		await leaf.openFile(file);
+	}
+
+	/** Rebuild `this.tables` from `CORE_TABLES` + whatever `tableStore` has
+	 * currently parsed — the single seam every registry rebuild goes through
+	 * (initial build and every later table-store invalidation alike). */
+	refreshRegistry(): void {
+		this.tables = buildRegistry(CORE_TABLES, this.tableStore?.userTables() ?? []);
 	}
 
 	/** Single funnel to the host view: reuse the existing leaf if one is open,
