@@ -19,7 +19,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
   - Toolbar: session selector (with "New session…"), "Open note", a "Run" button (Notice stub until run mode lands), and "N of 8" progress.
   - Strong start: a section-backed textarea with idle-debounced + blur-flushed writes.
   - Scenes/Rewards: a shared one-line-row list editor over bullet-list body sections (add/remove/reorder).
-  - Secrets: frontmatter CRUD (add/edit/remove) with a progress count toward 10; secret deletion is plain removal in M2 (tombstones arrive with carry-over in M4).
+  - Secrets: frontmatter CRUD (add/edit/remove) with a progress count toward 10.
   - Locations/NPCs: a shared link-chip editor with vault-note typeahead and a "Create note" affordance that converts an unresolved chip to a wikilink.
   - Monsters: the same chip editor without note-creation, suggesting from any vault note.
   - Characters: a read-only roster scanned from `type: pc` notes, plus a "Create character note" form.
@@ -31,3 +31,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 - Tables panel: replaces the placeholder — category-grouped table list, roll button, a session-only result stack with Copy/Reroll and an expandable "How this rolled" trace, and a CC-BY attribution footer.
 - Command: "Roll on a table" — fuzzy-pick any registered table and roll it once as a Notice.
 - Settings: an About section with the Lazy GM's Resource Document attribution and source link.
+- Secret carry-over: new sessions now seed their `secrets[]` from every unrevealed, non-retired secret in prior sessions, always taking the latest-edited copy of each.
+- Prep board Secrets step: a "Carried over" strip (hourglass, origin session tag, aged tint that deepens the longer a secret has ridden along) with a single Retire action, separated from a "New this session" list; a "Sync carried" button re-runs carry-over additively and reports how many secrets it brought in; a "Show retired" toggle reveals tombstoned rows with a Restore action. Deletes now route through one helper that tombstones (`archived: true`) instead of removing a row whenever an earlier session would otherwise resurrect it.
+- Secrets ledger panel: replaces the Secrets placeholder — a stat line, filter chips (All/In play/Revealed/Retired) plus a text filter, and a grouped list (In play/Revealed/Retired) with carried-count badges, aged tint, and Reveal (optional "how did they learn it?" note)/Retire/Restore/Open session actions. Reveal and retire/restore always write to whichever session note holds the authoritative copy, not necessarily the newest one.
+- Dashboard: a "Secrets in play" card — count, the three most-carried in-play secrets, an hourglass staleness hint once any secret has carried three or more sessions, and an "All secrets →" link to the ledger.

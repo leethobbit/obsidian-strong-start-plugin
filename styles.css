@@ -213,6 +213,34 @@
 	background-color: var(--interactive-accent);
 }
 
+/* ---- Dashboard: Secrets in play card ---------------------------------------- */
+
+.lazy-campaign-secrets-card-heading {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	margin-top: 0;
+}
+
+.lazy-campaign-secrets-card-stale {
+	display: flex;
+	align-items: center;
+	color: var(--text-warning, var(--color-orange));
+}
+
+.lazy-campaign-secrets-card-list {
+	margin: 0 0 var(--size-4-2);
+	padding-left: var(--size-4-4);
+}
+
+.lazy-campaign-secrets-card-item {
+	color: var(--text-muted);
+}
+
+.lazy-campaign-secrets-card-link {
+	cursor: var(--cursor-link);
+}
+
 /* ---- Prep board ------------------------------------------------------------ */
 
 .lazy-campaign-prep-shell {
@@ -410,6 +438,38 @@
 	color: var(--text-muted);
 }
 
+.lazy-campaign-secret-section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-3);
+}
+
+.lazy-campaign-secret-section-heading {
+	margin: 0;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.lazy-campaign-secret-sync-button,
+.lazy-campaign-secret-retired-toggle {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-secret-sync-button:hover,
+.lazy-campaign-secret-retired-toggle:hover {
+	color: var(--text-normal);
+}
+
 .lazy-campaign-secret-rows {
 	display: flex;
 	flex-direction: column;
@@ -421,15 +481,60 @@
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
+	padding: var(--size-4-1) var(--size-4-2);
+	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-secret-row.is-archived {
+.lazy-campaign-secret-row.is-retired {
 	opacity: 0.6;
 }
 
 .lazy-campaign-secret-input,
-.lazy-campaign-secret-add-input {
+.lazy-campaign-secret-add-input,
+.lazy-campaign-secret-retired-text {
 	flex: 1 1 auto;
+}
+
+.lazy-campaign-secret-hourglass {
+	display: flex;
+	flex: 0 0 auto;
+	color: var(--text-muted);
+}
+
+.lazy-campaign-secret-origin-tag {
+	flex: 0 0 auto;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-secret-action-button {
+	flex: 0 0 auto;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+/* Aged tint on carried secrets — subtle warm wash that deepens with how many
+ * sessions a secret has ridden along unrevealed (docs/plan.md delight detail:
+ * "aged-secret warm tint + hourglass"). `carried-N` = N sessions past origin. */
+.lazy-campaign-secret-row.is-carried-1 {
+	background-color: color-mix(in srgb, var(--color-orange) 6%, transparent);
+}
+
+.lazy-campaign-secret-row.is-carried-2 {
+	background-color: color-mix(in srgb, var(--color-orange) 12%, transparent);
+}
+
+.lazy-campaign-secret-row.is-carried-3-plus {
+	background-color: color-mix(in srgb, var(--color-orange) 20%, transparent);
+	border-left: 2px solid var(--color-orange);
+}
+
+.lazy-campaign-secret-retired-toggle-row {
+	margin-top: var(--size-4-3);
+}
+
+.lazy-campaign-secret-retired-list.is-hidden {
+	display: none;
 }
 
 /* ---- Chip editor (Locations/NPCs/Monsters) ---------------------------------- */
@@ -676,6 +781,133 @@
 	.lazy-campaign-tables-detail {
 		padding-left: 0;
 	}
+}
+
+/* ---- Secrets ledger ---------------------------------------------------------- */
+
+.lazy-campaign-secrets-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-3);
+}
+
+.lazy-campaign-secrets-stat-line {
+	color: var(--text-muted);
+}
+
+.lazy-campaign-secrets-filters {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-secrets-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-secrets-chip {
+	padding: var(--size-4-1) var(--size-4-2);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	background-color: var(--background-secondary);
+	border: none;
+	border-radius: var(--radius-l);
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-secrets-chip.is-active {
+	color: var(--text-on-accent);
+	background-color: var(--interactive-accent);
+}
+
+.lazy-campaign-secrets-filter-text {
+	flex: 1 1 auto;
+	min-width: 10rem;
+	margin-left: auto;
+}
+
+.lazy-campaign-secrets-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-4);
+}
+
+.lazy-campaign-secrets-group-heading {
+	margin: 0 0 var(--size-4-1);
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+	text-transform: uppercase;
+}
+
+.lazy-campaign-secrets-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--size-4-3);
+	padding: var(--size-4-2) var(--size-4-3);
+	margin-bottom: var(--size-4-1);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-secrets-row.is-retired {
+	opacity: 0.6;
+}
+
+/* Same aged-tint scale as the prep board's carried strip. */
+.lazy-campaign-secrets-row.is-carried-1 {
+	background-color: color-mix(in srgb, var(--color-orange) 6%, var(--background-secondary));
+}
+
+.lazy-campaign-secrets-row.is-carried-2 {
+	background-color: color-mix(in srgb, var(--color-orange) 12%, var(--background-secondary));
+}
+
+.lazy-campaign-secrets-row.is-carried-3-plus {
+	background-color: color-mix(in srgb, var(--color-orange) 20%, var(--background-secondary));
+	border-left: 2px solid var(--color-orange);
+}
+
+.lazy-campaign-secrets-row-main {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+	min-width: 0;
+}
+
+.lazy-campaign-secrets-row-text {
+	color: var(--text-normal);
+}
+
+.lazy-campaign-secrets-row-meta {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-secrets-badge {
+	padding: 0 var(--size-4-1);
+	background-color: var(--background-modifier-border);
+	border-radius: var(--radius-s);
+}
+
+.lazy-campaign-secrets-row-note {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	font-style: italic;
+}
+
+.lazy-campaign-secrets-row-actions {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: var(--size-4-1);
 }
 
 /* ---- Settings: About -------------------------------------------------------- */

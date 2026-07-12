@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { addSecret, editSecretText, removeSecret } from "../src/sessions/secrets-ops";
+import {
+	addSecret,
+	archiveSecret,
+	deleteSecretSafely,
+	editSecretText,
+	removeSecret,
+	restoreSecret,
+	revealSecret,
+} from "../src/sessions/secrets-ops";
 import { writeSessionFm } from "../src/sessions/session-schema";
 import type { Secret } from "../src/sessions/types";
 
@@ -48,6 +56,57 @@ describe("removeSecret", () => {
 			{ id: "s-2", text: "remove" },
 		];
 		expect(removeSecret(secrets, "s-2")).toEqual([{ id: "s-1", text: "keep" }]);
+	});
+});
+
+describe("archiveSecret", () => {
+	it("tombstones only the matching secret, leaving its text untouched", () => {
+		const secrets: Secret[] = [
+			{ id: "s-1", text: "keep" },
+			{ id: "s-2", text: "tombstone me" },
+		];
+		expect(archiveSecret(secrets, "s-2")).toEqual([
+			{ id: "s-1", text: "keep" },
+			{ id: "s-2", text: "tombstone me", archived: true },
+		]);
+	});
+});
+
+describe("restoreSecret", () => {
+	it("strips `archived` back off, leaving other fields alone", () => {
+		const secrets: Secret[] = [{ id: "s-1", text: "x", archived: true }];
+		expect(restoreSecret(secrets, "s-1")).toEqual([{ id: "s-1", text: "x" }]);
+	});
+
+	it("is a no-op for an id that isn't archived", () => {
+		const secrets: Secret[] = [{ id: "s-1", text: "x" }];
+		expect(restoreSecret(secrets, "s-1")).toEqual(secrets);
+	});
+});
+
+describe("revealSecret", () => {
+	it("marks revealed and captures an optional note", () => {
+		const secrets: Secret[] = [{ id: "s-1", text: "x" }];
+		expect(revealSecret(secrets, "s-1", "Kara recognized the ring")).toEqual([
+			{ id: "s-1", text: "x", revealed: true, note: "Kara recognized the ring" },
+		]);
+	});
+
+	it("treats a blank note as no note, and preserves an existing one", () => {
+		const secrets: Secret[] = [{ id: "s-1", text: "x", note: "existing note" }];
+		expect(revealSecret(secrets, "s-1", "   ")).toEqual([{ id: "s-1", text: "x", revealed: true, note: "existing note" }]);
+	});
+});
+
+describe("deleteSecretSafely", () => {
+	it("hard-removes the row when hard delete is allowed", () => {
+		const secrets: Secret[] = [{ id: "s-1", text: "x" }];
+		expect(deleteSecretSafely(secrets, "s-1", true)).toEqual([]);
+	});
+
+	it("tombstones the row instead of removing it when hard delete is not allowed", () => {
+		const secrets: Secret[] = [{ id: "s-1", text: "x" }];
+		expect(deleteSecretSafely(secrets, "s-1", false)).toEqual([{ id: "s-1", text: "x", archived: true }]);
 	});
 });
 

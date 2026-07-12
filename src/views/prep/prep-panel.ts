@@ -352,6 +352,7 @@ export class PrepPanel {
 			plugin: this.view.plugin,
 			campaign,
 			session,
+			sessions: this.sessions,
 			body: this.bodyText,
 			patchFrontmatter: (mutate) => this.patchFrontmatter(mutate),
 			writeSection: (heading, content) => this.writeSection(heading, content),

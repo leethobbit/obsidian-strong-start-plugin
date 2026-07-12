@@ -1,6 +1,7 @@
-import { Notice } from "obsidian";
+import { Notice, setIcon } from "obsidian";
 import { createNextSession } from "../../sessions/session-files";
 import { STEPS } from "../../sessions/steps";
+import { openSecrets, type DerivedSecret } from "../../sessions/carryover";
 import { tryFileOp } from "../../lib/notify";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
 import { CreateCampaignModal } from "../../campaigns/create-campaign";
@@ -8,12 +9,17 @@ import type { CampaignModel } from "../../campaigns/types";
 import type { SessionModel } from "../../sessions/types";
 import type { LazyCampaignView } from "../lazy-view";
 
+const TOP_SECRETS_LIMIT = 3;
+/** Staleness threshold: a secret carried this many sessions or more earns the
+ * dashboard's "retire it or plant it somewhere obvious" nudge. */
+const STALE_THRESHOLD = 3;
+
 const RECENT_SESSIONS_LIMIT = 5;
 
 /**
  * The Home / Dashboard sub-tab. Zero-campaign empty state, a next-session
- * card, and a recent-sessions list. Kept honest for M1 — fronts/party/secrets
- * cards land in later milestones once those note types exist.
+ * card, a secrets-in-play card, and a recent-sessions list. Kept honest —
+ * fronts/party cards land in later milestones once those note types exist.
  */
 export class DashboardPanel {
 	constructor(
@@ -41,7 +47,41 @@ export class DashboardPanel {
 		const latest: SessionModel | undefined = sessions[0];
 
 		this.renderNextSessionCard(campaign, latest);
+		this.renderSecretsCard(sessions);
 		this.renderRecentSessions(sessions);
+	}
+
+	private renderSecretsCard(sessions: SessionModel[]): void {
+		const inPlay = openSecrets(sessions).filter((d) => d.state === "in-play");
+
+		const card = this.containerEl.createDiv({ cls: "lazy-campaign-card" });
+		const heading = card.createEl("h3", { cls: "lazy-campaign-secrets-card-heading", text: "Secrets in play" });
+
+		const staleCount = inPlay.filter((d) => d.sessionsCarried >= STALE_THRESHOLD).length;
+		if (staleCount > 0) {
+			const stale = inPlay.reduce((worst, d) => (d.sessionsCarried > worst.sessionsCarried ? d : worst));
+			const staleIcon = heading.createSpan({
+				cls: "lazy-campaign-secrets-card-stale",
+				attr: { title: `Carried ${stale.sessionsCarried} sessions — retire it or plant it somewhere obvious.` },
+			});
+			setIcon(staleIcon, "hourglass");
+		}
+
+		if (inPlay.length === 0) {
+			renderEmptyState(card, "No secrets in play.");
+		} else {
+			card.createEl("p", { text: `${inPlay.length} in play` });
+			const list = card.createEl("ul", { cls: "lazy-campaign-secrets-card-list" });
+			for (const secret of topSecrets(inPlay)) {
+				list.createEl("li", { cls: "lazy-campaign-secrets-card-item", text: secret.text });
+			}
+		}
+
+		const link = card.createEl("a", { cls: "lazy-campaign-secrets-card-link", text: "All secrets →", attr: { href: "#" } });
+		this.view.registerDomEvent(link, "click", (evt) => {
+			evt.preventDefault();
+			this.view.setMode("secrets");
+		});
 	}
 
 	private renderNextSessionCard(campaign: CampaignModel, latest: SessionModel | undefined): void {
@@ -131,4 +171,11 @@ export class DashboardPanel {
 		const leaf = this.view.app.workspace.getLeaf(true);
 		await leaf.openFile(file);
 	}
+}
+
+/** Top N in-play secrets for the dashboard card, most-carried (stalest)
+ * first, so the ones most worth a GM's attention surface without a click
+ * through to the full ledger. */
+function topSecrets(inPlay: readonly DerivedSecret[]): DerivedSecret[] {
+	return [...inPlay].sort((a, b) => b.sessionsCarried - a.sessionsCarried || a.originSession - b.originSession).slice(0, TOP_SECRETS_LIMIT);
 }

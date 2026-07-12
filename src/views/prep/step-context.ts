@@ -17,6 +17,11 @@ export interface StepContext {
 	plugin: LazyCampaignPlugin;
 	campaign: CampaignModel;
 	session: SessionModel;
+	/** Every session belonging to `campaign` (newest first, per
+	 * `CampaignStore.sessionsOf`) — the Secrets step's carry-over UI needs the
+	 * full lineage, not just the open session, to tell carried ids from ones
+	 * originating here and to compute carried-session counts. */
+	sessions: readonly SessionModel[];
 	/** The open session note's cached body text, for section-backed steps. */
 	body: string;
 
