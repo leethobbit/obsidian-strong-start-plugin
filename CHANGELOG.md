@@ -11,6 +11,17 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 - Navigation rail now shows a text label beside each destination icon (wider rail) instead of icons alone.
 
+### Fixed
+
+- Icon buttons across the plugin rendered blank: Obsidian's default button padding squeezed the icon SVG to zero width inside fixed-size buttons.
+- The 5e reference drawer closed itself when clicking the manual party size/level steppers.
+- Campaign options menu was a stub — it now offers rename (link-safe, folder-aware), archive/unarchive, open note, and new campaign; archived campaigns are labeled in the switcher.
+- Typing then switching sessions within the save window could write prose into the wrong session's note; writes are now pinned to the note they were typed against, and pending edits are flushed (not dropped) on any switch or view close.
+- Tapping two grim-portent pips quickly (dashboard or foundation) silently reverted the first toggle; fronts writes are now serialized.
+- Dashboard's "Continue prep" opened whatever session the prep board last had open instead of the session the card describes.
+- Ctrl/Cmd+1–8 no longer switches prep steps while typing in a field.
+- Enter while confirming an IME composition candidate no longer submits forms or commits rows early.
+
 ### Added
 
 - Initial scaffold.

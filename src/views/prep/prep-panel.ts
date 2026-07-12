@@ -45,7 +45,7 @@ export class PrepPanel {
 
 	private readonly rebuildQueue: DeferredRebuildQueue;
 	private suggesters: Array<{ close(): void }> = [];
-	private debouncers: Array<{ cancel(): void }> = [];
+	private debouncers: Array<{ cancel(): void; run(): unknown }> = [];
 
 	constructor(
 		private readonly view: LazyCampaignView,
@@ -106,12 +106,22 @@ export class PrepPanel {
 			return;
 		}
 
-		if (campaignChanged || !this.session || !sessions.some((s) => s.path === this.session?.path)) {
-			this.setSession(sessions[0]);
+		// Honor the shared selection (`ui.lastSessionPath`): Run mode and the
+		// dashboard key off it, and prep's own dropdown keeps it in sync — so
+		// a divergence means another surface (e.g. the dashboard's "Continue
+		// prep" card) deliberately re-pointed it, and prep must follow instead
+		// of keeping whatever older session its dropdown last had open.
+		const remembered = plugin.ui.lastSessionPath;
+		const rememberedSession = remembered ? sessions.find((s) => s.path === remembered) : undefined;
+		const sessionInvalid = !this.session || !sessions.some((s) => s.path === this.session?.path);
+		const divergedFromShared = rememberedSession !== undefined && this.session?.path !== rememberedSession.path;
+		const sessionSwitched = campaignChanged || sessionInvalid || divergedFromShared;
+		if (sessionSwitched) {
+			this.setSession(rememberedSession ?? sessions[0]);
 			this.activeStepId = STEPS[0].id;
 		}
 
-		if (changedPaths === undefined || campaignChanged || !this.session) {
+		if (changedPaths === undefined || sessionSwitched || !this.session) {
 			void this.doFullRebuildNow();
 			return;
 		}
@@ -142,6 +152,9 @@ export class PrepPanel {
 	}
 
 	private handleKeydown(evt: KeyboardEvent): void {
+		// Never hijack Ctrl/Cmd+digit while the GM is typing in a field —
+		// switching steps yanks the focused editor out mid-edit.
+		if (evt.target instanceof HTMLInputElement || evt.target instanceof HTMLTextAreaElement) return;
 		if (!(evt.ctrlKey || evt.metaKey)) return;
 		const num = Number(evt.key);
 		if (!Number.isInteger(num) || num < 1 || num > STEPS.length) return;
@@ -192,7 +205,11 @@ export class PrepPanel {
 	private disposeTransient(): void {
 		for (const suggest of this.suggesters) suggest.close();
 		this.suggesters = [];
-		for (const debouncer of this.debouncers) debouncer.cancel();
+		// FLUSH, don't drop — a pending debounced write holds real keystrokes
+		// (typing then immediately switching sessions or closing the view).
+		// Safe to run late: every write is pinned to the session path it was
+		// editing, and the section diff guard no-ops clean flushes.
+		for (const debouncer of this.debouncers) debouncer.run();
 		this.debouncers = [];
 	}
 
@@ -349,7 +366,7 @@ export class PrepPanel {
 		if (!session) return;
 		const isDone = session.stepsDone.includes(stepId);
 		const nextStepsDone = isDone ? session.stepsDone.filter((s) => s !== stepId) : [...session.stepsDone, stepId];
-		await this.patchFrontmatter((fm) => ({ ...fm, stepsDone: nextStepsDone }));
+		await this.patchFrontmatterFor(session.path, (fm) => ({ ...fm, stepsDone: nextStepsDone }));
 		this.renderMasterList();
 		this.renderToolbar();
 	}
@@ -412,8 +429,9 @@ export class PrepPanel {
 			session,
 			sessions: this.sessions,
 			body: this.bodyText,
-			patchFrontmatter: (mutate) => this.patchFrontmatter(mutate),
-			writeSection: (heading, content) => this.writeSection(heading, content),
+			// Pinned to THIS render's session — see patchFrontmatterFor.
+			patchFrontmatter: (mutate) => this.patchFrontmatterFor(session.path, mutate),
+			writeSection: (heading, content) => this.writeSectionAt(session.path, heading, content),
 			openNote: (path) => this.openNote(path),
 			registerDomEvent: this.registerDomEvent,
 			registerDebounce: (d) => this.debouncers.push(d),
@@ -428,14 +446,23 @@ export class PrepPanel {
 
 	// ---- Persistence --------------------------------------------------------
 
-	private async patchFrontmatter(mutate: (fm: SessionFm) => SessionFm): Promise<void> {
-		const session = this.session;
+	/**
+	 * Both persistence paths are PINNED to the session path captured when the
+	 * step context was built, never resolved from `this.session` at call time:
+	 * a debounced write can fire after the GM switches sessions (the panel's
+	 * async rebuild hasn't flushed/cancelled it yet), and resolving the target
+	 * late wrote one session's prose into another session's note.
+	 */
+	private async patchFrontmatterFor(path: string, mutate: (fm: SessionFm) => SessionFm): Promise<void> {
+		// Freshest model for that path (soft-path updates land on
+		// `this.session`), but never a *different* session's model.
+		const session = this.session?.path === path ? this.session : this.sessions.find((s) => s.path === path);
 		if (!session) return;
-		const file = this.view.app.vault.getFileByPath(session.path);
+		const file = this.view.app.vault.getFileByPath(path);
 		if (!(file instanceof TFile)) return;
 
 		const next = mutate(toSessionFm(session));
-		this.session = { ...session, ...next };
+		if (this.session?.path === path) this.session = { ...session, ...next };
 
 		const done = beginSelfWrite(file.path);
 		try {
@@ -448,10 +475,8 @@ export class PrepPanel {
 		}
 	}
 
-	private async writeSection(heading: string, content: string): Promise<void> {
-		const session = this.session;
-		if (!session) return;
-		const file = this.view.app.vault.getFileByPath(session.path);
+	private async writeSectionAt(path: string, heading: string, content: string): Promise<void> {
+		const file = this.view.app.vault.getFileByPath(path);
 		if (!(file instanceof TFile)) return;
 
 		const done = beginSelfWrite(file.path);

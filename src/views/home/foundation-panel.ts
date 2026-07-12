@@ -36,7 +36,8 @@ export class FoundationPanel {
 	private confirmingDeleteIndex: number | null = null;
 
 	private pitchMdComponent: Component | null = null;
-	private debouncers: Array<{ cancel(): void }> = [];
+	private debouncers: Array<{ cancel(): void; run(): unknown }> = [];
+	private frontsWriteQueue: Promise<void> = Promise.resolve();
 	private rebuildQueue: DeferredRebuildQueue | null = null;
 
 	constructor(private readonly view: LazyCampaignView) {}
@@ -128,7 +129,11 @@ export class FoundationPanel {
 	}
 
 	private disposeTransient(): void {
-		for (const debouncer of this.debouncers) debouncer.cancel();
+		// FLUSH, don't drop — a pending debounced write holds real keystrokes
+		// (typing then switching campaigns/tabs within the idle window). Every
+		// write is pinned to the campaign captured at render time, so a late
+		// flush targets the right note.
+		for (const debouncer of this.debouncers) debouncer.run();
 		this.debouncers = [];
 	}
 
@@ -268,7 +273,7 @@ export class FoundationPanel {
 		const addBtn = card.createEl("button", { text: "Add front" });
 		this.view.registerDomEvent(addBtn, "click", () => {
 			this.fronts = [...this.fronts, blankFront()];
-			void this.commitFronts(campaign);
+			this.commitFronts(campaign);
 		});
 	}
 
@@ -325,7 +330,7 @@ export class FoundationPanel {
 			cls: `lazy-campaign-fronts-pip${portent.done ? " is-done" : ""}`,
 			attr: { type: "button", "aria-label": portent.done ? "Mark not happened" : "Mark happened" },
 		});
-		this.view.registerDomEvent(checkbox, "click", () => void this.togglePortent(campaign, frontIndex, portentIndex));
+		this.view.registerDomEvent(checkbox, "click", () => this.togglePortent(campaign, frontIndex, portentIndex));
 
 		const input = row.createEl("input", {
 			type: "text",
@@ -350,7 +355,7 @@ export class FoundationPanel {
 			this.view.registerDomEvent(confirmBtn, "click", () => {
 				this.fronts = this.fronts.filter((_, i) => i !== index);
 				this.confirmingDeleteIndex = null;
-				void this.commitFronts(campaign);
+				this.commitFronts(campaign);
 			});
 			const cancelBtn = actions.createEl("button", { text: "Cancel" });
 			this.view.registerDomEvent(cancelBtn, "click", () => {
@@ -373,7 +378,7 @@ export class FoundationPanel {
 	 * plugin uses. Never used for the portent checkbox, which stays on the
 	 * byte-preserving `toggleFrontPortent` path instead. */
 	private bindFrontField(input: HTMLInputElement, campaign: CampaignModel, apply: (value: string) => void): void {
-		const commit = debounce(() => void this.commitFronts(campaign), 800, true);
+		const commit = debounce(() => this.commitFronts(campaign), 800, true);
 		this.debouncers.push(commit);
 		this.view.registerDomEvent(input, "input", () => {
 			apply(input.value);
@@ -382,20 +387,37 @@ export class FoundationPanel {
 		this.view.registerDomEvent(input, "blur", () => commit.run());
 	}
 
-	private async commitFronts(campaign: CampaignModel): Promise<void> {
-		const rendered = renderFronts(this.fronts);
-		await this.writeSection(campaign, FRONTS_HEADING, rendered);
-		this.rawFrontsSection = rendered;
-		this.rebuild();
+	/**
+	 * All `## Fronts` writes are serialized through this queue: the field-
+	 * commit path derives its content from `this.fronts` while the portent
+	 * toggle derives from `this.rawFrontsSection`, and letting two writes
+	 * overlap meant whichever read the older snapshot silently reverted the
+	 * other's change (e.g. two quick pip taps, or a pip tap racing a typed
+	 * field's debounce flush). Each queued task now reads the fresh state
+	 * only once its predecessor's write — and state sync — has resolved.
+	 */
+	private enqueueFrontsWrite(task: () => Promise<void>): void {
+		this.frontsWriteQueue = this.frontsWriteQueue.then(task, task);
 	}
 
-	private async togglePortent(campaign: CampaignModel, frontIndex: number, portentIndex: number): Promise<void> {
-		const toggled = toggleFrontPortent(this.rawFrontsSection, frontIndex, portentIndex);
-		if (toggled === this.rawFrontsSection) return;
-		await this.writeSection(campaign, FRONTS_HEADING, toggled);
-		this.rawFrontsSection = toggled;
-		this.fronts = parseFronts(toggled);
-		this.rebuild();
+	private commitFronts(campaign: CampaignModel): void {
+		this.enqueueFrontsWrite(async () => {
+			const rendered = renderFronts(this.fronts);
+			await this.writeSection(campaign, FRONTS_HEADING, rendered);
+			this.rawFrontsSection = rendered;
+			this.rebuild();
+		});
+	}
+
+	private togglePortent(campaign: CampaignModel, frontIndex: number, portentIndex: number): void {
+		this.enqueueFrontsWrite(async () => {
+			const toggled = toggleFrontPortent(this.rawFrontsSection, frontIndex, portentIndex);
+			if (toggled === this.rawFrontsSection) return;
+			await this.writeSection(campaign, FRONTS_HEADING, toggled);
+			this.rawFrontsSection = toggled;
+			this.fronts = parseFronts(toggled);
+			this.rebuild();
+		});
 	}
 
 	// ---- Shared helpers ---------------------------------------------------
@@ -407,7 +429,11 @@ export class FoundationPanel {
 
 	private async writeSection(campaign: CampaignModel, heading: string, content: string): Promise<void> {
 		await writeCampaignSection(this.view.app, campaign.path, heading, content);
-		this.bodyText = replaceSection(this.bodyText, heading, content);
+		// A late flush for a previous campaign must not poison the in-memory
+		// body of the one now on screen.
+		if (this.campaign?.path === campaign.path) {
+			this.bodyText = replaceSection(this.bodyText, heading, content);
+		}
 	}
 
 	private async openNote(path: string): Promise<void> {

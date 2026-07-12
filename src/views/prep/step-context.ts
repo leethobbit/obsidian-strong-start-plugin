@@ -48,9 +48,11 @@ export interface StepContext {
 	) => void;
 
 	/** Track a `Debouncer` (from `obsidian`'s `debounce()`) so the panel can
-	 * cancel it before the next full rebuild instead of leaving a stray timer
-	 * pointed at detached DOM. */
-	registerDebounce: (debouncer: { cancel(): void }) => void;
+	 * FLUSH it (run, not drop — a pending call holds real keystrokes) before
+	 * the next full rebuild instead of leaving a stray timer pointed at
+	 * detached DOM. Writes are pinned to their session path, so a late flush
+	 * can never land on the wrong note. */
+	registerDebounce: (debouncer: { cancel(): void; run(): unknown }) => void;
 
 	/** Track an `AbstractInputSuggest`-family popover so the panel can close
 	 * it before the next full rebuild (leak-prevention, see

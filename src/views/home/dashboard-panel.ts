@@ -36,6 +36,7 @@ export class DashboardPanel {
 	private frontsBody = "";
 	private frontsBodyPath: string | null = null;
 	private frontsBodyLoading = false;
+	private frontsWriteQueue: Promise<void> = Promise.resolve();
 
 	constructor(private readonly view: LazyCampaignView) {}
 
@@ -143,7 +144,7 @@ export class DashboardPanel {
 					cls: `lazy-campaign-fronts-pip${portent.done ? " is-done" : ""}`,
 					attr: { type: "button", "aria-label": portent.text, title: portent.text },
 				});
-				this.view.registerDomEvent(pip, "click", () => void this.toggleFront(campaign, frontIndex, portentIndex, requestRerender));
+				this.view.registerDomEvent(pip, "click", () => this.toggleFront(campaign, frontIndex, portentIndex, requestRerender));
 			});
 		});
 	}
@@ -151,15 +152,23 @@ export class DashboardPanel {
 	/** Tap a grim-portent pip: docs/plan.md calls this the dashboard's only
 	 * editable element. Toggles the one targeted `- [ ]`/`- [x]` line via
 	 * `fronts.ts` (byte-preserving every other line) and refreshes the
-	 * in-memory cache directly rather than re-reading the file back. */
-	private async toggleFront(campaign: CampaignModel, frontIndex: number, portentIndex: number, requestRerender: () => void): Promise<void> {
-		const raw = sectionContent(this.frontsBody, FRONTS_HEADING);
-		const toggled = toggleFrontPortent(raw, frontIndex, portentIndex);
-		if (toggled === raw) return;
+	 * in-memory cache directly rather than re-reading the file back.
+	 * Serialized through `frontsWriteQueue`: two quick taps otherwise both
+	 * read the pre-first-write body and the second tap silently reverts the
+	 * first (same lost-update race as the Foundation panel's fronts editors). */
+	private toggleFront(campaign: CampaignModel, frontIndex: number, portentIndex: number, requestRerender: () => void): void {
+		const task = async (): Promise<void> => {
+			const raw = sectionContent(this.frontsBody, FRONTS_HEADING);
+			const toggled = toggleFrontPortent(raw, frontIndex, portentIndex);
+			if (toggled === raw) return;
 
-		await writeCampaignSection(this.view.app, campaign.path, FRONTS_HEADING, toggled);
-		this.frontsBody = replaceSection(this.frontsBody, FRONTS_HEADING, toggled);
-		requestRerender();
+			await writeCampaignSection(this.view.app, campaign.path, FRONTS_HEADING, toggled);
+			if (this.frontsBodyPath === campaign.path) {
+				this.frontsBody = replaceSection(this.frontsBody, FRONTS_HEADING, toggled);
+			}
+			requestRerender();
+		};
+		this.frontsWriteQueue = this.frontsWriteQueue.then(task, task);
 	}
 
 	private renderNextSessionCard(container: HTMLElement, campaign: CampaignModel, latest: SessionModel | undefined): void {
@@ -178,7 +187,14 @@ export class DashboardPanel {
 		if (latest.status === "prep") {
 			this.renderProgressDots(card, latest);
 			const continueBtn = actions.createEl("button", { cls: "mod-cta", text: "Continue prep" });
-			this.view.registerDomEvent(continueBtn, "click", () => this.view.setMode("prep"));
+			this.view.registerDomEvent(continueBtn, "click", () => {
+				// Pin the shared selection to the session this card describes —
+				// Prep otherwise keeps whatever its dropdown last had open,
+				// which may be an older session the GM was revisiting.
+				this.view.plugin.ui.lastSessionPath = latest.path;
+				void this.view.plugin.persist();
+				this.view.setMode("prep");
+			});
 		} else {
 			card.createEl("p", { text: `Session ${latest.session} — Played` });
 			const nextBtn = actions.createEl("button", { cls: "mod-cta", text: `Prep session ${latest.session + 1}` });

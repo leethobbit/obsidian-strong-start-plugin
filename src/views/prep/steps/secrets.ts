@@ -69,7 +69,8 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 		attr: { placeholder: "Add a secret…", "data-key": "secrets-add" },
 	});
 	ctx.registerDomEvent(addInput, "keydown", (evt) => {
-		if (evt.key !== "Enter") return;
+		if (evt.isComposing) return; // Enter confirming an IME candidate must not commit
+			if (evt.key !== "Enter") return;
 		evt.preventDefault();
 		const text = addInput.value.trim();
 		if (text.length === 0) return;

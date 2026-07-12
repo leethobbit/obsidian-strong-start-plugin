@@ -1,5 +1,7 @@
-import { DropdownComponent, ItemView, Notice, setIcon, type WorkspaceLeaf } from "obsidian";
+import { DropdownComponent, ItemView, Menu, setIcon, TFile, type WorkspaceLeaf } from "obsidian";
 import type LazyCampaignPlugin from "../../main";
+import { RenameCampaignModal, setCampaignStatus } from "../campaigns/campaign-actions";
+import { tryFileOp } from "../lib/notify";
 import { DESTINATIONS, type NavDestination, type NavGroup, type NavMode } from "./nav-model";
 import { HomePanel, type HomeSubtab } from "./home/home-panel";
 import { PrepPanel } from "./prep/prep-panel";
@@ -181,7 +183,7 @@ export class LazyCampaignView extends ItemView {
 		const selectorEl = this.headerEl.createDiv({ cls: "lazy-campaign-header-selector" });
 		const dropdown = new DropdownComponent(selectorEl);
 		for (const campaign of campaigns) {
-			dropdown.addOption(campaign.path, campaign.name);
+			dropdown.addOption(campaign.path, campaign.status === "archived" ? `${campaign.name} (archived)` : campaign.name);
 		}
 		dropdown.addOption("__new__", "New campaign…");
 		dropdown.setValue(active?.path ?? "__new__");
@@ -204,10 +206,50 @@ export class LazyCampaignView extends ItemView {
 			attr: { "aria-label": "Campaign options", type: "button" },
 		});
 		setIcon(menuButton, "ellipsis");
-		this.registerDomEvent(menuButton, "click", () => {
-			// M1 stub — rename/archive land in a later milestone.
-			new Notice("Campaign options are coming in a later milestone.");
-		});
+		this.registerDomEvent(menuButton, "click", (evt) => this.showCampaignMenu(evt));
+	}
+
+	private showCampaignMenu(evt: MouseEvent): void {
+		const active = this.plugin.activeCampaign();
+		const menu = new Menu();
+
+		if (active) {
+			menu.addItem((item) =>
+				item
+					.setTitle("Rename campaign")
+					.setIcon("pencil")
+					.onClick(() => new RenameCampaignModal(this.app, active).open())
+			);
+			menu.addItem((item) =>
+				item
+					.setTitle(active.status === "archived" ? "Unarchive campaign" : "Archive campaign")
+					.setIcon("archive")
+					.onClick(() =>
+						void tryFileOp(
+							() => setCampaignStatus(this.app, active, active.status === "archived" ? "active" : "archived"),
+							"Couldn't update the campaign — check the console for details."
+						)
+					)
+			);
+			menu.addItem((item) =>
+				item
+					.setTitle("Open campaign note")
+					.setIcon("file-text")
+					.onClick(() => {
+						const file = this.app.vault.getFileByPath(active.path);
+						if (file instanceof TFile) void this.app.workspace.getLeaf(true).openFile(file);
+					})
+			);
+			menu.addSeparator();
+		}
+
+		menu.addItem((item) =>
+			item
+				.setTitle("New campaign…")
+				.setIcon("plus")
+				.onClick(() => this.openCampaignCreation())
+		);
+		menu.showAtMouseEvent(evt);
 	}
 
 	private renderActivePanel(changedPaths?: ReadonlySet<string>): void {

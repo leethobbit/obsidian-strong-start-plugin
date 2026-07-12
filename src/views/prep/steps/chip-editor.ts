@@ -77,7 +77,8 @@ export function renderChipEditor(container: HTMLElement, ctx: StepContext, optio
 	ctx.registerSuggest(suggest);
 
 	ctx.registerDomEvent(input, "keydown", (evt) => {
-		if (evt.key !== "Enter") return;
+		if (evt.isComposing) return; // Enter confirming an IME candidate must not commit
+			if (evt.key !== "Enter") return;
 		evt.preventDefault();
 		commitAdd(input.value);
 	});

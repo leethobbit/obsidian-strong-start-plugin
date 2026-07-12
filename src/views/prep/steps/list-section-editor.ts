@@ -18,7 +18,7 @@ import type { RollResult } from "../../../tables/types";
  */
 export interface SectionEditorCtx {
 	registerDomEvent: RegisterDomEvent;
-	registerDebounce: (debouncer: { cancel(): void }) => void;
+	registerDebounce: (debouncer: { cancel(): void; run(): unknown }) => void;
 	writeSection: (heading: string, content: string) => Promise<void>;
 	openNote: (path: string) => Promise<void>;
 	/** Vault path of the note being edited — only consulted by the malformed-
@@ -126,7 +126,8 @@ export function renderListSectionEditor(
 			});
 			ctx.registerDomEvent(input, "blur", () => debouncedCommit.run());
 			ctx.registerDomEvent(input, "keydown", (evt) => {
-				if (evt.key !== "Enter") return;
+				if (evt.isComposing) return; // Enter confirming an IME candidate must not commit
+			if (evt.key !== "Enter") return;
 				evt.preventDefault();
 				rows.splice(index + 1, 0, { text: "", done: false });
 				focusIndex = index + 1;

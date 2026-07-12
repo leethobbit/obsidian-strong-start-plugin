@@ -356,6 +356,12 @@ export class RunPanel {
 
 	private handleOutsideClick(evt: MouseEvent): void {
 		const target = evt.target as Node;
+		// A click whose target is no longer in the document was handled by one
+		// of our own controls that re-rendered its DOM before this bubble-phase
+		// handler ran (e.g. the 5e drawer's party steppers). `contains()` would
+		// be false for it and wrongly read as "outside" — closing the drawer
+		// out from under the user mid-interaction.
+		if (!target.isConnected) return;
 		const popover = this.activePopover;
 		if (popover && !popover.anchorEl.contains(target) && !popover.popoverEl.contains(target)) {
 			this.closePopover();
@@ -826,6 +832,7 @@ export class RunPanel {
 			attr: { placeholder: "Log a note…", "data-key": "run-log-input" },
 		});
 		this.view.registerDomEvent(input, "keydown", (evt) => {
+			if (evt.isComposing) return; // Enter confirming an IME candidate must not commit
 			if (evt.key !== "Enter") return;
 			evt.preventDefault();
 			const text = input.value.trim();

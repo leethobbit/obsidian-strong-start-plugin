@@ -53,6 +53,9 @@ export abstract class FormModal extends Modal {
 	 * left alone for any future multi-line field. */
 	protected bindEnterToSubmit(el: HTMLElement, onSubmit: () => void | Promise<void>): void {
 		el.addEventListener("keydown", (evt: KeyboardEvent) => {
+			// IME users press Enter to confirm a composition candidate —
+			// that must never submit the form mid-word.
+			if (evt.isComposing) return;
 			if (evt.key !== "Enter" || evt.shiftKey) return;
 			evt.preventDefault();
 			void this.submit(onSubmit);

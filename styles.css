@@ -3,6 +3,13 @@
    var(--interactive-accent), ...) — never hardcoded colors or inline styles,
    so themes and snippets can restyle the plugin. */
 
+/* Icons inside any plugin element must never flex-squeeze: Obsidian's default
+   button padding plus a fixed button width can otherwise collapse the icon
+   SVG to zero width (it renders "blank" while the tooltip still works). */
+[class*="lazy-campaign"] .svg-icon {
+	flex-shrink: 0;
+}
+
 /* ---- View shell -------------------------------------------------------- */
 
 .lazy-campaign-view {
@@ -123,6 +130,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	padding: var(--size-4-1) var(--size-4-2);
 	color: var(--text-muted);
 	background: transparent;
 	border: none;
@@ -444,6 +452,7 @@
 	justify-content: center;
 	width: var(--size-4-6);
 	height: var(--size-4-6);
+	padding: 0;
 	color: var(--text-muted);
 	background: transparent;
 	border: none;
@@ -1651,6 +1660,7 @@
 }
 
 .lazy-campaign-fronts-pip {
+	flex: 0 0 auto;
 	width: var(--size-4-4);
 	height: var(--size-4-4);
 	padding: 0;
@@ -1967,10 +1977,11 @@
 
 .lazy-campaign-stepper-btn {
 	display: flex;
+	flex: 0 0 auto;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
-	min-height: 28px;
+	width: var(--size-4-7);
+	min-height: var(--size-4-7);
 	padding: 0;
 }
 
@@ -2147,6 +2158,9 @@
 	flex: 0 0 auto;
 	align-items: center;
 	justify-content: center;
+	padding: 0;
+	width: var(--size-4-6);
+	height: var(--size-4-6);
 	color: var(--text-faint);
 	background: transparent;
 	border: none;
