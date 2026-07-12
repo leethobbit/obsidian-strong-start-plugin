@@ -1,6 +1,6 @@
 # Lazy GM's campaign manager — data schema
 
-**Status: DRAFT.** This contract freezes at plugin version 1.0; until then fields may change, but every change lands in the same commit as its codec change. After 1.0 the schema is additive-only until a 2.0.
+**Status: FROZEN — contract 1.0 (2026-07-12, M14).** From here the schema is **additive-only** until a 2.0: new note types and new optional fields may be added, but no existing field may change meaning, type, or default. Every addition still lands in the same commit as its codec change.
 
 All plugin state on a note lives under **one top-level frontmatter key: `lazyCampaign`** (a nested object). Notes are discovered by scanning `app.metadataCache` for `frontmatter.lazyCampaign?.type` — never by folder location. Folders are tidy defaults; a note moved anywhere in the vault keeps working.
 
@@ -116,6 +116,19 @@ lazyCampaign:
 
 Body carries the three fantastic aspects as bullets under `## Aspects`.
 
+### Quest — `type: quest`
+
+Path default: `<campaign folder>/Quests/<Title>.md`. Created by the quest generator's "Save as note" (M15); linkable from scenes and session chips like any note.
+
+```yaml
+lazyCampaign:
+  type: quest
+  campaign: "[[Greenhollow]]"
+  status: open           # open | done; absent = open
+```
+
+Body freeform; the generator seeds it with the quest outline.
+
 ### Custom table — `type: table`
 
 ```yaml
@@ -149,7 +162,9 @@ Outside this compatibility contract; documented for completeness.
 ```jsonc
 {
   "settings": { /* typed settings model, src/settings/settings.ts */ },
-  "ui":       { "lastCampaignId": "c-4k2j9x", "lastMode": "prep" },
+  "ui":       { "lastCampaignId": "c-4k2j9x", "lastMode": "prep",
+                "lastSessionPath": "Campaigns/Greenhollow/Sessions/Session 4.md",
+                "runTextSize": "md" },
   "hints":    { "dismissed": ["prep-board"] }
 }
 ```

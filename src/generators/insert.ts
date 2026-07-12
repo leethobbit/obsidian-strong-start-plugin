@@ -12,7 +12,7 @@ import { replaceSection, sectionContent } from "../lib/sections";
 import { writeLazyFrontmatter } from "../lib/frontmatter";
 import { beginSelfWrite } from "../lib/self-write";
 import { toSafeFilename } from "../lib/slug";
-import { createLocationNote, createNpcNote } from "../roster/entity-files";
+import { createLocationNote, createNpcNote, createQuestNote } from "../roster/entity-files";
 import { toSessionFm, writeSessionFm } from "../sessions/session-schema";
 import { bulletsForLines, renderMarkdown } from "./types";
 import type { CampaignModel } from "../campaigns/types";
@@ -93,9 +93,16 @@ export async function saveLocationGeneratorNote(
 	return createLocationNote(app, campaign, name, body);
 }
 
-/** Treasure/Quest "Save as note": a plain markdown note (no managed
- * frontmatter — these aren't one of SCHEMA.md's entity types) under the
- * active campaign's own folder, named after the generator's title. */
+/** Quest "Save as note" (M15): a managed `type: quest` entity note — linkable
+ * from scenes/chips and discoverable by type, unlike the loose markdown file
+ * it used to be. The generated outline seeds the freeform body. */
+export async function saveQuestGeneratorNote(app: App, campaign: CampaignModel, result: GeneratedResult): Promise<TFile> {
+	return createQuestNote(app, campaign, result.title, `${renderMarkdown(result)}\n`);
+}
+
+/** Treasure "Save as note": a plain markdown note (no managed frontmatter —
+ * treasure isn't one of SCHEMA.md's entity types) under the active campaign's
+ * own folder, named after the generator's title. */
 export async function saveGeneratorNote(app: App, campaign: CampaignModel, result: GeneratedResult): Promise<TFile> {
 	const folderPath = normalizePath(parentPath(campaign.path));
 	const safeName = toSafeFilename(result.title);

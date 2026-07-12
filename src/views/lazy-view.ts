@@ -2,7 +2,12 @@ import { DropdownComponent, ItemView, Menu, setIcon, TFile, type WorkspaceLeaf }
 import type LazyCampaignPlugin from "../../main";
 import { RenameCampaignModal, setCampaignStatus } from "../campaigns/campaign-actions";
 import { tryFileOp } from "../lib/notify";
+import { isPhone } from "../lib/platform";
+import { RollTableSuggestModal } from "./tables/roll-table-modal";
 import { DESTINATIONS, type NavDestination, type NavGroup, type NavMode } from "./nav-model";
+import { PhoneShell } from "./phone/phone-shell";
+import { openMoreSheet } from "./phone/more-sheet";
+import { KeyboardWatcher } from "./phone/keyboard-watch";
 import { HomePanel, type HomeSubtab } from "./home/home-panel";
 import { PrepPanel } from "./prep/prep-panel";
 import { RunPanel } from "./run/run-panel";
@@ -22,7 +27,7 @@ interface Panel {
 
 const RAIL_GROUP_ORDER: readonly NavGroup[] = ["hub", "pipeline", "insight"];
 
-const HOME_SUBTABS: readonly HomeSubtab[] = ["dashboard", "foundation", "session-zero"];
+const HOME_SUBTABS: readonly HomeSubtab[] = ["dashboard", "sessions", "foundation", "session-zero"];
 
 function isHomeSubtab(value: string | undefined): value is HomeSubtab {
 	return HOME_SUBTABS.some((s) => s === value);
@@ -39,6 +44,9 @@ export class LazyCampaignView extends ItemView {
 	private railEl!: HTMLElement;
 	private headerEl!: HTMLElement;
 	private bodyEl!: HTMLElement;
+	/** Phone bottom-bar chrome (docs/plan.md M12) — only mounted on phones;
+	 * null on desktop/tablet, where the icon rail stays. */
+	private phone: PhoneShell | null = null;
 	private readonly panels = new Map<NavMode, { el: HTMLElement; panel: Panel }>();
 	private unsubscribe: (() => void) | null = null;
 	/** Set alongside `panels.get("home")` in `buildPanels()` — the header's
@@ -74,11 +82,36 @@ export class LazyCampaignView extends ItemView {
 
 		this.buildPanels();
 
+		// Phone shell (docs/plan.md M12): bottom bar as a sibling AFTER the
+		// body (last child of main), so the body's per-render empty() can't
+		// tear it down. Desktop/tablet never mount it — the rail stays.
+		if (isPhone(this.app)) {
+			const phone = new PhoneShell();
+			this.phone = phone;
+			phone.mount(main, {
+				onTab: (mode) => this.setMode(mode),
+				onMore: (evt) =>
+					openMoreSheet(
+						evt,
+						(mode) => this.setMode(mode),
+						() => new RollTableSuggestModal(this.app, this.plugin).open()
+					),
+			});
+			// Keep the bar flush above Obsidian's global mobile navbar, and get
+			// it out of the way while the soft keyboard is up (the keyboard
+			// watcher publishes `is-keyboard-open` + the inset on contentEl).
+			const watcher = new KeyboardWatcher();
+			this.register(watcher.attach(this.contentEl, () => phone.alignAboveNavbar()));
+			this.registerEvent(this.app.workspace.on("layout-change", () => phone.alignAboveNavbar()));
+		}
+
 		const rememberedMode = this.isNavMode(this.plugin.ui.lastMode) ? this.plugin.ui.lastMode : "home";
 		this.mode = rememberedMode;
 		this.renderRail();
 		this.renderHeader();
 		this.renderActivePanel();
+		this.phone?.setActive(this.mode);
+		this.phone?.alignAboveNavbar();
 
 		const store = this.plugin.store;
 		if (store) {
@@ -103,6 +136,14 @@ export class LazyCampaignView extends ItemView {
 		}
 		this.renderRail();
 		this.renderActivePanel();
+		this.phone?.setActive(mode);
+		this.phone?.alignAboveNavbar();
+	}
+
+	/** Obsidian calls this on every view resize/rotation — the navbar overlap
+	 * changes with it, so re-measure the phone bar's lift. */
+	onResize(): void {
+		this.phone?.alignAboveNavbar();
 	}
 
 	/** Called by the plugin after `refreshRegistry()` rebuilds the table

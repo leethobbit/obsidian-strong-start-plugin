@@ -8,8 +8,10 @@ import {
 	saveGeneratorNote,
 	saveLocationGeneratorNote,
 	saveNpcGeneratorNote,
+	saveQuestGeneratorNote,
 } from "../../generators/insert";
 import { tryFileOp } from "../../lib/notify";
+import { renderHint } from "../../help/hint";
 import { renderEmptyState } from "../panel-kit";
 import type { TableRegistry } from "../../tables/registry";
 import type { CampaignModel } from "../../campaigns/types";
@@ -46,6 +48,14 @@ export class GeneratorsPanel {
 			renderEmptyState(shell, "Tables aren't ready yet.");
 			return;
 		}
+
+		renderHint(
+			shell,
+			this.view,
+			this.view.plugin,
+			"generators",
+			"Every line of a result rerolls on its own — keep the good parts, reroll the rest."
+		);
 
 		const grid = shell.createDiv({ cls: "lazy-campaign-generators-grid" });
 		for (const generator of GENERATORS) {
@@ -139,6 +149,9 @@ export class GeneratorsPanel {
 				// already carries it; the aspects are everything after it.
 				return saveLocationGeneratorNote(app, campaign, result.title, result.lines.slice(1));
 			}
+			// Quests become managed `type: quest` entities (M15) — linkable
+			// from scenes and chips, not just a loose file.
+			if (generator.id === "quest") return saveQuestGeneratorNote(app, campaign, result);
 			return saveGeneratorNote(app, campaign, result);
 		}, "Couldn't save that note — check the console for details.");
 		if (!saved) return;

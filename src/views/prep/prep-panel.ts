@@ -10,6 +10,7 @@ import { writeLazyFrontmatter } from "../../lib/frontmatter";
 import { beginSelfWrite, isSelfWrite } from "../../lib/self-write";
 import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
 import { tryFileOp } from "../../lib/notify";
+import { isPhone } from "../../lib/platform";
 import { renderHint } from "../../help/hint";
 import { renderCharactersStep } from "./steps/characters";
 import { renderStrongStartStep } from "./steps/strong-start";
@@ -40,12 +41,26 @@ export class PrepPanel {
 	private bodyPath: string | null = null;
 
 	private toolbarEl!: HTMLElement;
+	private boardEl!: HTMLElement;
 	private masterListEl!: HTMLElement;
 	private workspaceEl!: HTMLElement;
+	/** Phone master→detail (docs/plan.md M12): false = the step list is the
+	 * screen, true = the active step's workspace is, with a back header. Only
+	 * consulted on phones — desktop always shows both panes side by side. */
+	private phoneDetailOpen = false;
 
 	private readonly rebuildQueue: DeferredRebuildQueue;
 	private suggesters: Array<{ close(): void }> = [];
 	private debouncers: Array<{ cancel(): void; run(): unknown }> = [];
+
+	/** Prep timer (docs/plan.md M13): active prep minutes per session path,
+	 * in-memory only — it counts THIS sitting, not lifetime prep, and a stale
+	 * cross-restart total would make the under-30-minutes toast lie. Ticks only
+	 * accumulate while the panel is actually visible (`isShown()`), so leaving
+	 * the board open in a background tab overnight doesn't read as prep. */
+	private readonly prepElapsedMs = new Map<string, number>();
+	private lastTickAt: number | null = null;
+	private prepTimerEl: HTMLElement | null = null;
 
 	constructor(
 		private readonly view: LazyCampaignView,
@@ -57,7 +72,31 @@ export class PrepPanel {
 			(id) => this.view.registerInterval(id)
 		);
 		this.view.registerDomEvent(containerEl, "keydown", (evt) => this.handleKeydown(evt));
+		this.view.registerInterval(window.setInterval(() => this.tickPrepTimer(), 5000));
 		this.view.register(() => this.disposeTransient());
+	}
+
+	private tickPrepTimer(): void {
+		const now = Date.now();
+		const last = this.lastTickAt ?? now;
+		this.lastTickAt = now;
+		const session = this.session;
+		if (!session || !this.containerEl.isShown()) return;
+		this.prepElapsedMs.set(session.path, (this.prepElapsedMs.get(session.path) ?? 0) + (now - last));
+		this.updatePrepTimerText();
+	}
+
+	private prepMinutes(path: string): number {
+		return Math.floor((this.prepElapsedMs.get(path) ?? 0) / 60000);
+	}
+
+	/** Quiet by design: nothing at all until the first full minute. */
+	private updatePrepTimerText(): void {
+		const el = this.prepTimerEl;
+		const session = this.session;
+		if (!el || !session) return;
+		const minutes = this.prepMinutes(session.path);
+		el.setText(minutes >= 1 ? `Prep: ${minutes} min` : "");
 	}
 
 	/**
@@ -119,6 +158,7 @@ export class PrepPanel {
 		if (sessionSwitched) {
 			this.setSession(rememberedSession ?? sessions[0]);
 			this.activeStepId = STEPS[0].id;
+			this.phoneDetailOpen = false;
 		}
 
 		if (changedPaths === undefined || sessionSwitched || !this.session) {
@@ -152,6 +192,19 @@ export class PrepPanel {
 	}
 
 	private handleKeydown(evt: KeyboardEvent): void {
+		// Alt+R (docs/plan.md M13): roll inspiration for the field being
+		// worked on — i.e. the active step's inspire control. Deliberately
+		// BEFORE the typing guard: rolling mid-type is exactly the use case
+		// (the chip renders below; the caret never moves).
+		if (evt.altKey && !evt.ctrlKey && !evt.metaKey && evt.key.toLowerCase() === "r") {
+			const rollBtn = this.workspaceEl?.querySelector<HTMLElement>(".lazy-campaign-inspire-button");
+			if (rollBtn) {
+				evt.preventDefault();
+				rollBtn.click();
+			}
+			return;
+		}
+
 		// Never hijack Ctrl/Cmd+digit while the GM is typing in a field —
 		// switching steps yanks the focused editor out mid-edit.
 		if (evt.target instanceof HTMLInputElement || evt.target instanceof HTMLTextAreaElement) return;
@@ -194,12 +247,34 @@ export class PrepPanel {
 		);
 		this.toolbarEl = shell.createDiv({ cls: "lazy-campaign-prep-toolbar" });
 		const board = shell.createDiv({ cls: "lazy-campaign-prep-board" });
+		this.boardEl = board;
 		this.masterListEl = board.createDiv({ cls: "lazy-campaign-prep-master" });
 		this.workspaceEl = board.createDiv({ cls: "lazy-campaign-prep-workspace" });
 
 		this.renderToolbar();
 		this.renderMasterList();
 		this.renderWorkspace();
+		this.updatePhoneLayout();
+	}
+
+	/** Reflect the phone master→detail state as a board class (CSS shows one
+	 * pane or the other under `body.is-phone`; desktop ignores the class). */
+	private updatePhoneLayout(): void {
+		this.boardEl.toggleClass("is-phone-detail", this.phoneDetailOpen);
+	}
+
+	private openPhoneDetail(stepId: string): void {
+		this.activeStepId = stepId;
+		this.phoneDetailOpen = true;
+		this.renderMasterList();
+		this.renderWorkspace();
+		this.updatePhoneLayout();
+	}
+
+	private closePhoneDetail(): void {
+		this.phoneDetailOpen = false;
+		this.renderMasterList();
+		this.updatePhoneLayout();
 	}
 
 	private disposeTransient(): void {
@@ -278,6 +353,9 @@ export class PrepPanel {
 			this.view.setMode("run");
 		});
 
+		this.prepTimerEl = this.toolbarEl.createSpan({ cls: "lazy-campaign-prep-timer" });
+		this.updatePrepTimerText();
+
 		this.toolbarEl.createSpan({
 			cls: "lazy-campaign-prep-progress",
 			text: `${session.stepsDone.length} of ${STEPS.length}`,
@@ -354,6 +432,10 @@ export class PrepPanel {
 			if (summary) row.createSpan({ cls: "lazy-campaign-step-summary", text: summary });
 
 			this.view.registerDomEvent(row, "click", () => {
+				if (isPhone(this.view.app)) {
+					this.openPhoneDetail(step.id);
+					return;
+				}
 				this.activeStepId = step.id;
 				this.renderMasterList();
 				this.renderWorkspace();
@@ -367,8 +449,27 @@ export class PrepPanel {
 		const isDone = session.stepsDone.includes(stepId);
 		const nextStepsDone = isDone ? session.stepsDone.filter((s) => s !== stepId) : [...session.stepsDone, stepId];
 		await this.patchFrontmatterFor(session.path, (fm) => ({ ...fm, stepsDone: nextStepsDone }));
+		this.maybeCelebrateLazyPrep(session.path, nextStepsDone);
 		this.renderMasterList();
 		this.renderToolbar();
+	}
+
+	/** The under-30-minutes toast (docs/plan.md M13): fires once per session
+	 * when the LAST step gets its manual ✓ inside the lazy window. Never
+	 * guilts when over — past 30 minutes there's no toast at all. */
+	private readonly lazyToastShownFor = new Set<string>();
+
+	private maybeCelebrateLazyPrep(path: string, stepsDone: readonly string[]): void {
+		if (stepsDone.length < STEPS.length) return;
+		if (this.lazyToastShownFor.has(path)) return;
+		const minutes = this.prepMinutes(path);
+		if (minutes >= 30) return;
+		this.lazyToastShownFor.add(path);
+		new Notice(
+			minutes < 1
+				? "Prepped in under a minute. Suspiciously lazy — and proud of it."
+				: `Prepped in ${minutes} minute${minutes === 1 ? "" : "s"}. Lazy, and proud of it.`
+		);
 	}
 
 	// ---- Workspace --------------------------------------------------------
@@ -378,6 +479,23 @@ export class PrepPanel {
 		const session = this.session;
 		const campaign = this.campaign;
 		if (!session || !campaign) return;
+
+		// Phone drill-down back header (docs/plan.md M12) — CSS hides it on
+		// desktop, where both panes are always visible.
+		if (isPhone(this.view.app)) {
+			const step = STEPS.find((s) => s.id === this.activeStepId);
+			const header = this.workspaceEl.createDiv({ cls: "lazy-campaign-phone-back-header" });
+			const backBtn = header.createEl("button", {
+				cls: "lazy-campaign-phone-back-button",
+				attr: { "aria-label": "Back to steps", type: "button" },
+			});
+			setIcon(backBtn, "arrow-left");
+			this.view.registerDomEvent(backBtn, "click", () => this.closePhoneDetail());
+			header.createSpan({
+				cls: "lazy-campaign-phone-back-title",
+				text: step ? `${step.number} · ${step.shortLabel}` : "Step",
+			});
+		}
 
 		const ctx = this.buildStepContext(session, campaign);
 		switch (this.activeStepId) {

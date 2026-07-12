@@ -9,7 +9,7 @@ import type { SessionModel } from "../sessions/types";
 import type { SessionZeroModel } from "../checklist/types";
 import type { LocationNoteModel, NpcNoteModel, PcModel } from "../roster/types";
 
-type ManagedType = "campaign" | "session" | "session-zero" | "pc" | "npc" | "location" | "table";
+type ManagedType = "campaign" | "session" | "session-zero" | "pc" | "npc" | "location" | "quest" | "table";
 
 interface IndexedNote {
 	path: string;

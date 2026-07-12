@@ -1,6 +1,7 @@
-import { normalizePath, TFile, type App } from "obsidian";
+import { Notice, normalizePath, TFile, type App } from "obsidian";
 import { asLazy, writeLazyFrontmatter } from "../lib/frontmatter";
 import { beginSelfWrite } from "../lib/self-write";
+import { toSafeFilename } from "../lib/slug";
 import { carryForward } from "./carryover";
 import { readSessionFm, sessionBodyScaffold, writeSessionFm, type SessionFm } from "./session-schema";
 import type { Secret } from "./types";
@@ -64,6 +65,32 @@ function localIsoDate(): string {
 	const month = String(now.getMonth() + 1).padStart(2, "0");
 	const day = String(now.getDate()).padStart(2, "0");
 	return `${now.getFullYear()}-${month}-${day}`;
+}
+
+/**
+ * Rename a session note's file (docs/plan.md M13): the title is free text per
+ * SCHEMA.md — `lazyCampaign.session` (the number) is the stable ordering key,
+ * so nothing else needs touching. `fileManager.renameFile` keeps any wikilinks
+ * pointing here updated. Collisions abort with a Notice rather than overwrite.
+ */
+export async function renameSessionNote(app: App, sessionPath: string, newName: string): Promise<boolean> {
+	const file = app.vault.getFileByPath(sessionPath);
+	if (!(file instanceof TFile)) return false;
+
+	const safeName = toSafeFilename(newName);
+	if (safeName.length === 0) {
+		new Notice("Give the session a title first.");
+		return false;
+	}
+	if (safeName === file.basename) return true;
+
+	const newPath = normalizePath(`${parentPath(sessionPath)}/${safeName}.md`);
+	if (app.vault.getFileByPath(newPath)) {
+		new Notice(`A note named "${safeName}" already exists there.`);
+		return false;
+	}
+	await app.fileManager.renameFile(file, newPath);
+	return true;
 }
 
 /**

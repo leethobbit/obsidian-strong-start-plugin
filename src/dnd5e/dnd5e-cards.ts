@@ -8,6 +8,7 @@
 
 import { deadlyBenchmark, type DeadlyBenchmark } from "./benchmark";
 import { IMPROVISED_DC_BANDS, MONSTER_DIFFICULTY_DIALS, improviseDamage, quickMonsterStatsTable } from "./improvise";
+import { TRAVEL_DEFAULT_DC, TRAVEL_EXTRA_RULES, TRAVEL_FRAMEWORK, TRAVEL_ROLES } from "../content/wilderness";
 import { renderEmptyState, renderStepper, type DomEventOwner } from "../views/panel-kit";
 import type { PcModel } from "../roster/types";
 
@@ -215,5 +216,27 @@ export function renderDifficultyDialsList(container: HTMLElement): void {
 		const item = list.createDiv({ cls: "lazy-campaign-dnd5e-dial" });
 		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: dial.name });
 		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: dial.description });
+	}
+}
+
+/** Wilderness travel & exploration (doc: "Wilderness Travel and Exploration",
+ * M15) — travel roles, group stealth, and the journey-building framework.
+ * Reference prose, not tables (the doc section is procedure-shaped), reusing
+ * the dials' name+description list styling. */
+export function renderWildernessTravelSection(container: HTMLElement): void {
+	container.createEl("p", { cls: "lazy-campaign-hint", text: TRAVEL_DEFAULT_DC });
+
+	const roles = container.createDiv({ cls: "lazy-campaign-dnd5e-dials-list" });
+	for (const role of TRAVEL_ROLES) {
+		const item = roles.createDiv({ cls: "lazy-campaign-dnd5e-dial" });
+		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: `${role.name} — ${role.skills}` });
+		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: role.summary });
+	}
+
+	const extras = container.createDiv({ cls: "lazy-campaign-dnd5e-dials-list" });
+	for (const rule of [...TRAVEL_EXTRA_RULES, ...TRAVEL_FRAMEWORK]) {
+		const item = extras.createDiv({ cls: "lazy-campaign-dnd5e-dial" });
+		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: rule.name });
+		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: rule.text });
 	}
 }

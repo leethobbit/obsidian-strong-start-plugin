@@ -11,6 +11,7 @@ import { asLazy, writeLazyFrontmatter } from "../../lib/frontmatter";
 import { beginSelfWrite, isSelfWrite } from "../../lib/self-write";
 import { DeferredRebuildQueue } from "../../lib/focus-preserve";
 import { tryFileOp } from "../../lib/notify";
+import { renderHint } from "../../help/hint";
 import { rollDice } from "../../tables/dice";
 import { formatClockTime, formatElapsed } from "../../lib/format-elapsed";
 import { readNpcFm } from "../../roster/entity-schema";
@@ -21,6 +22,7 @@ import {
 	renderImprovisedDamageTable,
 	renderImprovisedDcSection,
 	renderQuickMonsterStatsTable,
+	renderWildernessTravelSection,
 } from "../../dnd5e/dnd5e-cards";
 import { EndSessionModal } from "./end-session-modal";
 import type { CampaignModel } from "../../campaigns/types";
@@ -75,6 +77,10 @@ export class RunPanel {
 	private peekedSecretId: string | null = null;
 	private undoVisibleForId: string | null = null;
 	private undoTimeoutHandle: number | null = null;
+	/** One-shot card-flip garnish (docs/plan.md M13): set just before the
+	 * re-render that follows a reveal, consumed by that render, then cleared —
+	 * so later re-renders (undo timeout, store notifications) don't replay it. */
+	private flipSecretId: string | null = null;
 
 	private mdComponent: Component | null = null;
 	private activePopover: ActivePopover | null = null;
@@ -218,6 +224,16 @@ export class RunPanel {
 		const topBar = shell.createDiv({ cls: "lazy-campaign-run-topbar" });
 		this.renderTopBar(topBar, session, campaign);
 
+		// One dismissible line, then never again — run mode stays distraction-
+		// free, but the face-down peek interaction is invisible until explained.
+		renderHint(
+			shell,
+			this.view,
+			this.view.plugin,
+			"run-secrets",
+			"Secrets stay face-down while players can see your screen — tap one to peek, then mark it revealed."
+		);
+
 		const board = shell.createDiv({ cls: "lazy-campaign-run-board" });
 		const mainCol = board.createDiv({ cls: "lazy-campaign-run-main" });
 		const glanceCol = board.createDiv({ cls: "lazy-campaign-run-glance" });
@@ -260,9 +276,14 @@ export class RunPanel {
 	private renderTopBar(container: HTMLElement, session: SessionModel, campaign: CampaignModel): void {
 		container.empty();
 
-		container.createDiv({
-			cls: "lazy-campaign-run-session-label",
-			text: `Session ${session.session} · ${campaign.name}`,
+		// Two spans, not one string: the campaign half is CSS-hidden on phones
+		// (the header directly above already names the campaign), so the top
+		// bar keeps a readable "Session N" instead of truncating to nothing.
+		const sessionLabel = container.createDiv({ cls: "lazy-campaign-run-session-label" });
+		sessionLabel.createSpan({ text: `Session ${session.session}` });
+		sessionLabel.createSpan({
+			cls: "lazy-campaign-run-session-campaign",
+			text: ` · ${campaign.name}`,
 		});
 
 		this.timerEl = container.createDiv({ cls: "lazy-campaign-run-timer" });
@@ -448,7 +469,9 @@ export class RunPanel {
 		const b = rollDice("1d20", rng);
 		if (!a || !b) return;
 		const kept = keepHigh ? Math.max(a.total, b.total) : Math.min(a.total, b.total);
-		this.showDiceToast(`${a.total} / ${b.total} → ${kept}`);
+		// The kept die is still a natural d20 — it earns the same garnish
+		// (docs/plan.md: gold ring / wry shake "on the d20 toast only").
+		this.showDiceToast(`${a.total} / ${b.total} → ${kept}`, { nat20: kept === 20, nat1: kept === 1 });
 	}
 
 	private showDiceToast(display: string, options?: { nat20?: boolean; nat1?: boolean }): void {
@@ -556,6 +579,7 @@ export class RunPanel {
 			return;
 		}
 		for (const secret of secrets) this.renderSecretCard(container, secret);
+		this.flipSecretId = null;
 	}
 
 	private renderSecretCard(container: HTMLElement, secret: Secret): void {
@@ -563,7 +587,9 @@ export class RunPanel {
 		const peeked = this.peekedSecretId === secret.id;
 
 		const card = container.createDiv({
-			cls: `lazy-campaign-run-secret-card${revealed ? " is-revealed" : peeked ? " is-peeked" : " is-hidden"}`,
+			cls: `lazy-campaign-run-secret-card${revealed ? " is-revealed" : peeked ? " is-peeked" : " is-hidden"}${
+				this.flipSecretId === secret.id ? " is-flipping" : ""
+			}`,
 			attr: { "data-key": `run-secret-${secret.id}` },
 		});
 
@@ -620,6 +646,7 @@ export class RunPanel {
 
 		this.peekedSecretId = null;
 		this.session = { ...session, secrets: revealSecret(session.secrets, id) };
+		this.flipSecretId = id;
 		this.showUndoFor(id);
 		this.renderSecrets();
 	}
@@ -779,6 +806,9 @@ export class RunPanel {
 		);
 		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "dials", "Difficulty dials", (sectionBody) =>
 			renderDifficultyDialsList(sectionBody)
+		);
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "travel", "Wilderness travel", (sectionBody) =>
+			renderWildernessTravelSection(sectionBody)
 		);
 	}
 

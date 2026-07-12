@@ -1370,6 +1370,12 @@
 	.lazy-campaign-run-glance {
 		width: 100%;
 	}
+
+	/* Narrow pane (not just phones): let the top bar wrap instead of clipping
+	   the End button behind a horizontal scrollbar. */
+	.lazy-campaign-run-topbar {
+		flex-wrap: wrap;
+	}
 }
 
 .lazy-campaign-run-section-label {
@@ -2278,4 +2284,335 @@
 	display: flex;
 	gap: var(--size-4-3);
 	margin-top: var(--size-4-2);
+}
+
+/* ---- Home / Sessions list (M13) ------------------------------------------------ */
+
+.lazy-campaign-session-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.lazy-campaign-session-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-3);
+	min-height: 44px;
+	padding: var(--size-4-1) var(--size-4-2);
+	border-radius: var(--radius-m);
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-session-row:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.lazy-campaign-session-row-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.lazy-campaign-session-row-number {
+	font-weight: var(--font-medium);
+}
+
+.lazy-campaign-session-row-name {
+	color: var(--text-muted);
+}
+
+.lazy-campaign-session-row-meta {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: var(--size-4-2);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-session-status {
+	padding: 1px var(--size-4-2);
+	border-radius: var(--radius-s);
+	background-color: var(--background-modifier-hover);
+}
+
+.lazy-campaign-session-status.is-played {
+	color: var(--text-on-accent);
+	background-color: var(--interactive-accent);
+}
+
+.lazy-campaign-session-recap {
+	color: var(--text-faint);
+}
+
+/* ---- Delight details (M13) -----------------------------------------------------
+   Prep timer, dice tumble, secret reveal flip. Motion is garnish: every
+   animation here is disabled under prefers-reduced-motion. */
+
+.lazy-campaign-prep-timer {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.lazy-campaign-roll-chip-die {
+	display: inline-flex;
+	color: var(--text-accent);
+	animation: lazy-campaign-dice-tumble 300ms ease-out;
+}
+
+@keyframes lazy-campaign-dice-tumble {
+	0% {
+		transform: rotate(-140deg) scale(0.6);
+	}
+	70% {
+		transform: rotate(15deg) scale(1.05);
+	}
+	100% {
+		transform: rotate(0deg) scale(1);
+	}
+}
+
+.lazy-campaign-run-secret-card.is-flipping {
+	animation: lazy-campaign-secret-flip 260ms ease-out;
+	transform-style: preserve-3d;
+}
+
+@keyframes lazy-campaign-secret-flip {
+	0% {
+		transform: rotateX(-90deg);
+		opacity: 0.4;
+	}
+	100% {
+		transform: rotateX(0deg);
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lazy-campaign-roll-chip-die,
+	.lazy-campaign-run-secret-card.is-flipping {
+		animation: none;
+	}
+}
+
+/* ---- Phone shell (M12) --------------------------------------------------------
+   Bottom tab bar replaces the icon rail on phones; nav placements come from
+   nav-model.ts (PHONE_BAR / PHONE_MORE_SHEET). Hidden by default — desktop and
+   tablet keep the rail. */
+
+.lazy-campaign-bottombar {
+	display: none;
+}
+
+body.is-phone .lazy-campaign-rail {
+	display: none;
+}
+
+body.is-phone .lazy-campaign-bottombar {
+	display: flex;
+	align-items: stretch;
+	flex-shrink: 0;
+	border-top: 1px solid var(--background-modifier-border);
+	background: var(--background-secondary);
+	padding-bottom: env(safe-area-inset-bottom);
+	/* Lifted at runtime to sit flush above Obsidian's global mobile navbar
+	   (PhoneShell.alignAboveNavbar measures the overlap). */
+	margin-bottom: var(--lazy-campaign-navbar-lift, 0px);
+}
+
+.lazy-campaign-bottombar-tab {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	min-width: 44px;
+	min-height: 56px;
+	padding: 0;
+	cursor: var(--cursor-link);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+/* Obsidian's mobile theme styles bare <button>s as rounded, filled capsules
+   (`.is-mobile button` out-specifies a plain class). Override under
+   body.is-phone so the tabs read as one flat bar, not pills on a rectangle. */
+body.is-phone .lazy-campaign-bottombar-tab,
+body.is-phone .lazy-campaign-bottombar-tab:hover,
+body.is-phone .lazy-campaign-bottombar-tab:focus {
+	background-color: transparent;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+body.is-phone .lazy-campaign-bottombar-tab:active {
+	background-color: var(--background-modifier-hover);
+}
+
+body.is-phone .lazy-campaign-bottombar-tab.is-active {
+	color: var(--text-accent);
+	box-shadow: inset 0 2px 0 0 var(--interactive-accent);
+}
+
+.lazy-campaign-bottombar-icon .svg-icon {
+	width: 20px;
+	height: 20px;
+}
+
+.lazy-campaign-bottombar-label {
+	line-height: 1;
+}
+
+/* Android WebView bug (found on-device in Inkswell): when Obsidian shrinks its
+   app container for the soft keyboard, flex-stretch and percentage heights
+   resolve stale inside the shrunken subtree — the main column collapses to its
+   content height, leaving a keyboard-sized void. Absolute positioning resolves
+   against the view's (correct) rect and dodges the bug. Phone-only: the rail
+   is display:none there, so inset:0 overlays nothing. */
+body.is-phone .lazy-campaign-view {
+	position: relative;
+}
+
+body.is-phone .lazy-campaign-main {
+	position: absolute;
+	inset: 0;
+}
+
+/* KeyboardWatcher publishes --lazy-campaign-keyboard-inset + is-keyboard-open
+   on the view. Obsidian itself shrinks the app container while an input is
+   focused, so content isn't covered — but the bottom bar staying in the flex
+   column (with its navbar lift) squeezes the content to nothing. While typing,
+   the bar gets out of the way; tab-switching mid-edit isn't a flow to protect. */
+body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-bottombar {
+	display: none;
+}
+
+/* Header on narrow widths: the campaign selector takes the free space and
+   truncates inside itself instead of pushing the ⋯ menu off-screen. */
+body.is-phone .lazy-campaign-header-selector {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+body.is-phone .lazy-campaign-header-selector select {
+	width: 100%;
+	max-width: 100%;
+}
+
+/* Form fields at ≥16px: sub-16px focused inputs trigger auto-zoom in mobile
+   webviews (the "field takes over the screen" effect). */
+body.is-phone .lazy-campaign-view input[type="text"],
+body.is-phone .lazy-campaign-view textarea,
+body.is-phone .lazy-campaign-view select {
+	font-size: max(16px, var(--font-ui-medium));
+}
+
+/* ---- Phone: prep master→detail (M12) ------------------------------------------
+   The step list is a full-width screen; tapping a step opens the workspace
+   full-screen with a back header. The board's `is-phone-detail` class picks
+   the screen; the @container narrow rules above are overridden here (a phone
+   is always under the 700px container threshold). */
+
+.lazy-campaign-phone-back-header {
+	display: none;
+}
+
+body.is-phone .lazy-campaign-prep-board {
+	flex-direction: column;
+}
+
+body.is-phone .lazy-campaign-prep-master {
+	flex-direction: column;
+	width: 100%;
+	overflow-x: visible;
+	overflow-y: auto;
+	border-right: none;
+	border-bottom: none;
+}
+
+body.is-phone .lazy-campaign-step-row {
+	min-height: 44px;
+}
+
+body.is-phone .lazy-campaign-prep-workspace {
+	display: none;
+	padding-left: 0;
+}
+
+body.is-phone .lazy-campaign-prep-board.is-phone-detail .lazy-campaign-prep-master {
+	display: none;
+}
+
+body.is-phone .lazy-campaign-prep-board.is-phone-detail .lazy-campaign-prep-workspace {
+	display: block;
+}
+
+body.is-phone .lazy-campaign-phone-back-header {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding-bottom: var(--size-4-2);
+	margin-bottom: var(--size-4-2);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-phone-back-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding: 0;
+	color: var(--text-normal);
+	background: none;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-phone-back-title {
+	font-weight: var(--font-semibold);
+}
+
+/* ---- Phone: run mode (M12) -----------------------------------------------------
+   The container query already stacks the board single-column; this compacts
+   the sticky top bar so the timer, dice, safety, and End all fit one row. */
+
+body.is-phone .lazy-campaign-run-topbar {
+	flex-wrap: nowrap;
+	gap: var(--size-4-1);
+}
+
+body.is-phone .lazy-campaign-run-session-label {
+	flex: 0 0 auto;
+	font-size: var(--font-ui-small);
+}
+
+/* The header above already names the campaign — drop the duplicate here. */
+body.is-phone .lazy-campaign-run-session-campaign {
+	display: none;
+}
+
+body.is-phone .lazy-campaign-run-icon-button {
+	min-width: 40px;
+	min-height: 40px;
+}
+
+body.is-phone .lazy-campaign-run-end-button {
+	padding: var(--size-4-1) var(--size-4-2);
+	font-size: var(--font-ui-small);
+}
+
+/* The log bar rides above the soft keyboard: Obsidian shrinks the app
+   container, and with the bottom bar hidden while typing the flex column's
+   natural bottom IS the keyboard top. Safe-area padding for the no-keyboard
+   case. */
+body.is-phone .lazy-campaign-run-logbar {
+	padding-bottom: env(safe-area-inset-bottom);
 }

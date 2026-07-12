@@ -1,0 +1,183 @@
+// Obsidian glue — the Home / Sessions sub-tab (docs/plan.md M13): every
+// session of the active campaign at a glance (number, title, date, status,
+// recap presence), where the dashboard's "recent sessions" card only shows the
+// latest five. Read-mostly: the only mutations here are the row menu's rename
+// (title is free text per SCHEMA.md — the session number is the stable key)
+// and jump-offs into Prep/Run.
+
+import { Menu, setIcon, TFile, type App } from "obsidian";
+import { FormModal } from "../../lib/form-modal";
+import { textField } from "../../lib/form-fields";
+import { tryFileOp } from "../../lib/notify";
+import { renameSessionNote } from "../../sessions/session-files";
+import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
+import type { SessionModel } from "../../sessions/types";
+import type { LazyCampaignView } from "../lazy-view";
+
+export class SessionsPanel {
+	constructor(private readonly view: LazyCampaignView) {}
+
+	render(containerEl: HTMLElement): void {
+		containerEl.empty();
+		const plugin = this.view.plugin;
+		const campaign = plugin.activeCampaign();
+
+		if (!campaign) {
+			renderEmptyStateAction(containerEl, this.view, {
+				title: "No campaign yet",
+				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero.",
+				ctaText: "Create your campaign",
+				onCta: () => this.view.openCampaignCreation(),
+			});
+			return;
+		}
+
+		const sessions = plugin.store?.sessionsOf(campaign.path) ?? [];
+		const card = containerEl.createDiv({ cls: "lazy-campaign-card" });
+		card.createEl("h3", { text: "Sessions" });
+
+		if (sessions.length === 0) {
+			renderEmptyState(card, "No sessions yet — the prep board starts session 1.");
+			return;
+		}
+
+		const list = card.createDiv({ cls: "lazy-campaign-session-list" });
+		for (const session of sessions) this.renderRow(list, session);
+	}
+
+	private renderRow(list: HTMLElement, session: SessionModel): void {
+		const row = list.createDiv({ cls: "lazy-campaign-session-row" });
+
+		const title = row.createDiv({ cls: "lazy-campaign-session-row-title" });
+		title.createSpan({ cls: "lazy-campaign-session-row-number", text: `Session ${session.session}` });
+		// The filename is free text — show it only when the GM actually gave
+		// the session a title beyond the default "Session N".
+		const basename = baseNameOf(session.path);
+		if (basename !== `Session ${session.session}`) {
+			title.createSpan({ cls: "lazy-campaign-session-row-name", text: ` — ${basename}` });
+		}
+
+		const meta = row.createDiv({ cls: "lazy-campaign-session-row-meta" });
+		if (session.date) meta.createSpan({ text: session.date });
+		meta.createSpan({
+			cls: `lazy-campaign-session-status is-${session.status}`,
+			text: session.status === "played" ? "Played" : "Prep",
+		});
+		if (session.status === "played") {
+			meta.createSpan({
+				cls: "lazy-campaign-session-recap",
+				text: this.hasRecap(session.path) ? "Recap ✓" : "No recap",
+			});
+		}
+
+		const menuBtn = row.createEl("button", {
+			cls: "lazy-campaign-icon-button",
+			attr: { "aria-label": "Session actions", type: "button" },
+		});
+		setIcon(menuBtn, "ellipsis");
+		this.view.registerDomEvent(menuBtn, "click", (evt) => this.showRowMenu(evt, session));
+
+		this.view.registerDomEvent(row, "click", (evt) => {
+			if (evt.target instanceof Node && menuBtn.contains(evt.target)) return;
+			this.jumpTo(session, "prep");
+		});
+	}
+
+	/** Recap presence straight off the heading cache — never a body read; the
+	 * scaffold doesn't include `## Recap`, the end-session flow appends it. */
+	private hasRecap(path: string): boolean {
+		const app: App = this.view.app;
+		const file = app.vault.getFileByPath(path);
+		if (!(file instanceof TFile)) return false;
+		const headings = app.metadataCache.getFileCache(file)?.headings ?? [];
+		return headings.some((h) => h.level === 2 && h.heading.toLowerCase() === "recap");
+	}
+
+	private showRowMenu(evt: MouseEvent, session: SessionModel): void {
+		const menu = new Menu();
+		menu.addItem((item) =>
+			item
+				.setTitle("Continue prep")
+				.setIcon("list-checks")
+				.onClick(() => this.jumpTo(session, "prep"))
+		);
+		menu.addItem((item) =>
+			item
+				.setTitle("Run this session")
+				.setIcon("play")
+				.onClick(() => this.jumpTo(session, "run"))
+		);
+		menu.addItem((item) =>
+			item
+				.setTitle("Rename session note")
+				.setIcon("pencil")
+				.onClick(() => new RenameSessionModal(this.view.app, session).open())
+		);
+		menu.addItem((item) =>
+			item
+				.setTitle("Open note")
+				.setIcon("file-text")
+				.onClick(() => {
+					const file = this.view.app.vault.getFileByPath(session.path);
+					if (file instanceof TFile) void this.view.app.workspace.getLeaf(true).openFile(file);
+				})
+		);
+		menu.showAtMouseEvent(evt);
+	}
+
+	/** Same shared-selection funnel Prep/Run use (`ui.lastSessionPath`) — both
+	 * panels follow it on their next render. */
+	private jumpTo(session: SessionModel, mode: "prep" | "run"): void {
+		this.view.plugin.ui.lastSessionPath = session.path;
+		void this.view.plugin.persist();
+		this.view.setMode(mode);
+	}
+}
+
+function baseNameOf(path: string): string {
+	const file = path.slice(path.lastIndexOf("/") + 1);
+	return file.endsWith(".md") ? file.slice(0, -3) : file;
+}
+
+class RenameSessionModal extends FormModal {
+	private name: string;
+
+	constructor(
+		app: App,
+		private readonly session: SessionModel
+	) {
+		super(app);
+		this.name = baseNameOf(session.path);
+	}
+
+	protected render(): void {
+		this.setTitle("Rename session note");
+		this.contentEl.createEl("p", {
+			cls: "lazy-campaign-hint",
+			text: `The title is yours — session ${this.session.session} stays session ${this.session.session} either way.`,
+		});
+
+		const nameInput = textField(this.contentEl, {
+			name: "Title",
+			value: this.name,
+			onChange: (value) => {
+				this.name = value;
+			},
+		});
+		this.registerFirstInput(nameInput);
+
+		this.bindEnterToSubmit(this.contentEl, () => this.handleSubmit());
+		this.renderButtons(this.contentEl, {
+			ctaText: "Rename",
+			onSubmit: () => this.handleSubmit(),
+		});
+	}
+
+	private async handleSubmit(): Promise<void> {
+		const renamed = await tryFileOp(
+			() => renameSessionNote(this.app, this.session.path, this.name.trim()),
+			"Couldn't rename the session note — check the console for details."
+		);
+		if (renamed) this.close();
+	}
+}

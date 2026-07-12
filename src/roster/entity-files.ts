@@ -1,7 +1,7 @@
 import { normalizePath, type App, type TFile } from "obsidian";
 import { writeLazyFrontmatter } from "../lib/frontmatter";
 import { toSafeFilename } from "../lib/slug";
-import { writeLocationFm, writeNpcFm, writePcFm } from "./entity-schema";
+import { writeLocationFm, writeNpcFm, writePcFm, writeQuestFm } from "./entity-schema";
 import type { CampaignModel } from "../campaigns/types";
 
 /**
@@ -69,4 +69,19 @@ export async function createNpcNote(app: App, campaign: CampaignModel, name: str
  * (SCHEMA.md: location body carries the three fantastic aspects as bullets). */
 export async function createLocationNote(app: App, campaign: CampaignModel, name: string, body = ""): Promise<TFile> {
 	return createEntityNote(app, campaign, "Locations", name, writeLocationFm({ campaign: `[[${campaign.name}]]` }), body);
+}
+
+/** Quest notes (M15): the quest generator's "Save as note" target — a managed
+ * `type: quest` entity under `<campaign>/Quests/`, linkable from scenes and
+ * session chips like any other note. Body is freeform (the generated quest
+ * outline seeds it). */
+export async function createQuestNote(app: App, campaign: CampaignModel, name: string, body = ""): Promise<TFile> {
+	return createEntityNote(
+		app,
+		campaign,
+		"Quests",
+		name,
+		writeQuestFm({ campaign: `[[${campaign.name}]]`, status: "open" }),
+		body
+	);
 }

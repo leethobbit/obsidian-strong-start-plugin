@@ -1,0 +1,54 @@
+// Obsidian glue — phone chrome for the host view (docs/plan.md M12): the
+// bottom tab bar that replaces the desktop icon rail on phones. Mounted once
+// as a sibling AFTER the host body (last child of main), so the body's
+// per-render `empty()` never tears the bar down and a tab tap can't be
+// swallowed by an in-flight rebuild. It owns only the bar; all content lives
+// in the view's normal render path.
+
+import { buildBottomBar, phoneTabForMode, type BottomBarHandlers } from "./phone-tabs";
+import type { NavMode } from "../nav-model";
+
+export class PhoneShell {
+	private bar: HTMLElement | null = null;
+
+	/** Build the bottom bar into `parent` (the host main, after the body). */
+	mount(parent: HTMLElement, handlers: BottomBarHandlers): void {
+		this.bar = buildBottomBar(parent, handlers);
+	}
+
+	/** Reflect the active destination as the highlighted tab — class-toggle
+	 * only, no rebuild. */
+	setActive(mode: NavMode): void {
+		if (!this.bar) return;
+		const active = phoneTabForMode(mode);
+		this.bar.querySelectorAll<HTMLElement>(".lazy-campaign-bottombar-tab").forEach((el) => {
+			el.toggleClass("is-active", el.dataset.tab === active);
+		});
+	}
+
+	/**
+	 * Obsidian's own global mobile toolbar (`.mobile-navbar`) is fixed to the
+	 * bottom of the app and overlaps our bar. Lift ours to sit flush on top of
+	 * it. Measured at runtime — navbar height + safe-area inset vary by device,
+	 * and the user can hide the toolbar entirely — and adjusted by the exact
+	 * overlap. The formula is idempotent (converges and self-corrects on
+	 * re-call / resize); no navbar → the bar drops back to the natural bottom.
+	 */
+	alignAboveNavbar(): void {
+		const bar = this.bar;
+		if (!bar) return;
+		const navbar = bar.ownerDocument.querySelector<HTMLElement>(".mobile-navbar");
+		if (!navbar) {
+			bar.setCssProps({ "--lazy-campaign-navbar-lift": "0px" });
+			return;
+		}
+		// Drive the lift through a CSS variable (the bar's margin-bottom reads
+		// it) via setCssProps — per obsidianmd/no-static-styles-assignment.
+		// GAP leaves a small breathing space above Obsidian's toolbar.
+		const GAP = 4;
+		const current = parseFloat(getComputedStyle(bar).marginBottom) || 0;
+		const overlap = bar.getBoundingClientRect().bottom - navbar.getBoundingClientRect().top;
+		const next = Math.max(0, Math.round(current + overlap + GAP));
+		bar.setCssProps({ "--lazy-campaign-navbar-lift": `${next}px` });
+	}
+}

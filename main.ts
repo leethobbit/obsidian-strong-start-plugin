@@ -3,15 +3,20 @@ import { DEFAULT_SETTINGS, type LazyCampaignPluginSettings } from "./src/setting
 import { LazyCampaignPluginSettingTab } from "./src/settings/settings-tab";
 import { CampaignStore } from "./src/campaigns/campaign-store";
 import { CreateCampaignModal } from "./src/campaigns/create-campaign";
+import { createDemoCampaign } from "./src/campaigns/demo-campaign";
 import type { CampaignModel } from "./src/campaigns/types";
 import { createNextSession } from "./src/sessions/session-files";
 import { buildSessionSheet } from "./src/sessions/session-sheet";
+import { buildPlayerRecap } from "./src/sessions/recap-export";
+import { buildSessionZeroGuide } from "./src/checklist/guide-export";
 import type { SessionModel } from "./src/sessions/types";
 import { tryFileOp } from "./src/lib/notify";
 import { createRng } from "./src/lib/rng";
 import { buildRegistry, type TableRegistry } from "./src/tables/registry";
 import { TableStore } from "./src/tables/table-store";
 import { CORE_TABLES } from "./src/content";
+import { SOLO_TABLES } from "./src/content/solo";
+import { featureEnabled } from "./src/features";
 import { RollTableSuggestModal } from "./src/views/tables/roll-table-modal";
 import { LazyCampaignView, VIEW_TYPE_LAZY } from "./src/views/lazy-view";
 import type { NavMode } from "./src/views/nav-model";
@@ -109,10 +114,52 @@ export default class LazyCampaignPlugin extends Plugin {
 		});
 
 		this.addCommand({
+			id: "create-demo-campaign",
+			name: "Create demo campaign",
+			callback: () => {
+				void (async () => {
+					const created = await tryFileOp(
+						() => createDemoCampaign(this.app, this.settings.campaignRoot),
+						"Couldn't create the demo campaign — check the console for details."
+					);
+					if (!created) return;
+					this.ui.lastCampaignId = created.id;
+					await this.persist();
+					new Notice("Demo campaign created — delete its folder to remove it.");
+					await this.openView("home");
+				})();
+			},
+		});
+
+		this.addCommand({
 			id: "show-welcome",
 			name: "Show welcome",
 			callback: () => {
 				new WelcomeModal(this.app, this).open();
+			},
+		});
+
+		this.addCommand({
+			id: "copy-player-recap",
+			name: "Copy player recap",
+			checkCallback: (checking) => {
+				const campaign = this.activeCampaign();
+				const store = this.store;
+				if (!campaign || !store) return false;
+				if (store.sessionsOf(campaign.path).length === 0) return false;
+				if (!checking) void this.copyPlayerRecap(campaign);
+				return true;
+			},
+		});
+
+		this.addCommand({
+			id: "copy-session-zero-guide",
+			name: "Copy session zero guide",
+			checkCallback: (checking) => {
+				const campaign = this.activeCampaign();
+				if (!campaign) return false;
+				if (!checking) void this.copySessionZeroGuide(campaign);
+				return true;
 			},
 		});
 
@@ -210,11 +257,81 @@ export default class LazyCampaignPlugin extends Plugin {
 		if (copied !== null) new Notice("Session sheet copied.");
 	}
 
+	/** The player-facing recap export (docs/plan.md M15): every played
+	 * session's `## Recap` + revealed secrets only — the pure builder
+	 * (`sessions/recap-export.ts`) excludes everything else by construction. */
+	async copyPlayerRecap(campaign: CampaignModel): Promise<void> {
+		const store = this.store;
+		if (!store) return;
+
+		const sessions = store.sessionsOf(campaign.path);
+		const sources = [];
+		for (const session of sessions) {
+			const file = this.app.vault.getFileByPath(session.path);
+			if (!(file instanceof TFile)) continue;
+			sources.push({ session, body: await this.app.vault.cachedRead(file) });
+		}
+
+		const recap = buildPlayerRecap(campaign.name, sources);
+		if (recap === null) {
+			new Notice("Nothing played yet — recaps come from ended sessions.");
+			return;
+		}
+		const copied = await tryFileOp(
+			() => navigator.clipboard.writeText(recap),
+			"Couldn't copy the recap to the clipboard."
+		);
+		if (copied !== null) new Notice("Player recap copied — unrevealed secrets stayed home.");
+	}
+
+	/** The session-zero one-page guide export (docs/plan.md M15): pitch +
+	 * truths + expectations + lines/veils as a hand-to-players note. */
+	async copySessionZeroGuide(campaign: CampaignModel): Promise<void> {
+		const campaignFile = this.app.vault.getFileByPath(campaign.path);
+		if (!(campaignFile instanceof TFile)) return;
+		const campaignBody = await this.app.vault.cachedRead(campaignFile);
+
+		const zero = this.store?.sessionZeroOf(campaign.path) ?? null;
+		let sessionZero: { lines: readonly string[]; veils: readonly string[]; body: string } | undefined;
+		if (zero) {
+			const zeroFile = this.app.vault.getFileByPath(zero.path);
+			if (zeroFile instanceof TFile) {
+				sessionZero = { lines: zero.lines, veils: zero.veils, body: await this.app.vault.cachedRead(zeroFile) };
+			}
+		}
+
+		const guide = buildSessionZeroGuide({ campaignName: campaign.name, campaignBody, sessionZero });
+		if (guide === null) {
+			new Notice("Nothing to hand out yet — write a pitch or some truths first.");
+			return;
+		}
+		const copied = await tryFileOp(
+			() => navigator.clipboard.writeText(guide),
+			"Couldn't copy the guide to the clipboard."
+		);
+		if (copied !== null) new Notice("Session zero guide copied.");
+	}
+
 	/** Rebuild `this.tables` from `CORE_TABLES` + whatever `tableStore` has
 	 * currently parsed — the single seam every registry rebuild goes through
-	 * (initial build and every later table-store invalidation alike). */
+	 * (initial build and every later table-store invalidation alike). The
+	 * `solo5e` gate lives here rather than in `CORE_TABLES` so the toggle
+	 * takes effect on the next rebuild without touching pure content. */
 	refreshRegistry(): void {
-		this.tables = buildRegistry(CORE_TABLES, this.tableStore?.userTables() ?? []);
+		const core = featureEnabled(this.settings, "solo5e")
+			? [...CORE_TABLES, ...SOLO_TABLES]
+			: CORE_TABLES;
+		this.tables = buildRegistry(core, this.tableStore?.userTables() ?? []);
+	}
+
+	/** Called by the settings tab after any feature toggle: re-derive the
+	 * registry (solo tables come and go with `solo5e`) and re-render open
+	 * views so feature-gated UI appears/disappears without a mode switch. */
+	notifyFeaturesChanged(): void {
+		this.refreshRegistry();
+		for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_LAZY)) {
+			if (leaf.view instanceof LazyCampaignView) leaf.view.notifyTablesChanged();
+		}
 	}
 
 	/** Single funnel to the host view: reuse the existing leaf if one is open,

@@ -26,6 +26,12 @@ export const FEATURES: readonly FeatureDescriptor[] = [
 		description:
 			"5e-specific affordances (encounter benchmark, improvised DCs/damage/stats, monster difficulty dials) in prep and run mode.",
 	},
+	{
+		id: "solo5e",
+		label: "Solo play",
+		description:
+			"The Lazy Solo 5e oracle tables (chamber events, monument effects, treasures) in the tables panel, plus the solo procedure in Help.",
+	},
 ];
 
 /**

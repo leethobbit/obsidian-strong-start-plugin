@@ -7,12 +7,32 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ## [Unreleased]
 
+### Added
+
+- Phone shell (M12): bottom tab bar (Run · Prep · Home · More) replacing the desktop rail on phones, a native "More" sheet (quick roll, Tables, Secrets, Help), prep as a step-list → full-screen step editor drill-down with a back header, soft-keyboard handling so the run-mode log bar rides above the keyboard, and a compact run top bar on narrow widths.
+- Prep timer (M13): a quiet "Prep: N min" toolbar counter (counts only while the board is visible) and a congratulatory toast when all eight steps are done under thirty minutes — never a guilt trip when over.
+- Sessions sub-tab on Home (M13): every session with date, prep/played status, and recap presence at a glance, plus per-row continue-prep/run/rename/open actions.
+- Rename session note (M13): the title is free text; the session number stays the stable key.
+- Alt+R (M13): roll inspiration for the step you're working on, even while typing.
+- Dice tumble on roll chips and a card-flip on secret reveals in run mode (M13) — both disabled under reduced-motion; advantage/disadvantage rolls now get the nat-20/nat-1 garnish when the kept die earns it.
+- More first-use hints (M13): run-mode secret peeking, foundation editing, generator rerolls.
+- Wilderness travel & exploration reference (M15): travel roles, group stealth, and the journey framework as a section in the run-mode 5e drawer.
+- Lazy Solo 5e module (M15, feature-toggleable): the document's solo oracle tables (chamber events, monument effects, treasures) in the tables panel plus the full procedure in Help.
+- "Copy player recap" command (M15): a shareable campaign recap built from played sessions' recaps and revealed secrets only — unrevealed and retired secrets are excluded by construction.
+- "Copy session zero guide" command (M15): pitch, truths, expectations, and lines/veils as a hand-to-players page.
+- Quest notes (M15): the quest generator's "Save as note" now creates a managed, linkable `type: quest` entity under the campaign's Quests folder.
+- "Create demo campaign" command (M14): a fully populated example campaign (played session, mid-prep session with carried secrets, party, NPCs, locations, session zero) for first-run evaluation.
+
 ### Changed
 
 - Navigation rail now shows a text label beside each destination icon (wider rail) instead of icons alone.
+- SCHEMA.md is frozen at contract 1.0 — additive-only from here (M14).
+- README rewritten with the weekly loop, feature overview, screenshots, and install instructions (M14).
+- Feature toggles in settings now refresh open plugin views immediately instead of waiting for the next re-render.
 
 ### Fixed
 
+- Run mode's top bar no longer clips the End button behind a horizontal scrollbar in narrow panes.
 - Icon buttons across the plugin rendered blank: Obsidian's default button padding squeezed the icon SVG to zero width inside fixed-size buttons.
 - The 5e reference drawer closed itself when clicking the manual party size/level steppers.
 - Campaign options menu was a stub — it now offers rename (link-safe, folder-aware), archive/unarchive, open note, and new campaign; archived campaigns are labeled in the switcher.
@@ -22,7 +42,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 - Ctrl/Cmd+1–8 no longer switches prep steps while typing in a field.
 - Enter while confirming an IME composition candidate no longer submits forms or commits rows early.
 
-### Added
+### Added (v1, M0–M11)
 
 - Initial scaffold.
 - Campaign manager view: single host view with icon-rail navigation (Home, Prep, Run, Secrets, Tables, Help).

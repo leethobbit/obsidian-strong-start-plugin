@@ -47,6 +47,9 @@ export class LazyCampaignPluginSettingTab extends PluginSettingTab {
 						else disabled.add(feature.id);
 						this.plugin.settings.disabledFeatures = [...disabled];
 						await this.plugin.persist();
+						// Feature-gated UI (5e drawer, solo tables, session-zero
+						// tab) must follow the toggle while the view is open.
+						this.plugin.notifyFeaturesChanged();
 					})
 				);
 		}

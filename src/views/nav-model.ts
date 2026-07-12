@@ -14,7 +14,7 @@ export interface NavDestination {
 }
 
 export const DESTINATIONS: readonly NavDestination[] = [
-	{ mode: "home", label: "Home", icon: "castle", group: "hub", subtabs: ["dashboard", "foundation", "session-zero"] },
+	{ mode: "home", label: "Home", icon: "castle", group: "hub", subtabs: ["dashboard", "sessions", "foundation", "session-zero"] },
 	{ mode: "prep", label: "Prep", icon: "list-checks", group: "pipeline" },
 	{ mode: "run", label: "Run", icon: "play", group: "pipeline" },
 	{ mode: "secrets", label: "Secrets", icon: "key-round", group: "insight" },

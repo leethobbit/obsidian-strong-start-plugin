@@ -4,6 +4,7 @@ import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
 import { isSelfWrite } from "../../lib/self-write";
 import { readCampaignBody, writeCampaignSection } from "../../campaigns/campaign-files";
 import { blankFront, parseFronts, renderFronts, toggleFrontPortent, type Front } from "../../campaigns/fronts";
+import { renderHint } from "../../help/hint";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
 import { renderInspireControl, type RegisterDomEvent } from "../roll-chip";
 import { renderListSectionEditor, type SectionEditorCtx } from "../prep/steps/list-section-editor";
@@ -123,6 +124,13 @@ export class FoundationPanel {
 		container.empty();
 
 		const shell = container.createDiv({ cls: "lazy-campaign-foundation-shell" });
+		renderHint(
+			shell,
+			this.view,
+			this.view.plugin,
+			"foundation",
+			"Pitch, truths, and fronts live in the campaign note itself — edit them here or there, same text."
+		);
 		this.renderPitchCard(shell, campaign);
 		this.renderTruthsCard(shell, campaign);
 		this.renderFrontsCard(shell, campaign);

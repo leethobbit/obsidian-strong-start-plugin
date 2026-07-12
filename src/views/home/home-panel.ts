@@ -1,14 +1,16 @@
 import { DashboardPanel } from "./dashboard-panel";
+import { SessionsPanel } from "./sessions-panel";
 import { FoundationPanel } from "./foundation-panel";
 import { SessionZeroPanel } from "./session-zero-panel";
 import { CampaignWizardPanel } from "./campaign-wizard";
 import { featureEnabled } from "../../features";
 import type { LazyCampaignView } from "../lazy-view";
 
-export type HomeSubtab = "dashboard" | "foundation" | "session-zero";
+export type HomeSubtab = "dashboard" | "sessions" | "foundation" | "session-zero";
 
 const SUBTABS: readonly { id: HomeSubtab; label: string }[] = [
 	{ id: "dashboard", label: "Dashboard" },
+	{ id: "sessions", label: "Sessions" },
 	{ id: "foundation", label: "Foundation" },
 	{ id: "session-zero", label: "Session zero" },
 ];
@@ -38,11 +40,13 @@ export class HomePanel {
 	private shellEl!: HTMLElement;
 	private subtabRowEl!: HTMLElement;
 	private dashboardEl!: HTMLElement;
+	private sessionsEl!: HTMLElement;
 	private foundationEl!: HTMLElement;
 	private sessionZeroEl!: HTMLElement;
 	private wizardEl!: HTMLElement;
 
 	private readonly dashboard: DashboardPanel;
+	private readonly sessions: SessionsPanel;
 	private readonly foundation: FoundationPanel;
 	private readonly sessionZero: SessionZeroPanel;
 
@@ -51,6 +55,7 @@ export class HomePanel {
 		private readonly containerEl: HTMLElement
 	) {
 		this.dashboard = new DashboardPanel(view);
+		this.sessions = new SessionsPanel(view);
 		this.foundation = new FoundationPanel(view);
 		this.sessionZero = new SessionZeroPanel(view);
 	}
@@ -75,6 +80,7 @@ export class HomePanel {
 		toggleShown(this.subtabRowEl, !showWizard);
 		toggleShown(this.wizardEl, showWizard);
 		toggleShown(this.dashboardEl, !showWizard && this.subtab === "dashboard");
+		toggleShown(this.sessionsEl, !showWizard && this.subtab === "sessions");
 		toggleShown(this.foundationEl, !showWizard && this.subtab === "foundation");
 		toggleShown(this.sessionZeroEl, !showWizard && this.subtab === "session-zero");
 
@@ -87,6 +93,7 @@ export class HomePanel {
 		}
 
 		if (this.subtab === "dashboard") this.dashboard.render(this.dashboardEl, () => this.openWizard());
+		if (this.subtab === "sessions") this.sessions.render(this.sessionsEl);
 		if (this.subtab === "foundation") this.foundation.render(this.foundationEl, changedPaths);
 		if (this.subtab === "session-zero") this.sessionZero.render(this.sessionZeroEl, changedPaths);
 	}
@@ -128,6 +135,7 @@ export class HomePanel {
 		this.subtabRowEl = shell.createDiv({ cls: "lazy-campaign-tables-subtabs" });
 		const body = shell.createDiv({ cls: "lazy-campaign-home-body" });
 		this.dashboardEl = body.createDiv();
+		this.sessionsEl = body.createDiv();
 		this.foundationEl = body.createDiv();
 		this.sessionZeroEl = body.createDiv();
 		this.wizardEl = this.containerEl.createDiv({ cls: "lazy-campaign-home-wizard-mount" });

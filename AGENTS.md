@@ -6,7 +6,7 @@ TTRPG campaign manager built on the **Eight Steps of Lazy RPG Prep** (Lazy GM's 
 
 Full design plan (data model, UX, milestones): `docs/plan.md`. Frontmatter contract: `SCHEMA.md` (draft until 1.0, then frozen/additive-only).
 
-**Status (2026-07-12): v1 milestones M0–M11 shipped and verified; an interaction-bug review pass is committed. NEXT UP: M12 (phone shell) → M13 (delight/flow) → M14 (release; blocked on the naming decision) → M15 (content/export) — full specs and the naming shortlist live in `docs/plan.md` → "Next milestone set".**
+**Status (2026-07-12): M0–M15 shipped and verified. SCHEMA.md is FROZEN at contract 1.0 (additive-only). Remaining before store submission (all user-gated): the naming decision (shortlist in `docs/plan.md` M14 — every candidate is collision-free in the community store as of 2026-07-12), a real-device mobile pass, the BRAT beta round, and the release/submission runbook itself.**
 
 **Boundary**: `obsidian-draft-schemes-plugin` (sibling repo) is Draw Steel-specific bestiary/lorekeeper. This plugin stays system-agnostic prep-flow (+ optional 5e improv module); bestiary/statblock features belong there, not here.
 
@@ -30,7 +30,7 @@ Obsidian plugin conventions (toolchain, Vault API rules, deferred views, mobile,
 
 ## Architecture rules
 
-- **Discovery**: query `app.metadataCache` for `frontmatter.lazyCampaign?.type` (`campaign | session | session-zero | pc | npc | location | table`). Never walk folders — folders are tidy defaults, a note dragged anywhere still works.
+- **Discovery**: query `app.metadataCache` for `frontmatter.lazyCampaign?.type` (`campaign | session | session-zero | pc | npc | location | quest | table`). Never walk folders — folders are tidy defaults, a note dragged anywhere still works.
 - **Frontmatter vs body**: state (ids, flags, link arrays, secrets) lives under the single `lazyCampaign` key via `processFrontMatter`; prose lives in the body under managed H2 sections edited only through `src/lib/sections.ts` (replace one section, never rewrite whole bodies). "Cleared = deleted": prune falsey flags/empty fields.
 - **Joins**: wikilinks (`lazyCampaign.campaign: "[[Name]]"`) — Obsidian rename-updates them. Machine identity uses stable base36 ids (`s-8f3k2a`); never key logic off display text.
 - **Secrets**: sessions are the sole source of truth; campaign-wide views are derived folds. Carry-forward is pure (`src/sessions/carryover.ts`), re-runnable, strictly additive; deletes of carried secrets are `archived: true` tombstones, never row removals.

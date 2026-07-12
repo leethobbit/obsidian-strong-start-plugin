@@ -48,6 +48,13 @@ export function mountRollChip(options: RollChipOptions): void {
 			return;
 		}
 
+		// Dice tumble (docs/plan.md M13 delight): a small die glyph that spins
+		// as each result lands. The animation lives on the icon, re-triggered
+		// naturally because every (re)roll rebuilds the chip's DOM; CSS turns
+		// it off under prefers-reduced-motion.
+		const tumble = card.createSpan({ cls: "lazy-campaign-roll-chip-die" });
+		setIcon(tumble, "dices");
+
 		card.createDiv({ cls: "lazy-campaign-roll-chip-text", text: result.text });
 		card.createDiv({ cls: "lazy-campaign-roll-chip-source", text: `From ${options.sourceLabel}` });
 

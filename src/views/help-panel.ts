@@ -6,6 +6,7 @@
 import { Notice } from "obsidian";
 import { STEPS } from "../sessions/steps";
 import { ATTRIBUTION_TEXT, ATTRIBUTION_URL } from "../content/attribution";
+import { featureEnabled } from "../features";
 import { WelcomeModal } from "../help/welcome-modal";
 import type { LazyCampaignView } from "./lazy-view";
 
@@ -32,7 +33,9 @@ const WEEKLY_LOOP: readonly string[] = [
 
 const KEYBOARD_SHORTCUTS: ReadonlyArray<{ keys: string; text: string }> = [
 	{ keys: "Ctrl/Cmd+1–8", text: "Jump to a prep step." },
+	{ keys: "Alt+R", text: "Roll inspiration for the step you're working on — even mid-type." },
 	{ keys: "Enter", text: "Add a new row in scenes, rewards, and other list editors." },
+	{ keys: "Space", text: "Toggle the focused scene in run mode." },
 ];
 
 export class HelpPanel {
@@ -48,7 +51,33 @@ export class HelpPanel {
 		this.renderLoopCard(shell);
 		this.renderStepsCard(shell);
 		this.renderShortcutsCard(shell);
+		if (featureEnabled(this.view.plugin.settings, "solo5e")) this.renderSoloCard(shell);
 		this.renderLinksCard(shell);
+	}
+
+	/** The Lazy Solo 5e procedure (M15) — the prose half of the solo module;
+	 * its three oracle tables live in the tables panel under the same
+	 * `solo5e` toggle. Condensed from the resource document (CC-BY 4.0). */
+	private renderSoloCard(shell: HTMLElement): void {
+		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		card.createEl("h3", { text: "Solo play" });
+		card.createEl("p", {
+			// "Lazy Solo 5e" is the source document's own section title — keep
+			// its capitalization (same policy as the attribution link in
+			// settings-tab.ts).
+			// eslint-disable-next-line obsidianmd/ui/sentence-case
+			text: "The Lazy Solo 5e rules: one character, a dungeon map of your choice, quests from the generators, oracles from the built-in tables.",
+		});
+		const list = card.createEl("ol", { cls: "lazy-campaign-help-loop-list" });
+		const steps = [
+			"Build the quest: roll an NPC quest-giver, a quest, and a location from the generators. Pick a map with fifteen or more rooms and a sensible starting room. Start at 1st level.",
+			"Each chamber you enter, roll on “Solo — chamber events”. Every “quest progress” result advances the quest one step — your fourth is the final challenge; beat it and gain a level.",
+			"Traps and hazards: DC 12 to spot, DC 12 to avoid; failure deals 1d6 damage per character level. Roll the trap itself on the traps table.",
+			"Monsters come from the dungeon monsters table at a level equal to yours; they start 25 feet away with initiative 10 + their Dexterity bonus.",
+			"Monuments: roll “Solo — monument effects”. Helpful ones buff you, harmful ones buff the monster; for neutral ones a DC 12 Intelligence (Arcana or Religion) check decides who benefits.",
+			"After a kill or an unguarded-treasure result, roll “Solo — treasures”; consumables and permanents come from the treasure generator.",
+		];
+		for (const step of steps) list.createEl("li", { text: step });
 	}
 
 	private renderLoopCard(shell: HTMLElement): void {

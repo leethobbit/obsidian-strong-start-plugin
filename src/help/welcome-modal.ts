@@ -15,7 +15,7 @@ const WELCOME_HINT_ID = "welcome";
  * `nav-model.ts` (pure) since it's welcome-modal-specific copy, not part of
  * the nav model itself. Footer destinations (Help) aren't shown in the grid. */
 const DESTINATION_DESCRIPTIONS: Partial<Record<NavMode, string>> = {
-	home: "Your campaign at a glance — dashboard, foundation, and session zero.",
+	home: "Your campaign at a glance — dashboard, session list, foundation, and session zero.",
 	prep: "The eight-step worksheet — the hero screen of the whole plugin.",
 	run: "A distraction-free, at-the-table view for when players are watching.",
 	secrets: "The ledger of everything carried between sessions.",
