@@ -55,6 +55,63 @@ export class SectionState {
 	}
 }
 
+/** The slice of `Component`'s API `renderStepper` needs — deliberately
+ * narrower than `Component` itself so `step-context.ts`'s `StepContext`
+ * (which exposes `registerDomEvent` but isn't a `Component`) can be passed
+ * here too, alongside a real view/panel `Component`. */
+export interface DomEventOwner {
+	registerDomEvent<K extends keyof HTMLElementEventMap>(
+		el: HTMLElement,
+		type: K,
+		cb: (evt: HTMLElementEventMap[K]) => void
+	): void;
+}
+
+export interface StepperOptions {
+	value: number;
+	min: number;
+	max: number;
+	/** Accessible label for the +/- buttons, e.g. "character level". */
+	label: string;
+	onChange: (next: number) => void;
+}
+
+/**
+ * A minus/value/plus stepper (roster-row level edits, M10's manual
+ * party-size/level override) — deliberately buttons, not a raw number
+ * `<input>`, so every change is a single, unambiguous click rather than a
+ * partially-typed intermediate value. Callers own re-rendering the value
+ * (this returns the value span so a caller that owns the surrounding row can
+ * update its text directly without a full rebuild, matching `chip-editor.ts`'s
+ * local-redraw pattern).
+ */
+export function renderStepper(container: HTMLElement, owner: DomEventOwner, options: StepperOptions): HTMLElement {
+	const wrap = container.createDiv({ cls: "lazy-campaign-stepper" });
+
+	const minusBtn = wrap.createEl("button", {
+		cls: "lazy-campaign-stepper-btn",
+		text: "−",
+		attr: { type: "button", "aria-label": `Decrease ${options.label}` },
+	});
+	const valueEl = wrap.createSpan({ cls: "lazy-campaign-stepper-value", text: String(options.value) });
+	const plusBtn = wrap.createEl("button", {
+		cls: "lazy-campaign-stepper-btn",
+		text: "+",
+		attr: { type: "button", "aria-label": `Increase ${options.label}` },
+	});
+
+	owner.registerDomEvent(minusBtn, "click", () => {
+		const next = Math.max(options.min, options.value - 1);
+		if (next !== options.value) options.onChange(next);
+	});
+	owner.registerDomEvent(plusBtn, "click", () => {
+		const next = Math.min(options.max, options.value + 1);
+		if (next !== options.value) options.onChange(next);
+	});
+
+	return valueEl;
+}
+
 /**
  * A labeled, chevron-toggled collapsible section, its collapsed state tracked
  * in `state` under `key`. `buildBody` runs once, immediately — the body

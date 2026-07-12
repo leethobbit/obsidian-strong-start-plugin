@@ -22,9 +22,11 @@ Path default: `<campaignRoot>/<Name>/<Name>.md` (folder note).
 lazyCampaign:
   type: campaign
   id: c-4k2j9x          # stable; survives rename/move
-  system: "5e"          # free string; "5e" lights up 5e affordances when the module is on
+  system: "5e"          # free string, advisory only (M10)
   status: active        # active | archived; absent = active
 ```
+
+`system` is a free string with no parsing/validation and does **not** gate anything — the `dnd5e` feature toggle alone (`src/features.ts`) decides whether 5e UI shows, everywhere it appears, regardless of this field's value. Keeping `system` advisory avoids a second on/off signal to keep in sync with the feature toggle; a future major version could revisit auto-suggesting the toggle based on this field, but M10 does not.
 
 Managed body sections (scaffolded once, then user-owned; parsed leniently, never rewritten wholesale):
 `## Campaign pitch` · `## Six truths` (bullet list) · `## Fronts` (one `### <Front>` each: goal line, `- [ ]` grim portents, doom line) · `## House rules`.
@@ -84,9 +86,12 @@ lazyCampaign:
   campaign: "[[Greenhollow]]"
   player: Sarah
   role: wizard          # optional free string
+  level: 4              # optional, 1-20; absent = unset (M10: sizes the 5e encounter benchmark)
 ```
 
 Membership lives on the child: the party roster is a scan for `type: pc` + campaign link. There is no roster array on the campaign.
+
+`level` is edited inline on the Characters step's roster rows (a stepper, not a text field) and read leniently (tolerates a numeric string, drops anything outside 1-20). It's advisory-only outside the 5e module: the benchmark card falls back to a manual party-size/level override in-memory when it's unset on some or all PCs.
 
 ### NPC — `type: npc`
 

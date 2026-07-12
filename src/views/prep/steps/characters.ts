@@ -1,11 +1,17 @@
-import { Notice, type App } from "obsidian";
+import { Notice, TFile, type App } from "obsidian";
 import { FormModal } from "../../../lib/form-modal";
 import { textField } from "../../../lib/form-fields";
 import { tryFileOp } from "../../../lib/notify";
+import { asLazy, writeLazyFrontmatter } from "../../../lib/frontmatter";
 import { createPcNote } from "../../../roster/entity-files";
-import { renderEmptyState } from "../../panel-kit";
+import { readPcFm, writePcFm } from "../../../roster/entity-schema";
+import { renderEmptyState, renderStepper } from "../../panel-kit";
 import type { StepContext } from "../step-context";
 import type { CampaignModel } from "../../../campaigns/types";
+import type { PcModel } from "../../../roster/types";
+
+const MIN_LEVEL = 1;
+const MAX_LEVEL = 20;
 
 /**
  * Roster from a store scan for `type: pc` notes of this campaign. Nothing
@@ -25,12 +31,25 @@ export function renderCharactersStep(container: HTMLElement, ctx: StepContext): 
 	} else {
 		const list = container.createEl("ul", { cls: "lazy-campaign-roster-list" });
 		for (const pc of pcs) {
-			const item = list.createEl("li");
+			const item = list.createEl("li", { cls: "lazy-campaign-roster-row" });
 			const label = pc.player ? `${pc.name} (${pc.player})` : pc.name;
 			const link = item.createEl("a", { cls: "lazy-campaign-session-link", text: label, attr: { href: "#" } });
 			ctx.registerDomEvent(link, "click", (evt) => {
 				evt.preventDefault();
 				void ctx.openNote(pc.path);
+			});
+
+			// M10: inline level edit (SCHEMA.md "pc" level, optional 1-20) — a
+			// stepper writing straight to that PC's own note, not the session's
+			// frontmatter (level is per-character, not per-session state).
+			const levelRow = item.createSpan({ cls: "lazy-campaign-roster-level" });
+			levelRow.createSpan({ cls: "lazy-campaign-roster-level-label", text: "Lv" });
+			renderStepper(levelRow, ctx, {
+				value: pc.level ?? MIN_LEVEL,
+				min: MIN_LEVEL,
+				max: MAX_LEVEL,
+				label: `${pc.name}'s level`,
+				onChange: (next) => void setPcLevel(ctx, pc, next),
 			});
 		}
 	}
@@ -39,6 +58,24 @@ export function renderCharactersStep(container: HTMLElement, ctx: StepContext): 
 	ctx.registerDomEvent(createBtn, "click", () => {
 		new CreatePcModal(ctx.app, ctx.campaign, () => ctx.requestRerender()).open();
 	});
+}
+
+/** Writes straight to `pc`'s own note frontmatter (never the session's) — the
+ * roster is a scan, so a successful write is picked up by the next store
+ * notification, but the step also rerenders itself optimistically the same
+ * way "Create character note" does. */
+async function setPcLevel(ctx: StepContext, pc: PcModel, level: number): Promise<void> {
+	const file = ctx.app.vault.getFileByPath(pc.path);
+	if (!(file instanceof TFile)) return;
+
+	const existing = asLazy(ctx.app.metadataCache.getFileCache(file)?.frontmatter);
+	const current = readPcFm(existing) ?? { campaign: pc.campaign, player: pc.player, role: pc.role };
+
+	await tryFileOp(
+		() => writeLazyFrontmatter(ctx.app, file, writePcFm({ ...current, level })),
+		"Couldn't save that character's level — check the console for details."
+	);
+	ctx.requestRerender();
 }
 
 class CreatePcModal extends FormModal {

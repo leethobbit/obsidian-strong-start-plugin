@@ -9,6 +9,8 @@ export interface PcModel {
 	campaign: string;
 	player?: string;
 	role?: string;
+	/** Optional character level (1-20), M10. */
+	level?: number;
 }
 
 export interface NpcNoteModel {

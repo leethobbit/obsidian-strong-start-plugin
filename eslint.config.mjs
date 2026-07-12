@@ -76,8 +76,8 @@ export default tseslint.config(
       // the rule. The store review does not gate on it, so it must not block a
       // release; it still catches genuine Title Case slips.
       "obsidianmd/ui/sentence-case": ["warn", {
-        brands: ["Lazy GM's campaign manager", "Lazy GM's Resource Document", "Obsidian", "NPCs", "NPC"],
-        acronyms: ["X"], // the X-card safety tool
+        brands: ["Lazy GM's campaign manager", "Lazy GM's Resource Document", "Obsidian", "NPCs", "NPC", "5e"],
+        acronyms: ["X", "DC", "CR", "AC", "HP"], // X-card safety tool; 5e module (M10) terms
         ignoreWords: ["e.g.", "i.e."],
       }],
     },

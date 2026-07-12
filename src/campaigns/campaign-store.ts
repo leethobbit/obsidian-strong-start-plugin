@@ -160,7 +160,14 @@ export class CampaignStore extends Component {
 			if (!fm) continue;
 			const dest = this.resolveWikilink(fm.campaign, note.path);
 			if (!dest || dest.path !== campaignPath) continue;
-			models.push({ path: note.path, name: note.file.basename, campaign: fm.campaign, player: fm.player, role: fm.role });
+			models.push({
+				path: note.path,
+				name: note.file.basename,
+				campaign: fm.campaign,
+				player: fm.player,
+				role: fm.role,
+				level: fm.level,
+			});
 		}
 		return models.sort((a, b) => a.name.localeCompare(b.name));
 	}

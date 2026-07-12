@@ -1899,3 +1899,181 @@
 	margin: 0;
 	color: var(--text-muted);
 }
+
+/* ---- Roster level stepper (Characters step, M10) ---------------------------- */
+
+.lazy-campaign-roster-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-3);
+}
+
+.lazy-campaign-roster-level {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	color: var(--text-muted);
+}
+
+.lazy-campaign-roster-level-label {
+	font-size: var(--font-ui-smaller);
+}
+
+/* ---- Stepper control (panel-kit.ts renderStepper, M10) ---------------------- */
+
+.lazy-campaign-stepper {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-stepper-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	min-height: 28px;
+	padding: 0;
+}
+
+.lazy-campaign-stepper-value {
+	min-width: 1.5em;
+	text-align: center;
+	color: var(--text-normal);
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---- 5e module (M10): benchmark card, DC/damage/stats tables, dials --------- */
+
+.lazy-campaign-dnd5e-benchmark-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+	padding: var(--size-4-3);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-dnd5e-benchmark-summary {
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+}
+
+.lazy-campaign-dnd5e-benchmark-readout {
+	color: var(--text-normal);
+}
+
+.lazy-campaign-dnd5e-benchmark-manual h4 {
+	margin: var(--size-4-2) 0 0;
+}
+
+.lazy-campaign-dnd5e-benchmark-manual-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--size-4-2);
+	max-width: 16em;
+}
+
+.lazy-campaign-dnd5e-dc-row {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-dnd5e-dc-band {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--size-4-1);
+	padding: var(--size-4-2);
+	text-align: center;
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-dnd5e-dc-value {
+	font-weight: var(--font-semibold);
+	font-size: var(--font-ui-larger);
+}
+
+.lazy-campaign-dnd5e-dc-name {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-dnd5e-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.lazy-campaign-dnd5e-table th,
+.lazy-campaign-dnd5e-table td {
+	padding: var(--size-4-1) var(--size-4-2);
+	text-align: left;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-dnd5e-dials-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-dnd5e-dial-name {
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+}
+
+.lazy-campaign-dnd5e-dial-desc {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+/* ---- Run mode: 5e drawer (M10) ---------------------------------------------- */
+
+.lazy-campaign-run-dnd5e-drawer {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 15;
+	display: flex;
+	flex-direction: column;
+	width: min(24em, 90%);
+	padding: var(--size-4-4);
+	overflow-y: auto;
+	background-color: var(--background-primary);
+	border-left: 1px solid var(--background-modifier-border);
+	box-shadow: var(--shadow-l);
+	transform: translateX(100%);
+	transition: transform 200ms ease;
+}
+
+.lazy-campaign-run-dnd5e-drawer.is-open {
+	transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lazy-campaign-run-dnd5e-drawer {
+		transition: none;
+	}
+}
+
+.lazy-campaign-run-dnd5e-drawer-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--size-4-2);
+	margin-bottom: var(--size-4-3);
+}
+
+.lazy-campaign-run-dnd5e-drawer-header h3 {
+	margin: 0;
+}
+
+.lazy-campaign-run-dnd5e-drawer-body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}

@@ -6,6 +6,10 @@ export interface PcFm {
 	campaign: string;
 	player?: string;
 	role?: string;
+	/** Optional character level (1-20), M10: sizes the 5e encounter benchmark
+	 * card. Absent when never set — the benchmark card falls back to a manual
+	 * override in that case, never a guessed default. */
+	level?: number;
 }
 
 export interface NpcFm {
@@ -28,16 +32,38 @@ function readOptionalString(value: unknown): string | undefined {
 	return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
+/** Lenient: accepts a finite number in 1-20, tolerates a numeric string
+ * (hand-edited frontmatter), and drops anything else rather than throwing —
+ * "cleared = deleted" means an absent/malformed level just falls back to the
+ * benchmark card's manual override. */
+function readOptionalLevel(value: unknown): number | undefined {
+	const num = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+	if (!Number.isFinite(num)) return undefined;
+	const rounded = Math.round(num);
+	return rounded >= 1 && rounded <= 20 ? rounded : undefined;
+}
+
 export function readPcFm(fm: unknown): PcFm | null {
 	if (typeof fm !== "object" || fm === null) return null;
 	const source = fm as Record<string, unknown>;
 	const campaign = readCampaignLink(source);
 	if (!campaign) return null;
-	return { campaign, player: readOptionalString(source.player), role: readOptionalString(source.role) };
+	return {
+		campaign,
+		player: readOptionalString(source.player),
+		role: readOptionalString(source.role),
+		level: readOptionalLevel(source.level),
+	};
 }
 
 export function writePcFm(model: PcFm): Record<string, unknown> {
-	return { type: "pc", campaign: model.campaign, player: model.player ?? "", role: model.role ?? "" };
+	return {
+		type: "pc",
+		campaign: model.campaign,
+		player: model.player ?? "",
+		role: model.role ?? "",
+		level: model.level ?? "",
+	};
 }
 
 export function readNpcFm(fm: unknown): NpcFm | null {

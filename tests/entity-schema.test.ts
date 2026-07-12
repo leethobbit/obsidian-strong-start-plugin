@@ -10,10 +10,11 @@ import {
 
 describe("PC codec", () => {
 	it("reads a well-formed pc", () => {
-		expect(readPcFm({ type: "pc", campaign: "[[Greenhollow]]", player: "Sarah", role: "wizard" })).toEqual({
+		expect(readPcFm({ type: "pc", campaign: "[[Greenhollow]]", player: "Sarah", role: "wizard", level: 4 })).toEqual({
 			campaign: "[[Greenhollow]]",
 			player: "Sarah",
 			role: "wizard",
+			level: 4,
 		});
 	});
 
@@ -28,7 +29,24 @@ describe("PC codec", () => {
 			campaign: "[[Greenhollow]]",
 			player: "Sarah",
 			role: "",
+			level: "",
 		});
+	});
+
+	it("round-trips level through write then read", () => {
+		const written = writePcFm({ campaign: "[[Greenhollow]]", level: 7 });
+		expect(readPcFm(written)?.level).toBe(7);
+	});
+
+	it("is lenient about level: tolerates a numeric string, drops out-of-range or non-numeric values", () => {
+		expect(readPcFm({ campaign: "[[Greenhollow]]", level: "12" })?.level).toBe(12);
+		expect(readPcFm({ campaign: "[[Greenhollow]]", level: 0 })?.level).toBeUndefined();
+		expect(readPcFm({ campaign: "[[Greenhollow]]", level: 21 })?.level).toBeUndefined();
+		expect(readPcFm({ campaign: "[[Greenhollow]]", level: "wizard" })?.level).toBeUndefined();
+	});
+
+	it("absent level reads as undefined (cleared = deleted)", () => {
+		expect(readPcFm({ campaign: "[[Greenhollow]]" })?.level).toBeUndefined();
 	});
 });
 

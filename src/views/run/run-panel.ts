@@ -14,6 +14,14 @@ import { tryFileOp } from "../../lib/notify";
 import { rollDice } from "../../tables/dice";
 import { formatClockTime, formatElapsed } from "../../lib/format-elapsed";
 import { readNpcFm } from "../../roster/entity-schema";
+import { featureEnabled } from "../../features";
+import {
+	renderBenchmarkCard,
+	renderDifficultyDialsList,
+	renderImprovisedDamageTable,
+	renderImprovisedDcSection,
+	renderQuickMonsterStatsTable,
+} from "../../dnd5e/dnd5e-cards";
 import { EndSessionModal } from "./end-session-modal";
 import type { CampaignModel } from "../../campaigns/types";
 import type { Secret, SessionModel } from "../../sessions/types";
@@ -76,6 +84,15 @@ export class RunPanel {
 	private scenesListEl: HTMLElement | null = null;
 	private secretsListEl: HTMLElement | null = null;
 
+	// 5e drawer (docs/plan.md M10) — settings-gated, read-only reference.
+	// `dnd5eOpen`/section-collapse state is in-memory only and resets on the
+	// next full rebuild (session switch), same policy as the other run-mode
+	// UI-only state on this class.
+	private dnd5eOpen = false;
+	private dnd5eDrawerEl: HTMLElement | null = null;
+	private dnd5eButtonEl: HTMLElement | null = null;
+	private readonly dnd5eSectionState = new SectionState();
+
 	private readonly rebuildQueue: DeferredRebuildQueue;
 
 	constructor(
@@ -91,6 +108,9 @@ export class RunPanel {
 		);
 
 		this.view.registerDomEvent(containerEl.ownerDocument, "click", (evt) => this.handleOutsideClick(evt));
+		this.view.registerDomEvent(containerEl.ownerDocument, "keydown", (evt) => {
+			if (evt.key === "Escape" && this.dnd5eOpen) this.setDnd5eOpen(false);
+		});
 		this.view.registerInterval(window.setInterval(() => this.updateTimerText(), 1000));
 		this.view.register(() => this.disposeDom());
 	}
@@ -217,6 +237,8 @@ export class RunPanel {
 		const logBar = shell.createDiv({ cls: "lazy-campaign-run-logbar" });
 		this.renderLogBar(logBar, session);
 
+		this.renderDnd5eDrawer(shell, campaign);
+
 		this.updateTimerText();
 	}
 
@@ -264,7 +286,21 @@ export class RunPanel {
 		setIcon(safetyBtn, "shield");
 		this.view.registerDomEvent(safetyBtn, "click", () => this.openSafetyCard(campaign));
 
-		// M10: 5e drawer button mounts here (feature-gated on `dnd5e`, src/features.ts).
+		// 5e module (docs/plan.md M10) — zero UI when the feature is off.
+		if (featureEnabled(this.view.plugin.settings, "dnd5e")) {
+			const dnd5eBtn = container.createEl("button", {
+				cls: "lazy-campaign-run-icon-button",
+				attr: { "aria-label": "5e reference", type: "button" },
+			});
+			setIcon(dnd5eBtn, "swords");
+			this.dnd5eButtonEl = dnd5eBtn;
+			this.view.registerDomEvent(dnd5eBtn, "click", (evt) => {
+				evt.stopPropagation();
+				this.setDnd5eOpen(!this.dnd5eOpen);
+			});
+		} else {
+			this.dnd5eButtonEl = null;
+		}
 
 		const endBtn = container.createEl("button", {
 			cls: "mod-warning lazy-campaign-run-end-button",
@@ -322,6 +358,14 @@ export class RunPanel {
 		if (this.peekedSecretId !== null && this.secretsListEl && !this.secretsListEl.contains(target)) {
 			this.peekedSecretId = null;
 			this.renderSecrets();
+		}
+		if (
+			this.dnd5eOpen &&
+			this.dnd5eDrawerEl &&
+			!this.dnd5eDrawerEl.contains(target) &&
+			!this.dnd5eButtonEl?.contains(target)
+		) {
+			this.setDnd5eOpen(false);
 		}
 	}
 
@@ -673,6 +717,58 @@ export class RunPanel {
 		}
 		const leaf = this.view.app.workspace.getLeaf(true);
 		await leaf.openFile(file);
+	}
+
+	// ---- 5e drawer (docs/plan.md M10) --------------------------------------
+
+	/** Built once per `fullRebuild` (feature-gated, so absent entirely when
+	 * `dnd5e` is off) and toggled open/closed via a CSS class rather than
+	 * rebuilt — the benchmark card's manual-override steppers live inside it,
+	 * and rebuilding on every toggle would reset them for no reason. */
+	private renderDnd5eDrawer(shell: HTMLElement, campaign: CampaignModel): void {
+		if (!featureEnabled(this.view.plugin.settings, "dnd5e")) {
+			this.dnd5eDrawerEl = null;
+			return;
+		}
+
+		const drawer = shell.createDiv({ cls: "lazy-campaign-run-dnd5e-drawer" });
+		this.dnd5eDrawerEl = drawer;
+		drawer.toggleClass("is-open", this.dnd5eOpen);
+		drawer.setAttribute("aria-hidden", this.dnd5eOpen ? "false" : "true");
+
+		const header = drawer.createDiv({ cls: "lazy-campaign-run-dnd5e-drawer-header" });
+		header.createEl("h3", { text: "5e reference" });
+		const closeBtn = header.createEl("button", {
+			cls: "lazy-campaign-run-icon-button",
+			attr: { "aria-label": "Close 5e reference", type: "button" },
+		});
+		setIcon(closeBtn, "x");
+		this.view.registerDomEvent(closeBtn, "click", () => this.setDnd5eOpen(false));
+
+		const body = drawer.createDiv({ cls: "lazy-campaign-run-dnd5e-drawer-body" });
+		const pcs = this.view.plugin.store?.pcsOf(campaign.path) ?? [];
+
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "benchmark", "Encounter benchmark", (sectionBody) =>
+			renderBenchmarkCard(sectionBody, { owner: this.view, pcs })
+		);
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "dcs", "Improvised DCs", (sectionBody) =>
+			renderImprovisedDcSection(sectionBody)
+		);
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "damage", "Improvised damage", (sectionBody) =>
+			renderImprovisedDamageTable(sectionBody)
+		);
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "stats", "Quick monster stats", (sectionBody) =>
+			renderQuickMonsterStatsTable(sectionBody)
+		);
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "dials", "Difficulty dials", (sectionBody) =>
+			renderDifficultyDialsList(sectionBody)
+		);
+	}
+
+	private setDnd5eOpen(open: boolean): void {
+		this.dnd5eOpen = open;
+		this.dnd5eDrawerEl?.toggleClass("is-open", open);
+		this.dnd5eDrawerEl?.setAttribute("aria-hidden", open ? "false" : "true");
 	}
 
 	// ---- Safety card ------------------------------------------------------
