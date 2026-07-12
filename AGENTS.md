@@ -6,6 +6,8 @@ TTRPG campaign manager built on the **Eight Steps of Lazy RPG Prep** (Lazy GM's 
 
 Full design plan (data model, UX, milestones): `docs/plan.md`. Frontmatter contract: `SCHEMA.md` (draft until 1.0, then frozen/additive-only).
 
+**Status (2026-07-12): v1 milestones M0–M11 shipped and verified; an interaction-bug review pass is committed. NEXT UP: M12 (phone shell) → M13 (delight/flow) → M14 (release; blocked on the naming decision) → M15 (content/export) — full specs and the naming shortlist live in `docs/plan.md` → "Next milestone set".**
+
 **Boundary**: `obsidian-draft-schemes-plugin` (sibling repo) is Draw Steel-specific bestiary/lorekeeper. This plugin stays system-agnostic prep-flow (+ optional 5e improv module); bestiary/statblock features belong there, not here.
 
 ## Stack reference
