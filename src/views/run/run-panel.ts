@@ -124,7 +124,12 @@ export class RunPanel {
 			this.campaign = null;
 			this.session = null;
 			this.containerEl.empty();
-			renderEmptyState(this.containerEl, "Create a campaign from Home first.");
+			renderEmptyStateAction(this.containerEl, this.view, {
+				title: "No campaign yet",
+				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero.",
+				ctaText: "Create your campaign",
+				onCta: () => this.view.openCampaignCreation(),
+			});
 			return;
 		}
 
@@ -447,8 +452,14 @@ export class RunPanel {
 		if (options?.nat1) toast.addClass("is-nat1");
 		toast.setText(display);
 
-		this.view.registerInterval(window.setTimeout(() => toast.addClass("is-leaving"), DICE_TOAST_LEAVE_MS));
-		this.view.registerInterval(window.setTimeout(() => toast.remove(), DICE_TOAST_TOTAL_MS));
+		// setTimeout handles get their own clearTimeout teardown —
+		// registerInterval's contract is for setInterval handles.
+		const leaveHandle = window.setTimeout(() => toast.addClass("is-leaving"), DICE_TOAST_LEAVE_MS);
+		const removeHandle = window.setTimeout(() => toast.remove(), DICE_TOAST_TOTAL_MS);
+		this.view.register(() => {
+			window.clearTimeout(leaveHandle);
+			window.clearTimeout(removeHandle);
+		});
 	}
 
 	// ---- Strong start (read-aloud, rendered markdown) -------------------------

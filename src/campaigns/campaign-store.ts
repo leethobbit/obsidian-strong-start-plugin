@@ -32,6 +32,7 @@ export class CampaignStore extends Component {
 	private readonly app: App;
 	private readonly index = new Map<string, IndexedNote>();
 	private readonly subscribers = new Set<Subscriber>();
+	private initialResolveScanDone = false;
 
 	constructor(app: App) {
 		super();
@@ -43,11 +44,16 @@ export class CampaignStore extends Component {
 
 		this.registerEvent(
 			this.app.metadataCache.on("resolved", () => {
-				// Fires after every full resolution pass, including the first one
-				// at startup — a full rescan catches anything not yet cached when
-				// this component loaded. `indexFile` only reports real changes, so
-				// redundant later firings are no-ops.
-				this.scanAll();
+				// The startup resolution pass can complete after this component
+				// loaded, so one follow-up full rescan catches anything that
+				// wasn't cached yet at `onload`. Later "resolved" firings (big
+				// pastes, sync merges) are already covered file-by-file by the
+				// "changed" listener below — skipping the O(vault) rescan there
+				// keeps large vaults jank-free.
+				if (!this.initialResolveScanDone) {
+					this.initialResolveScanDone = true;
+					this.scanAll();
+				}
 			})
 		);
 

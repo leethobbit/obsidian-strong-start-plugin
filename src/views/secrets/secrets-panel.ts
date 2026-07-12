@@ -3,7 +3,8 @@ import { openSecrets, type DerivedSecret, type SecretState } from "../../session
 import { archiveSecret, restoreSecret, revealSecret } from "../../sessions/secrets-ops";
 import { patchSessionSecrets } from "../../sessions/session-files";
 import { tryFileOp } from "../../lib/notify";
-import { renderEmptyState } from "../panel-kit";
+import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
+import { renderHint } from "../../help/hint";
 import { RevealSecretModal } from "./reveal-secret-modal";
 import type { LazyCampaignView } from "../lazy-view";
 
@@ -43,7 +44,12 @@ export class SecretsPanel {
 		const campaign = plugin.activeCampaign();
 
 		if (!campaign) {
-			renderEmptyState(this.containerEl, "Create a campaign from Home first.");
+			renderEmptyStateAction(this.containerEl, this.view, {
+				title: "No campaign yet",
+				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero.",
+				ctaText: "Create your campaign",
+				onCta: () => this.view.openCampaignCreation(),
+			});
 			return;
 		}
 
@@ -51,6 +57,13 @@ export class SecretsPanel {
 		const derived = openSecrets(sessions);
 
 		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-secrets-shell" });
+		renderHint(
+			shell,
+			this.view,
+			this.view.plugin,
+			"secrets-ledger",
+			"Secrets are born in prep and revealed in run mode — this is where you audit what's still floating."
+		);
 		this.renderStatLine(shell, derived);
 		// Created in DOM order (filters row, then list) before either is
 		// populated, so `renderFilters` can close over `listEl` to refresh just

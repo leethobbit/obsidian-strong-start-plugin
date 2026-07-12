@@ -4,7 +4,7 @@ import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
 import { isSelfWrite } from "../../lib/self-write";
 import { readCampaignBody, writeCampaignSection } from "../../campaigns/campaign-files";
 import { blankFront, parseFronts, renderFronts, toggleFrontPortent, type Front } from "../../campaigns/fronts";
-import { renderEmptyState } from "../panel-kit";
+import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
 import { renderInspireControl, type RegisterDomEvent } from "../roll-chip";
 import { renderListSectionEditor, type SectionEditorCtx } from "../prep/steps/list-section-editor";
 import { rollTable } from "../../tables/roll";
@@ -60,7 +60,12 @@ export class FoundationPanel {
 		if (!campaign) {
 			this.disposeTransient();
 			container.empty();
-			renderEmptyState(container, "Create a campaign from Home first.");
+			renderEmptyStateAction(container, this.view, {
+				title: "No campaign yet",
+				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero.",
+				ctaText: "Create your campaign",
+				onCta: () => this.view.openCampaignCreation(),
+			});
 			return;
 		}
 

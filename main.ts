@@ -1,10 +1,12 @@
-import { Plugin, type WorkspaceLeaf } from "obsidian";
+import { Notice, Plugin, TFile, type WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, type LazyCampaignPluginSettings } from "./src/settings/settings";
 import { LazyCampaignPluginSettingTab } from "./src/settings/settings-tab";
 import { CampaignStore } from "./src/campaigns/campaign-store";
 import { CreateCampaignModal } from "./src/campaigns/create-campaign";
 import type { CampaignModel } from "./src/campaigns/types";
 import { createNextSession } from "./src/sessions/session-files";
+import { buildSessionSheet } from "./src/sessions/session-sheet";
+import type { SessionModel } from "./src/sessions/types";
 import { tryFileOp } from "./src/lib/notify";
 import { createRng } from "./src/lib/rng";
 import { buildRegistry, type TableRegistry } from "./src/tables/registry";
@@ -13,6 +15,7 @@ import { CORE_TABLES } from "./src/content";
 import { RollTableSuggestModal } from "./src/views/tables/roll-table-modal";
 import { LazyCampaignView, VIEW_TYPE_LAZY } from "./src/views/lazy-view";
 import type { NavMode } from "./src/views/nav-model";
+import { WelcomeModal } from "./src/help/welcome-modal";
 
 // data.json shape. Settings live under a key so future siblings (telemetry,
 // caches) can be added without a migration — and so nothing ever calls
@@ -105,6 +108,28 @@ export default class LazyCampaignPlugin extends Plugin {
 			},
 		});
 
+		this.addCommand({
+			id: "show-welcome",
+			name: "Show welcome",
+			callback: () => {
+				new WelcomeModal(this.app, this).open();
+			},
+		});
+
+		this.addCommand({
+			id: "copy-session-sheet",
+			name: "Copy session sheet",
+			checkCallback: (checking) => {
+				const campaign = this.activeCampaign();
+				const store = this.store;
+				if (!campaign || !store) return false;
+				const sessions = store.sessionsOf(campaign.path);
+				if (sessions.length === 0) return false;
+				if (!checking) void this.copySessionSheet(campaign, sessions);
+				return true;
+			},
+		});
+
 		// Anything that scans the vault or attaches vault file-event listeners
 		// belongs here — vault.on("create") fires per file during startup.
 		this.app.workspace.onLayoutReady(() => {
@@ -123,6 +148,12 @@ export default class LazyCampaignPlugin extends Plugin {
 			// to it — this kicks the first parse of whatever table notes already
 			// exist, same as any later `ensureFresh()` call from that subscription.
 			void this.tableStore.ensureFresh();
+
+			// First-run flow (docs/plan.md): shown once, ever, then replayable via
+			// the command above and the Help panel's "Replay welcome" link.
+			if (!this.hints.dismissed.includes("welcome")) {
+				new WelcomeModal(this.app, this).open();
+			}
 		});
 	}
 
@@ -158,6 +189,25 @@ export default class LazyCampaignPlugin extends Plugin {
 
 		const leaf = this.app.workspace.getLeaf(true);
 		await leaf.openFile(file);
+	}
+
+	/** The "Copy session sheet" command's global entry point (Prep's toolbar
+	 * overflow action calls the pure builder directly, since it already has the
+	 * open session's cached body in hand) — resolves the same "current
+	 * session" Run mode and the Generators panel use: whichever session Prep
+	 * has selected, falling back to the latest. */
+	async copySessionSheet(campaign: CampaignModel, sessions: SessionModel[]): Promise<void> {
+		const target = sessions.find((s) => s.path === this.ui.lastSessionPath) ?? sessions[0];
+		const file = this.app.vault.getFileByPath(target.path);
+		if (!(file instanceof TFile)) return;
+
+		const body = await this.app.vault.cachedRead(file);
+		const sheet = buildSessionSheet(campaign.name, target, body);
+		const copied = await tryFileOp(
+			() => navigator.clipboard.writeText(sheet),
+			"Couldn't copy the session sheet to the clipboard."
+		);
+		if (copied !== null) new Notice("Session sheet copied.");
 	}
 
 	/** Rebuild `this.tables` from `CORE_TABLES` + whatever `tableStore` has

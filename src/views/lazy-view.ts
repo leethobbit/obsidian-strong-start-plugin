@@ -1,12 +1,12 @@
 import { DropdownComponent, ItemView, Notice, setIcon, type WorkspaceLeaf } from "obsidian";
 import type LazyCampaignPlugin from "../../main";
 import { DESTINATIONS, type NavDestination, type NavGroup, type NavMode } from "./nav-model";
-import { renderEmptyState } from "./panel-kit";
 import { HomePanel, type HomeSubtab } from "./home/home-panel";
 import { PrepPanel } from "./prep/prep-panel";
 import { RunPanel } from "./run/run-panel";
 import { TablesPanel } from "./tables/tables-panel";
 import { SecretsPanel } from "./secrets/secrets-panel";
+import { HelpPanel } from "./help-panel";
 
 export const VIEW_TYPE_LAZY = "lazy-campaign";
 
@@ -16,20 +16,6 @@ interface Panel {
 	 * that actually uses it (self-write/focus-preserve gating). Panels that
 	 * don't care can keep the parameterless `render(): void` signature. */
 	render(changedPaths?: ReadonlySet<string>): void;
-}
-
-/** Sentence-case, honest "not yet" panel for every destination beyond the M1
- * dashboard. Replaced with the real panel as each milestone lands. */
-class PlaceholderPanel implements Panel {
-	constructor(
-		private readonly containerEl: HTMLElement,
-		private readonly label: string
-	) {}
-
-	render(): void {
-		this.containerEl.empty();
-		renderEmptyState(this.containerEl, `${this.label} is coming in a later milestone.`);
-	}
 }
 
 const RAIL_GROUP_ORDER: readonly NavGroup[] = ["hub", "pipeline", "insight"];
@@ -126,6 +112,16 @@ export class LazyCampaignView extends ItemView {
 		this.renderActivePanel();
 	}
 
+	/** Single funnel for every "no campaign yet" empty-state CTA outside
+	 * Home itself (Prep/Run/Secrets/Foundation/Session zero all dead-end
+	 * without this — M11 empty-state audit): jump to Home and open the
+	 * campaign creation wizard in one action, same as the header's
+	 * "New campaign…" dropdown option. */
+	openCampaignCreation(): void {
+		this.setMode("home");
+		this.homePanel?.openWizard();
+	}
+
 	private isNavMode(value: string | undefined): value is NavMode {
 		return DESTINATIONS.some((d) => d.mode === value);
 	}
@@ -145,7 +141,7 @@ export class LazyCampaignView extends ItemView {
 								? new TablesPanel(this, el)
 								: dest.mode === "secrets"
 										? new SecretsPanel(this, el)
-										: new PlaceholderPanel(el, dest.label);
+										: new HelpPanel(this, el);
 			this.panels.set(dest.mode, { el, panel });
 		}
 	}

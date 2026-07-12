@@ -262,12 +262,18 @@
 	color: var(--text-muted);
 }
 
+/* container-type lives on the SHELL (the board's parent) — an @container rule
+   can only restyle elements INSIDE the container, so putting it on the board
+   itself silently skipped the board's own narrow-layout direction switch. */
+.lazy-campaign-prep-shell {
+	container-type: inline-size;
+}
+
 .lazy-campaign-prep-board {
 	display: flex;
 	flex: 1 1 auto;
 	gap: var(--size-4-4);
 	min-height: 0;
-	container-type: inline-size;
 }
 
 .lazy-campaign-prep-master {
@@ -669,12 +675,17 @@
 	height: 100%;
 }
 
+/* Same shell-owns-the-container rule as the prep board: an @container query
+   cannot restyle the container element itself. */
+.lazy-campaign-tables-shell {
+	container-type: inline-size;
+}
+
 .lazy-campaign-tables-board {
 	display: flex;
 	flex: 1 1 auto;
 	gap: var(--size-4-4);
 	min-height: 0;
-	container-type: inline-size;
 }
 
 .lazy-campaign-tables-list {
@@ -993,6 +1004,12 @@
 
 .lazy-campaign-generator-line-text {
 	flex: 1 1 auto;
+	/* `min-width: 0` is the fix — without it a flex item's default min-width
+	   (auto) keeps it at its max-content (single-line) width, so a long
+	   generated line pushes the card wider instead of wrapping. */
+	min-width: 0;
+	white-space: normal;
+	overflow-wrap: break-word;
 }
 
 .lazy-campaign-generator-actions {
@@ -1289,6 +1306,11 @@
 	gap: var(--size-4-2);
 }
 
+/* Container on the shell, not the board — see the prep-board comment. */
+.lazy-campaign-run-shell {
+	container-type: inline-size;
+}
+
 .lazy-campaign-run-board {
 	display: flex;
 	flex: 1 1 auto;
@@ -1296,7 +1318,6 @@
 	min-height: 0;
 	padding-top: var(--size-4-3);
 	overflow-y: auto;
-	container-type: inline-size;
 }
 
 .lazy-campaign-run-main {
@@ -2076,4 +2097,154 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
+}
+
+/* ---- Dismissible hints (M11) ------------------------------------------------- */
+
+.lazy-campaign-hint-row {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--size-4-2);
+	padding: var(--size-4-2) var(--size-4-3);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	background-color: var(--background-secondary);
+	border-left: 2px solid var(--interactive-accent);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-hint-row-icon {
+	display: flex;
+	flex: 0 0 auto;
+	margin-top: 2px;
+	color: var(--text-accent);
+}
+
+.lazy-campaign-hint-row-text {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.lazy-campaign-hint-row-close {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-faint);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-hint-row-close:hover {
+	color: var(--text-normal);
+}
+
+/* ---- Welcome modal (M11) ----------------------------------------------------- */
+
+.lazy-campaign-welcome-modal .lazy-campaign-welcome-tagline {
+	color: var(--text-muted);
+}
+
+.lazy-campaign-welcome-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+	gap: var(--size-4-3);
+	margin: var(--size-4-4) 0;
+}
+
+.lazy-campaign-welcome-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+	padding: var(--size-4-3);
+	text-align: center;
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-welcome-card-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-accent);
+}
+
+.lazy-campaign-welcome-card-label {
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+}
+
+.lazy-campaign-welcome-card-desc {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-welcome-attribution {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-welcome-buttons {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: var(--size-4-4);
+}
+
+/* ---- Help panel (M11) --------------------------------------------------------- */
+
+.lazy-campaign-help-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-4);
+}
+
+.lazy-campaign-help-loop-list {
+	margin: 0;
+	padding-left: var(--size-4-4);
+}
+
+.lazy-campaign-help-steps-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-help-step-row {
+	display: flex;
+	align-items: baseline;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-help-step-label {
+	flex: 0 0 auto;
+	width: 12rem;
+	font-weight: var(--font-medium);
+	color: var(--text-normal);
+}
+
+.lazy-campaign-help-shortcuts-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-help-shortcut-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-help-shortcut-row kbd {
+	padding: var(--size-4-1) var(--size-4-2);
+	color: var(--text-normal);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-s);
+}
+
+.lazy-campaign-help-links-row {
+	display: flex;
+	gap: var(--size-4-3);
+	margin-top: var(--size-4-2);
 }

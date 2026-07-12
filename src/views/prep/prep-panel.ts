@@ -1,14 +1,16 @@
-import { DropdownComponent, Notice, TFile } from "obsidian";
-import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
+import { DropdownComponent, Menu, Notice, setIcon, TFile } from "obsidian";
+import { renderEmptyStateAction } from "../panel-kit";
 import { STEPS, type StepDef } from "../../sessions/steps";
 import { createNextSession } from "../../sessions/session-files";
 import { toSessionFm, writeSessionFm, type SessionFm } from "../../sessions/session-schema";
 import { parseBulletSection } from "../../sessions/bullet-list";
+import { buildSessionSheet } from "../../sessions/session-sheet";
 import { sectionContent, replaceSection } from "../../lib/sections";
 import { writeLazyFrontmatter } from "../../lib/frontmatter";
 import { beginSelfWrite, isSelfWrite } from "../../lib/self-write";
 import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
 import { tryFileOp } from "../../lib/notify";
+import { renderHint } from "../../help/hint";
 import { renderCharactersStep } from "./steps/characters";
 import { renderStrongStartStep } from "./steps/strong-start";
 import { renderScenesStep } from "./steps/scenes";
@@ -75,7 +77,12 @@ export class PrepPanel {
 			this.session = null;
 			this.disposeTransient();
 			this.containerEl.empty();
-			renderEmptyState(this.containerEl, "Create a campaign from Home first.");
+			renderEmptyStateAction(this.containerEl, this.view, {
+				title: "No campaign yet",
+				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero.",
+				ctaText: "Create your campaign",
+				onCta: () => this.view.openCampaignCreation(),
+			});
 			return;
 		}
 
@@ -165,6 +172,13 @@ export class PrepPanel {
 		this.containerEl.empty();
 
 		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-prep-shell" });
+		renderHint(
+			shell,
+			this.view,
+			this.view.plugin,
+			"prep-board",
+			"Work top to bottom or skip around — mark a step done when it's done enough."
+		);
 		this.toolbarEl = shell.createDiv({ cls: "lazy-campaign-prep-toolbar" });
 		const board = shell.createDiv({ cls: "lazy-campaign-prep-board" });
 		this.masterListEl = board.createDiv({ cls: "lazy-campaign-prep-master" });
@@ -251,6 +265,39 @@ export class PrepPanel {
 			cls: "lazy-campaign-prep-progress",
 			text: `${session.stepsDone.length} of ${STEPS.length}`,
 		});
+
+		const overflowBtn = this.toolbarEl.createEl("button", {
+			cls: "lazy-campaign-icon-button",
+			attr: { "aria-label": "More actions", type: "button" },
+		});
+		setIcon(overflowBtn, "ellipsis");
+		this.view.registerDomEvent(overflowBtn, "click", (evt) => {
+			const menu = new Menu();
+			menu.addItem((item) =>
+				item
+					.setTitle("Copy session sheet")
+					.setIcon("clipboard-copy")
+					.onClick(() => void this.copySessionSheet())
+			);
+			menu.showAtMouseEvent(evt);
+		});
+	}
+
+	/** One-page markdown prep sheet for the open session, straight to the
+	 * clipboard (docs/plan.md delight detail) — pure builder in
+	 * `sessions/session-sheet.ts`, reading the same cached body this panel
+	 * already holds rather than a fresh vault read. */
+	private async copySessionSheet(): Promise<void> {
+		const campaign = this.campaign;
+		const session = this.session;
+		if (!campaign || !session) return;
+
+		const sheet = buildSessionSheet(campaign.name, session, this.bodyText);
+		const copied = await tryFileOp(
+			() => navigator.clipboard.writeText(sheet),
+			"Couldn't copy the session sheet to the clipboard."
+		);
+		if (copied !== null) new Notice("Session sheet copied.");
 	}
 
 	// ---- Master list ----------------------------------------------------------

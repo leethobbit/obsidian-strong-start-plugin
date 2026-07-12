@@ -6,6 +6,7 @@ import { ATTRIBUTION_TEXT, ATTRIBUTION_URL } from "../../content/attribution";
 import { CORE_TABLES } from "../../content";
 import { tryFileOp } from "../../lib/notify";
 import { renderEmptyState } from "../panel-kit";
+import { renderHint } from "../../help/hint";
 import { TableEditorModal } from "./table-editor-modal";
 import { GeneratorsPanel } from "./generators-panel";
 import type { LazyCampaignView } from "../lazy-view";
@@ -61,6 +62,16 @@ export class TablesPanel {
 
 		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-tables-shell" });
 		this.renderSubtabRow(shell);
+
+		if (this.subtab === "roll") {
+			renderHint(
+				shell,
+				this.view,
+				this.view.plugin,
+				"tables",
+				"Your own table notes shadow built-ins with the same id — that's how you customize."
+			);
+		}
 
 		if (this.subtab === "generators") {
 			this.generatorsPanel.render(shell.createDiv());

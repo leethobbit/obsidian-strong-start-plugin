@@ -1,5 +1,5 @@
 import { Component, MarkdownRenderer, Notice, setIcon, TFile, type App } from "obsidian";
-import { renderCollapsibleSection, renderEmptyState, SectionState } from "../panel-kit";
+import { renderCollapsibleSection, renderEmptyState, renderEmptyStateAction, SectionState } from "../panel-kit";
 import { sectionContent } from "../../lib/sections";
 import { readCampaignBody } from "../../campaigns/campaign-files";
 import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
@@ -90,7 +90,12 @@ export class SessionZeroPanel {
 			this.zeroPath = null;
 			this.fm = null;
 			container.empty();
-			renderEmptyState(container, "Create a campaign from Home first.");
+			renderEmptyStateAction(container, this.view, {
+				title: "No campaign yet",
+				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero.",
+				ctaText: "Create your campaign",
+				onCta: () => this.view.openCampaignCreation(),
+			});
 			return;
 		}
 

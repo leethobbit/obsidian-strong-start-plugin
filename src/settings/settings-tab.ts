@@ -1,4 +1,4 @@
-import { normalizePath, type App, PluginSettingTab, Setting } from "obsidian";
+import { normalizePath, Notice, type App, PluginSettingTab, Setting } from "obsidian";
 import type LazyCampaignPlugin from "../../main";
 import { DEFAULT_SETTINGS } from "./settings";
 import { FEATURES, featureEnabled } from "../features";
@@ -50,6 +50,17 @@ export class LazyCampaignPluginSettingTab extends PluginSettingTab {
 					})
 				);
 		}
+
+		new Setting(containerEl)
+			.setName("Reset tips and welcome")
+			.setDesc("Clears every dismissed tip and shows the welcome guide again next time you open the view.")
+			.addButton((button) =>
+				button.setButtonText("Reset").onClick(async () => {
+					this.plugin.hints.dismissed = [];
+					await this.plugin.persist();
+					new Notice("Tips and welcome reset.");
+				})
+			);
 
 		new Setting(containerEl).setName("About").setHeading();
 
