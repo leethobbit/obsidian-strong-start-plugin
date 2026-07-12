@@ -7,6 +7,10 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ## [Unreleased]
 
+### Changed
+
+- Navigation rail now shows a text label beside each destination icon (wider rail) instead of icons alone.
+
 ### Added
 
 - Initial scaffold.

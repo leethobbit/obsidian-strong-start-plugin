@@ -166,7 +166,9 @@ export class LazyCampaignView extends ItemView {
 			cls: `lazy-campaign-rail-button${isActive ? " is-active" : ""}`,
 			attr: { "aria-label": dest.label, type: "button" },
 		});
-		setIcon(button, dest.icon);
+		const iconEl = button.createSpan({ cls: "lazy-campaign-rail-icon" });
+		setIcon(iconEl, dest.icon);
+		button.createSpan({ cls: "lazy-campaign-rail-label", text: dest.label });
 		this.registerDomEvent(button, "click", () => this.setMode(dest.mode));
 	}
 

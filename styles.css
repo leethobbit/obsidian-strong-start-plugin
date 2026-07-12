@@ -28,8 +28,8 @@
 	display: flex;
 	flex-direction: column;
 	flex: 0 0 auto;
-	width: var(--size-4-12);
-	padding: var(--size-4-2) 0;
+	width: 11rem;
+	padding: var(--size-4-2);
 	background-color: var(--background-secondary);
 	border-right: 1px solid var(--background-modifier-border);
 }
@@ -37,7 +37,7 @@
 .lazy-campaign-rail-group {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: stretch;
 	gap: var(--size-4-1);
 	padding-bottom: var(--size-4-2);
 	margin-bottom: var(--size-4-2);
@@ -51,7 +51,7 @@
 .lazy-campaign-rail-footer {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: stretch;
 	margin-top: auto;
 	padding-top: var(--size-4-2);
 	border-top: 1px solid var(--background-modifier-border);
@@ -60,9 +60,11 @@
 .lazy-campaign-rail-button {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	width: var(--size-4-8);
-	height: var(--size-4-8);
+	justify-content: flex-start;
+	gap: var(--size-4-2);
+	width: 100%;
+	height: var(--size-4-9);
+	padding: 0 var(--size-4-3);
 	margin: var(--size-4-1) 0;
 	color: var(--text-muted);
 	background: transparent;
@@ -70,6 +72,21 @@
 	border-radius: var(--radius-m);
 	box-shadow: none;
 	cursor: var(--cursor-link);
+	text-align: left;
+}
+
+.lazy-campaign-rail-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+}
+
+.lazy-campaign-rail-label {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-size: var(--font-ui-small);
 }
 
 .lazy-campaign-rail-button:hover {
