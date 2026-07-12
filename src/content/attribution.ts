@@ -4,6 +4,6 @@
 // "Built-in content").
 
 export const ATTRIBUTION_TEXT =
-	"Strong starts, secrets & clues prompts, and NPC names are adapted from the Lazy GM's Resource Document by Michael E. Shea (Sly Flourish), used under CC BY 4.0.";
+	"The built-in tables and generators are adapted from the Lazy GM's Resource Document by Michael E. Shea (Sly Flourish), used under CC BY 4.0.";
 
 export const ATTRIBUTION_URL = "https://slyflourish.com/lazy_gm_resource_document.html";

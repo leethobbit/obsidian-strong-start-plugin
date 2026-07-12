@@ -25,6 +25,14 @@ export interface ListSectionOptions {
 
 const ROW_INPUT_SELECTOR = ".lazy-campaign-list-row-input";
 
+export interface ListSectionEditorHandle {
+	/** Append a new row with `text` and commit — used by the Rewards step's
+	 * "Roll treasure" chip (docs/plan.md M7), which inserts a generated
+	 * one-liner directly rather than routing through a text input. Replaces a
+	 * lone empty placeholder row instead of leaving a blank row above it. */
+	addRow(text: string): void;
+}
+
 function parse(content: string, taskAware: boolean): { rows: TaskRow[]; malformed: boolean } {
 	if (taskAware) return parseTaskBulletSection(content);
 	const plain = parseBulletSection(content);
@@ -43,13 +51,18 @@ function render(rows: readonly TaskRow[], taskAware: boolean): string {
  * reads back through `ctx.body` after a local edit (that would replay the
  * same staleness problem the store's self-write soft path exists to avoid).
  */
-export function renderListSectionEditor(container: HTMLElement, ctx: StepContext, options: ListSectionOptions): void {
+export function renderListSectionEditor(
+	container: HTMLElement,
+	ctx: StepContext,
+	options: ListSectionOptions
+): ListSectionEditorHandle {
 	const taskAware = options.taskAware ?? false;
 	const parsed = parse(sectionContent(ctx.body, options.heading), taskAware);
 
 	if (parsed.malformed) {
 		renderMalformedBanner(container, ctx, options.heading);
-		return;
+		// No rows to append to — the banner's "Open note" is the only affordance.
+		return { addRow: () => {} };
 	}
 
 	let rows = parsed.rows.length > 0 ? parsed.rows : [{ text: "", done: false }];
@@ -137,6 +150,21 @@ export function renderListSectionEditor(container: HTMLElement, ctx: StepContext
 	}
 
 	rebuildRows();
+
+	return {
+		addRow(text: string): void {
+			const trimmed = text.trim();
+			if (trimmed.length === 0) return;
+			if (rows.length === 1 && rows[0].text.trim().length === 0) {
+				rows = [{ text: trimmed, done: false }];
+			} else {
+				rows = [...rows, { text: trimmed, done: false }];
+			}
+			focusIndex = null;
+			rebuildRows();
+			commit();
+		},
+	};
 }
 
 function renderMalformedBanner(container: HTMLElement, ctx: StepContext, heading: string): void {

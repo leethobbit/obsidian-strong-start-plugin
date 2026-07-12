@@ -7,7 +7,10 @@ import { CORE_TABLES } from "../../content";
 import { tryFileOp } from "../../lib/notify";
 import { renderEmptyState } from "../panel-kit";
 import { TableEditorModal } from "./table-editor-modal";
+import { GeneratorsPanel } from "./generators-panel";
 import type { LazyCampaignView } from "../lazy-view";
+
+type TablesSubtab = "roll" | "generators";
 
 const CATEGORY_ORDER: readonly TableCategory[] = ["characters", "places", "plots", "items", "monsters"];
 const CATEGORY_LABELS: Record<TableCategory, string> = {
@@ -24,16 +27,19 @@ interface StackEntry {
 }
 
 /**
- * The Tables panel (Roll sub-tab only — Generators arrives in M7): left list
- * of every core table grouped by category plus a "My tables" group (M5's
- * user-authored tables, with New/Edit/Open-note affordances and a shadowing
- * indicator for ones that replace a core table by id); right pane with the
- * selected table's roll button and a result stack. Rebuilds its whole DOM on
+ * The Tables panel: a Roll/Generators sub-tab strip up top. Roll shows a
+ * left list of every core table grouped by category plus a "My tables" group
+ * (M5's user-authored tables, with New/Edit/Open-note affordances and a
+ * shadowing indicator for ones that replace a core table by id); right pane
+ * with the selected table's roll button and a result stack. Generators
+ * delegates to `GeneratorsPanel` (docs/plan.md M7). Rebuilds its whole DOM on
  * every `render()` (no focus-sensitive inputs live here, unlike the prep
- * board) but keeps `selectedTableId`/`stack` as instance fields so they
- * survive that rebuild — session-only, never persisted.
+ * board) but keeps `selectedTableId`/`stack`/`generatorsPanel` as instance
+ * fields so their state survives that rebuild — session-only, never
+ * persisted.
  */
 export class TablesPanel {
+	private subtab: TablesSubtab = "roll";
 	private selectedTableId: string | null = null;
 	/** True when `selectedTableId` is a core id whose table is currently
 	 * shadowed by a user table of the same id, and the GM clicked the muted
@@ -41,17 +47,28 @@ export class TablesPanel {
 	 * shadowing indicator). Reset by any other row's click handler. */
 	private peekingShadowedCore = false;
 	private stack: StackEntry[] = [];
+	private readonly generatorsPanel: GeneratorsPanel;
 
 	constructor(
 		private readonly view: LazyCampaignView,
 		private readonly containerEl: HTMLElement
-	) {}
+	) {
+		this.generatorsPanel = new GeneratorsPanel(view);
+	}
 
 	render(): void {
 		this.containerEl.empty();
-		const registry = this.view.plugin.tables;
 
 		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-tables-shell" });
+		this.renderSubtabRow(shell);
+
+		if (this.subtab === "generators") {
+			this.generatorsPanel.render(shell.createDiv());
+			this.renderFooter(shell);
+			return;
+		}
+
+		const registry = this.view.plugin.tables;
 		const board = shell.createDiv({ cls: "lazy-campaign-tables-board" });
 		const listEl = board.createDiv({ cls: "lazy-campaign-tables-list" });
 		const detailEl = board.createDiv({ cls: "lazy-campaign-tables-detail" });
@@ -65,6 +82,24 @@ export class TablesPanel {
 		}
 
 		this.renderFooter(shell);
+	}
+
+	private renderSubtabRow(shell: HTMLElement): void {
+		const row = shell.createDiv({ cls: "lazy-campaign-tables-subtabs" });
+		for (const [id, label] of [
+			["roll", "Roll"],
+			["generators", "Generators"],
+		] as const) {
+			const btn = row.createEl("button", {
+				cls: `lazy-campaign-tables-subtab${this.subtab === id ? " is-active" : ""}`,
+				text: label,
+				attr: { type: "button" },
+			});
+			this.view.registerDomEvent(btn, "click", () => {
+				this.subtab = id;
+				this.render();
+			});
+		}
 	}
 
 	private renderList(listEl: HTMLElement, registry: TableRegistry): void {

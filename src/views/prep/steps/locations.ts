@@ -1,11 +1,14 @@
+import { generateMonument } from "../../../generators/monument";
+import { oneLiner } from "../../../generators/types";
 import { tryFileOp } from "../../../lib/notify";
 import { createLocationNote } from "../../../roster/entity-files";
+import { mountRollChip } from "../../roll-chip";
 import { renderChipEditor } from "./chip-editor";
 import type { StepContext } from "../step-context";
 
 export function renderLocationsStep(container: HTMLElement, ctx: StepContext): void {
 	container.createEl("h3", { text: "Develop fantastic locations" });
-	renderChipEditor(container, ctx, {
+	const chip = renderChipEditor(container, ctx, {
 		stepId: "locations",
 		fmKey: "locations",
 		placeholder: "Add a location…",
@@ -17,5 +20,28 @@ export function renderLocationsStep(container: HTMLElement, ctx: StepContext): v
 			);
 			return file ? { file } : null;
 		},
+	});
+
+	// "Roll a monument" rolls the monument generator into a chip; insert only
+	// fills the add-input above (never creates a note) — same pattern as the
+	// NPCs step's "Roll a name" (docs/plan.md M7).
+	const chipMount = container.createDiv({ cls: "lazy-campaign-roll-chip-mount" });
+	const rollBtn = container.createEl("button", {
+		cls: "lazy-campaign-inspire-button",
+		attr: { type: "button" },
+		text: "Roll a monument",
+	});
+	ctx.registerDomEvent(rollBtn, "click", () => {
+		mountRollChip({
+			container: chipMount,
+			sourceLabel: "Monument generator",
+			roll: () => {
+				const registry = ctx.plugin.tables;
+				if (!registry) return null;
+				return { text: oneLiner(generateMonument(registry, ctx.plugin.rng)), trace: [] };
+			},
+			onInsert: (text) => chip.setInputValue(text),
+			registerDomEvent: ctx.registerDomEvent,
+		});
 	});
 }

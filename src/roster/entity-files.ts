@@ -27,7 +27,8 @@ async function createEntityNote(
 	campaign: CampaignModel,
 	subfolder: string,
 	name: string,
-	fm: Record<string, unknown>
+	fm: Record<string, unknown>,
+	body = ""
 ): Promise<TFile> {
 	const folderPath = normalizePath(`${parentPath(campaign.path)}/${subfolder}`);
 	await ensureFolder(app, folderPath);
@@ -40,7 +41,7 @@ async function createEntityNote(
 		filePath = normalizePath(`${folderPath}/${safeName} ${Date.now().toString(36)}.md`);
 	}
 
-	const file = await app.vault.create(filePath, "");
+	const file = await app.vault.create(filePath, body);
 	await writeLazyFrontmatter(app, file, fm);
 	return file;
 }
@@ -49,16 +50,21 @@ export async function createPcNote(app: App, campaign: CampaignModel, name: stri
 	return createEntityNote(app, campaign, "PCs", name, writePcFm({ campaign: `[[${campaign.name}]]`, player }));
 }
 
-export async function createNpcNote(app: App, campaign: CampaignModel, name: string): Promise<TFile> {
+/** `body` lets generator "Save as note" flows (`src/generators/insert.ts`)
+ * seed the freeform NPC body in one write instead of create-then-append. */
+export async function createNpcNote(app: App, campaign: CampaignModel, name: string, body = ""): Promise<TFile> {
 	return createEntityNote(
 		app,
 		campaign,
 		"NPCs",
 		name,
-		writeNpcFm({ campaign: `[[${campaign.name}]]`, status: "alive" })
+		writeNpcFm({ campaign: `[[${campaign.name}]]`, status: "alive" }),
+		body
 	);
 }
 
-export async function createLocationNote(app: App, campaign: CampaignModel, name: string): Promise<TFile> {
-	return createEntityNote(app, campaign, "Locations", name, writeLocationFm({ campaign: `[[${campaign.name}]]` }));
+/** `body` lets generator "Save as note" flows seed `## Aspects` in one write
+ * (SCHEMA.md: location body carries the three fantastic aspects as bullets). */
+export async function createLocationNote(app: App, campaign: CampaignModel, name: string, body = ""): Promise<TFile> {
+	return createEntityNote(app, campaign, "Locations", name, writeLocationFm({ campaign: `[[${campaign.name}]]` }), body);
 }
