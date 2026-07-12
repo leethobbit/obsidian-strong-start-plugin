@@ -1,6 +1,8 @@
 import { normalizePath, TFile, type App } from "obsidian";
 import { asLazy, writeLazyFrontmatter } from "../lib/frontmatter";
 import { beginSelfWrite } from "../lib/self-write";
+import { replaceSection, sectionContent } from "../lib/sections";
+import { tryFileOp } from "../lib/notify";
 import { readSessionZeroFm, sessionZeroBodyScaffold, writeSessionZeroFm, type SessionZeroFm } from "./session-zero-schema";
 import type { CampaignModel } from "../campaigns/types";
 import type { CampaignStore } from "../campaigns/campaign-store";
@@ -32,6 +34,39 @@ export async function ensureSessionZeroNote(app: App, campaign: CampaignModel, s
 	const model: SessionZeroFm = { campaign: `[[${campaign.name}]]`, done: [], lines: [], veils: [] };
 	await writeLazyFrontmatter(app, file, writeSessionZeroFm(model));
 	return file;
+}
+
+/**
+ * Read the session-zero note's current content for display/parsing (M17) —
+ * mirror of `readCampaignBody` (src/campaigns/campaign-files.ts). Empty
+ * string when the note can't be found.
+ */
+export async function readSessionZeroBody(app: App, path: string): Promise<string> {
+	const file = app.vault.getFileByPath(path);
+	if (!(file instanceof TFile)) return "";
+	return app.vault.cachedRead(file);
+}
+
+/**
+ * Write one managed body section (`## Expectations` / `## Logistics`) on the
+ * session-zero note at `path` — self-write marked and diff-guarded, mirror of
+ * `writeCampaignSection` (M17: the Home / Session zero editors).
+ */
+export async function writeSessionZeroSection(app: App, path: string, heading: string, content: string): Promise<void> {
+	const file = app.vault.getFileByPath(path);
+	if (!(file instanceof TFile)) return;
+
+	const done = beginSelfWrite(file.path);
+	try {
+		await tryFileOp(async () => {
+			await app.vault.process(file, (body) => {
+				if (sectionContent(body, heading) === content.replace(/\s+$/, "")) return body;
+				return replaceSection(body, heading, content);
+			});
+		}, "Couldn't save that change — check the console for details.");
+	} finally {
+		done();
+	}
 }
 
 /**

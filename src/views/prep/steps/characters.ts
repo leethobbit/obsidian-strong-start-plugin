@@ -1,4 +1,4 @@
-import { Notice, TFile, type App } from "obsidian";
+import { Notice, setIcon, TFile, type App } from "obsidian";
 import { FormModal } from "../../../lib/form-modal";
 import { textField } from "../../../lib/form-fields";
 import { tryFileOp } from "../../../lib/notify";
@@ -6,6 +6,7 @@ import { asLazy, writeLazyFrontmatter } from "../../../lib/frontmatter";
 import { createPcNote } from "../../../roster/entity-files";
 import { readPcFm, writePcFm } from "../../../roster/entity-schema";
 import { renderEmptyState, renderStepper } from "../../panel-kit";
+import { openEntityEditor } from "../../home/entity-editor-modal";
 import type { StepContext } from "../step-context";
 import type { CampaignModel } from "../../../campaigns/types";
 import type { PcModel } from "../../../roster/types";
@@ -50,6 +51,17 @@ export function renderCharactersStep(container: HTMLElement, ctx: StepContext): 
 				max: MAX_LEVEL,
 				label: `${pc.name}'s level`,
 				onChange: (next) => void setPcLevel(ctx, pc, next),
+			});
+
+			// M17: full in-plugin editing — the name link keeps opening the raw
+			// note; the pencil opens the entity editor (player/role/level/body).
+			const editBtn = item.createEl("button", {
+				cls: "lazy-campaign-icon-button",
+				attr: { "aria-label": `Edit ${pc.name}`, type: "button" },
+			});
+			setIcon(editBtn, "pencil");
+			ctx.registerDomEvent(editBtn, "click", () => {
+				void openEntityEditor(ctx.app, { kind: "pc", campaign: ctx.campaign, existingPath: pc.path });
 			});
 		}
 	}

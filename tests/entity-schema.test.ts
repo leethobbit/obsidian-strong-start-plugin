@@ -3,9 +3,11 @@ import {
 	readLocationFm,
 	readNpcFm,
 	readPcFm,
+	readQuestFm,
 	writeLocationFm,
 	writeNpcFm,
 	writePcFm,
+	writeQuestFm,
 } from "../src/roster/entity-schema";
 
 describe("PC codec", () => {
@@ -86,5 +88,41 @@ describe("Location codec", () => {
 
 	it("returns null without a campaign link", () => {
 		expect(readLocationFm({})).toBeNull();
+	});
+});
+
+describe("Quest codec (M17)", () => {
+	it("reads a well-formed quest", () => {
+		expect(readQuestFm({ type: "quest", campaign: "[[Greenhollow]]", status: "done" })).toEqual({
+			campaign: "[[Greenhollow]]",
+			status: "done",
+		});
+	});
+
+	it("treats absent or junk status as open", () => {
+		expect(readQuestFm({ campaign: "[[Greenhollow]]" })?.status).toBe("open");
+		expect(readQuestFm({ campaign: "[[Greenhollow]]", status: "banana" })?.status).toBe("open");
+	});
+
+	it("returns null without a campaign link", () => {
+		expect(readQuestFm({ status: "done" })).toBeNull();
+	});
+
+	it("writes done verbatim and open as empty for pruning (cleared = deleted)", () => {
+		expect(writeQuestFm({ campaign: "[[Greenhollow]]", status: "done" })).toEqual({
+			type: "quest",
+			campaign: "[[Greenhollow]]",
+			status: "done",
+		});
+		expect(writeQuestFm({ campaign: "[[Greenhollow]]", status: "open" })).toEqual({
+			type: "quest",
+			campaign: "[[Greenhollow]]",
+			status: "",
+		});
+	});
+
+	it("round-trips both statuses", () => {
+		expect(readQuestFm(writeQuestFm({ campaign: "[[G]]", status: "done" }))?.status).toBe("done");
+		expect(readQuestFm(writeQuestFm({ campaign: "[[G]]", status: "open" }))?.status).toBe("open");
 	});
 });

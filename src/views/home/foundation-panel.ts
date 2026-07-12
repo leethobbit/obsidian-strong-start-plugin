@@ -1,7 +1,10 @@
-import { Component, debounce, MarkdownRenderer, setIcon } from "obsidian";
+import { Component, debounce, MarkdownRenderer, setIcon, TFile } from "obsidian";
 import { replaceSection, sectionContent } from "../../lib/sections";
 import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
-import { isSelfWrite } from "../../lib/self-write";
+import { beginSelfWrite, isSelfWrite } from "../../lib/self-write";
+import { tryFileOp } from "../../lib/notify";
+import { writeLazyFrontmatter } from "../../lib/frontmatter";
+import { writeCampaignFm } from "../../campaigns/campaign-schema";
 import { readCampaignBody, writeCampaignSection } from "../../campaigns/campaign-files";
 import { blankFront, parseFronts, renderFronts, toggleFrontPortent, type Front } from "../../campaigns/fronts";
 import { renderHint } from "../../help/hint";
@@ -16,6 +19,7 @@ import type { LazyCampaignView } from "../lazy-view";
 const PITCH_HEADING = "Campaign pitch";
 const TRUTHS_HEADING = "Six truths";
 const FRONTS_HEADING = "Fronts";
+const HOUSE_RULES_HEADING = "House rules";
 const PITCH_TABLE_ID = "campaign-pitches";
 const TRUTHS_TABLE_ID = "campaign-truths";
 
@@ -32,11 +36,13 @@ export class FoundationPanel {
 	private bodyText = "";
 
 	private editingPitch = false;
+	private editingHouseRules = false;
 	private fronts: Front[] = [];
 	private rawFrontsSection = "";
 	private confirmingDeleteIndex: number | null = null;
 
 	private pitchMdComponent: Component | null = null;
+	private houseRulesMdComponent: Component | null = null;
 	private debouncers: Array<{ cancel(): void; run(): unknown }> = [];
 	private frontsWriteQueue: Promise<void> = Promise.resolve();
 	private rebuildQueue: DeferredRebuildQueue | null = null;
@@ -134,6 +140,8 @@ export class FoundationPanel {
 		this.renderPitchCard(shell, campaign);
 		this.renderTruthsCard(shell, campaign);
 		this.renderFrontsCard(shell, campaign);
+		this.renderHouseRulesCard(shell, campaign);
+		this.renderDetailsCard(shell, campaign);
 	}
 
 	private disposeTransient(): void {
@@ -429,6 +437,114 @@ export class FoundationPanel {
 	}
 
 	// ---- Shared helpers ---------------------------------------------------
+
+	// ---- House rules card (M17) ---------------------------------------------
+
+	/** Clone of the pitch card bound to `## House rules` — the last campaign
+	 * body section without an in-plugin editor. No inspire control (there's no
+	 * house-rules table to roll on). */
+	private renderHouseRulesCard(shell: HTMLElement, campaign: CampaignModel): void {
+		const card = shell.createDiv({ cls: "lazy-campaign-card lazy-campaign-foundation-pitch-card" });
+		const header = card.createDiv({ cls: "lazy-campaign-foundation-card-header" });
+		header.createEl("h3", { text: "House rules" });
+
+		const rules = sectionContent(this.bodyText, HOUSE_RULES_HEADING);
+
+		if (this.editingHouseRules) {
+			const textarea = card.createEl("textarea", {
+				cls: "lazy-campaign-strong-start-textarea",
+				attr: { rows: "4", "data-key": "foundation-house-rules-textarea" },
+			});
+			textarea.value = rules;
+
+			const debouncedWrite = debounce(
+				() => void this.writeSection(campaign, HOUSE_RULES_HEADING, textarea.value),
+				800,
+				true
+			);
+			this.debouncers.push(debouncedWrite);
+			this.view.registerDomEvent(textarea, "input", () => debouncedWrite());
+			this.view.registerDomEvent(textarea, "blur", () => debouncedWrite.run());
+
+			const doneBtn = card.createEl("button", { cls: "mod-cta", text: "Done" });
+			this.view.registerDomEvent(doneBtn, "click", () => {
+				debouncedWrite.run();
+				this.editingHouseRules = false;
+				this.rebuild();
+			});
+			return;
+		}
+
+		const pencil = header.createEl("button", {
+			cls: "lazy-campaign-icon-button",
+			attr: { "aria-label": "Edit house rules", type: "button" },
+		});
+		setIcon(pencil, "pencil");
+		this.view.registerDomEvent(pencil, "click", () => {
+			this.editingHouseRules = true;
+			this.rebuild();
+		});
+
+		if (rules.length === 0) {
+			renderEmptyState(card, "No house rules yet — the fewer, the lazier.");
+			return;
+		}
+
+		const proseEl = card.createDiv({ cls: "lazy-campaign-foundation-pitch-prose" });
+		if (this.houseRulesMdComponent) this.view.removeChild(this.houseRulesMdComponent);
+		const component = this.view.addChild(new Component());
+		this.houseRulesMdComponent = component;
+		void MarkdownRenderer.render(this.view.app, rules, proseEl, campaign.path, component);
+	}
+
+	// ---- Campaign details card (M17: the `system` fm field) -------------------
+
+	private renderDetailsCard(shell: HTMLElement, campaign: CampaignModel): void {
+		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		card.createEl("h3", { text: "Campaign details" });
+		card.createEl("p", {
+			cls: "lazy-campaign-hint",
+			text: "System is a free label, advisory only — the settings toggles decide which 5e features show.",
+		});
+
+		const row = card.createDiv({ cls: "lazy-campaign-foundation-system-row" });
+		row.createSpan({ text: "System" });
+		const input = row.createEl("input", {
+			type: "text",
+			attr: { placeholder: "5e", "data-key": "foundation-system-input" },
+		});
+		input.value = campaign.system ?? "";
+
+		const debouncedWrite = debounce(() => void this.writeSystem(campaign, input.value), 800, true);
+		this.debouncers.push(debouncedWrite);
+		this.view.registerDomEvent(input, "input", () => debouncedWrite());
+		this.view.registerDomEvent(input, "blur", () => debouncedWrite.run());
+	}
+
+	/** `writeCampaignFm` + pruneEmpty gives "cleared = deleted" for free —
+	 * blanking the field removes the key. Self-write marked so this panel's
+	 * own echo takes the soft path instead of yanking the input mid-type. */
+	private async writeSystem(campaign: CampaignModel, value: string): Promise<void> {
+		const file = this.view.app.vault.getFileByPath(campaign.path);
+		if (!(file instanceof TFile)) return;
+		const system = value.trim();
+		if (system === (campaign.system ?? "")) return;
+
+		const done = beginSelfWrite(campaign.path);
+		try {
+			await tryFileOp(
+				() =>
+					writeLazyFrontmatter(
+						this.view.app,
+						file,
+						writeCampaignFm({ id: campaign.id, status: campaign.status, system: system.length > 0 ? system : undefined })
+					),
+				"Couldn't save the system — check the console for details."
+			);
+		} finally {
+			done();
+		}
+	}
 
 	private rollTable(id: string): RollResult | null {
 		const registry = this.view.plugin.tables;

@@ -24,7 +24,7 @@ describe("nav model", () => {
 	});
 
 	it("gives home and tables their documented sub-tabs", () => {
-		expect(destinationFor("home")?.subtabs).toEqual(["dashboard", "sessions", "foundation", "session-zero"]);
+		expect(destinationFor("home")?.subtabs).toEqual(["dashboard", "sessions", "world", "foundation", "session-zero"]);
 		expect(destinationFor("tables")?.subtabs).toEqual(["roll", "generators"]);
 	});
 

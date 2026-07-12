@@ -162,6 +162,17 @@ export class PrepPanel {
 		}
 
 		if (changedPaths === undefined || sessionSwitched || !this.session) {
+			// A fresh mount/mode switch re-reads the BODY but `this.session`
+			// (the fm model) would otherwise stay whatever object this panel
+			// last held — stale against any external fm change that happened
+			// while the panel was hidden (hidden panels get no store
+			// notifications; e.g. an entity rename updating this session's
+			// npc wikilinks from the World tab). Re-point it at the store's
+			// current model for the same path before rebuilding.
+			if (!sessionSwitched && this.session) {
+				const currentPath = this.session.path;
+				this.session = sessions.find((s) => s.path === currentPath) ?? this.session;
+			}
 			void this.doFullRebuildNow();
 			return;
 		}

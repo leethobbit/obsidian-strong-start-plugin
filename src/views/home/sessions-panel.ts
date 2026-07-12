@@ -5,10 +5,14 @@
 // (title is free text per SCHEMA.md — the session number is the stable key)
 // and jump-offs into Prep/Run.
 
-import { Menu, setIcon, TFile, type App } from "obsidian";
+import { Menu, Notice, setIcon, TFile, type App } from "obsidian";
 import { FormModal } from "../../lib/form-modal";
 import { textField } from "../../lib/form-fields";
 import { tryFileOp } from "../../lib/notify";
+import { isIsoDate } from "../../lib/date";
+import { beginSelfWrite } from "../../lib/self-write";
+import { writeLazyFrontmatter } from "../../lib/frontmatter";
+import { toSessionFm, writeSessionFm } from "../../sessions/session-schema";
 import { renameSessionNote } from "../../sessions/session-files";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
 import type { SessionModel } from "../../sessions/types";
@@ -109,6 +113,12 @@ export class SessionsPanel {
 		);
 		menu.addItem((item) =>
 			item
+				.setTitle("Edit date")
+				.setIcon("calendar")
+				.onClick(() => new EditSessionDateModal(this.view.app, session).open())
+		);
+		menu.addItem((item) =>
+			item
 				.setTitle("Rename session note")
 				.setIcon("pencil")
 				.onClick(() => new RenameSessionModal(this.view.app, session).open())
@@ -137,6 +147,75 @@ export class SessionsPanel {
 function baseNameOf(path: string): string {
 	const file = path.slice(path.lastIndexOf("/") + 1);
 	return file.endsWith(".md") ? file.slice(0, -3) : file;
+}
+
+/** Edit the session's `date` (M17): the last session fm field without an
+ * in-plugin editor. Empty clears the key ("cleared = deleted"); the session
+ * NUMBER stays immutable — it's the ordering key carry-over depends on. */
+class EditSessionDateModal extends FormModal {
+	private date: string;
+
+	constructor(
+		app: App,
+		private readonly session: SessionModel
+	) {
+		super(app);
+		this.date = session.date ?? "";
+	}
+
+	protected render(): void {
+		this.setTitle("Edit session date");
+		this.contentEl.createEl("p", {
+			cls: "lazy-campaign-hint",
+			text: `Session ${this.session.session} stays session ${this.session.session} — only the date changes.`,
+		});
+
+		const dateInput = textField(this.contentEl, {
+			name: "Date",
+			desc: "YYYY-MM-DD, or empty to clear.",
+			placeholder: "2026-07-18",
+			value: this.date,
+			onChange: (value) => {
+				this.date = value;
+			},
+		});
+		this.registerFirstInput(dateInput);
+
+		this.bindEnterToSubmit(this.contentEl, () => this.handleSubmit());
+		this.renderButtons(this.contentEl, {
+			ctaText: "Save",
+			onSubmit: () => this.handleSubmit(),
+		});
+	}
+
+	private async handleSubmit(): Promise<void> {
+		const value = this.date.trim();
+		if (value.length > 0 && !isIsoDate(value)) {
+			new Notice("Dates look like 2026-07-18 — or leave it empty to clear.");
+			return;
+		}
+
+		const file = this.app.vault.getFileByPath(this.session.path);
+		if (!(file instanceof TFile)) {
+			new Notice("That session note couldn't be found — it may have been moved or deleted.");
+			return;
+		}
+
+		// Self-write marked so an open prep panel on this session takes the
+		// soft path instead of a hard rebuild (same shape as appendSessionLink).
+		const next = { ...toSessionFm(this.session), date: value.length > 0 ? value : undefined };
+		const done = beginSelfWrite(file.path);
+		try {
+			const saved = await tryFileOp(
+				() => writeLazyFrontmatter(this.app, file, writeSessionFm(next)),
+				"Couldn't save the date — check the console for details."
+			);
+			if (saved === null) return;
+		} finally {
+			done();
+		}
+		this.close();
+	}
 }
 
 class RenameSessionModal extends FormModal {

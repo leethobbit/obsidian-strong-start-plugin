@@ -1,4 +1,4 @@
-import { normalizePath, type App, type TFile } from "obsidian";
+import { normalizePath, Notice, TFile, type App } from "obsidian";
 import { writeLazyFrontmatter } from "../lib/frontmatter";
 import { toSafeFilename } from "../lib/slug";
 import { writeLocationFm, writeNpcFm, writePcFm, writeQuestFm } from "./entity-schema";
@@ -69,6 +69,35 @@ export async function createNpcNote(app: App, campaign: CampaignModel, name: str
  * (SCHEMA.md: location body carries the three fantastic aspects as bullets). */
 export async function createLocationNote(app: App, campaign: CampaignModel, name: string, body = ""): Promise<TFile> {
 	return createEntityNote(app, campaign, "Locations", name, writeLocationFm({ campaign: `[[${campaign.name}]]` }), body);
+}
+
+/**
+ * Rename an entity note in place (M17, the entity editor's rename-on-save):
+ * same collision-abort + `fileManager.renameFile` (wikilink-updating) logic as
+ * `renameSessionNote` (src/sessions/session-files.ts), but returns the renamed
+ * `TFile` so the caller's subsequent frontmatter/body writes target the new
+ * path — a partial save under the old name is never acceptable. Returns null
+ * on any abort (missing file, empty name, collision), after surfacing a
+ * Notice.
+ */
+export async function renameEntityNote(app: App, path: string, newName: string): Promise<TFile | null> {
+	const file = app.vault.getFileByPath(path);
+	if (!(file instanceof TFile)) return null;
+
+	const safeName = toSafeFilename(newName);
+	if (safeName.length === 0) {
+		new Notice("Give the note a name first.");
+		return null;
+	}
+	if (safeName === file.basename) return file;
+
+	const newPath = normalizePath(`${parentPath(path)}/${safeName}.md`);
+	if (app.vault.getFileByPath(newPath)) {
+		new Notice(`A note named "${safeName}" already exists there.`);
+		return null;
+	}
+	await app.fileManager.renameFile(file, newPath);
+	return file;
 }
 
 /** Quest notes (M15): the quest generator's "Save as note" target — a managed

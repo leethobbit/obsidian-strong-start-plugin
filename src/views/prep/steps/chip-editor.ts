@@ -14,6 +14,10 @@ export interface ChipEditorOptions {
 	 * monster note type in v1, monsters are strings or links to the GM's own
 	 * notes). */
 	createNote?: (name: string) => Promise<{ file: TFile } | null>;
+	/** M17: when set, resolved wikilink chips get a pencil opening the entity
+	 * editor for the linked note. The label click stays "open note" — muscle
+	 * memory. Omitted for monsters (no note type to edit). */
+	onEdit?: (resolvedPath: string) => void;
 }
 
 /**
@@ -116,6 +120,19 @@ export function renderChipEditor(container: HTMLElement, ctx: StepContext, optio
 					const dest = ctx.app.metadataCache.getFirstLinkpathDest(displayText(raw), ctx.session.path);
 					if (dest) void ctx.openNote(dest.path);
 				});
+
+				const onEdit = options.onEdit;
+				if (onEdit) {
+					const dest = ctx.app.metadataCache.getFirstLinkpathDest(displayText(raw), ctx.session.path);
+					if (dest) {
+						const editBtn = chip.createEl("button", {
+							cls: "lazy-campaign-icon-button lazy-campaign-chip-edit",
+							attr: { "aria-label": `Edit ${displayText(raw)}`, type: "button" },
+						});
+						setIcon(editBtn, "pencil");
+						ctx.registerDomEvent(editBtn, "click", () => onEdit(dest.path));
+					}
+				}
 			} else if (options.createNote) {
 				const createBtn = chip.createEl("button", { text: "Create note", cls: "lazy-campaign-chip-create" });
 				ctx.registerDomEvent(createBtn, "click", () => void handleCreate(raw));

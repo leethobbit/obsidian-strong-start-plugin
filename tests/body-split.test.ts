@@ -23,4 +23,28 @@ describe("replaceBody", () => {
 	it("just returns the new body when there's no frontmatter block to preserve", () => {
 		expect(replaceBody("# Just a note\n\n- one\n", "# New\n")).toBe("# New\n");
 	});
+
+	// M17 regression guard: the entity editor whole-body-replaces notes whose
+	// bodies contain multiple H2s and even `---` horizontal rules (the starter
+	// campaign's Lonely Torch location). The frontmatter regex must only ever
+	// bite the LEADING fence — never a rule mid-prose — and a strip→edit→
+	// replace round trip must keep the fm block byte-for-byte.
+	it("survives bodies with multiple H2s and horizontal rules", () => {
+		const fm = "---\nlazyCampaign:\n  type: location\n  campaign: \"[[Whitesparrow]]\"\n---\n";
+		const body = "## Aspects\n- one\n\nIntro prose.\n\n## Shattered Door\nGuards.\n\n---\n\n## Lost Throne\nGardren.\n";
+		const raw = `${fm}${body}`;
+
+		expect(stripFrontmatter(raw)).toBe(body);
+
+		const edited = body.replace("Guards.", "Two drunk guards.");
+		expect(replaceBody(raw, edited)).toBe(`${fm}${edited}`);
+	});
+
+	it("does not treat a horizontal rule at the top of a frontmatter-less note as frontmatter", () => {
+		const raw = "---\n\nJust prose that starts with a rule?\n";
+		// The regex requires a closing fence — this note has none, so nothing
+		// should be stripped... unless a later `---` line exists. Documenting
+		// the actual contract: a lone leading rule with no closing fence stays.
+		expect(stripFrontmatter(raw)).toBe(raw);
+	});
 });

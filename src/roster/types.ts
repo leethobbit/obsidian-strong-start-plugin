@@ -27,3 +27,10 @@ export interface LocationNoteModel {
 	name: string;
 	campaign: string;
 }
+
+export interface QuestNoteModel {
+	path: string;
+	name: string;
+	campaign: string;
+	status: "open" | "done";
+}

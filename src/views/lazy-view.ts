@@ -27,7 +27,7 @@ interface Panel {
 
 const RAIL_GROUP_ORDER: readonly NavGroup[] = ["hub", "pipeline", "insight"];
 
-const HOME_SUBTABS: readonly HomeSubtab[] = ["dashboard", "sessions", "foundation", "session-zero"];
+const HOME_SUBTABS: readonly HomeSubtab[] = ["dashboard", "sessions", "world", "foundation", "session-zero"];
 
 function isHomeSubtab(value: string | undefined): value is HomeSubtab {
 	return HOME_SUBTABS.some((s) => s === value);

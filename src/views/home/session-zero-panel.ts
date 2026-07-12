@@ -1,6 +1,6 @@
-import { Component, MarkdownRenderer, Notice, setIcon, TFile, type App } from "obsidian";
+import { Component, debounce, MarkdownRenderer, Notice, setIcon, TFile, type App } from "obsidian";
 import { renderCollapsibleSection, renderEmptyState, renderEmptyStateAction, SectionState } from "../panel-kit";
-import { sectionContent } from "../../lib/sections";
+import { replaceSection, sectionContent } from "../../lib/sections";
 import { readCampaignBody } from "../../campaigns/campaign-files";
 import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
 import { beginSelfWrite, isSelfWrite } from "../../lib/self-write";
@@ -8,7 +8,7 @@ import { writeLazyFrontmatter } from "../../lib/frontmatter";
 import { tryFileOp } from "../../lib/notify";
 import { FormModal } from "../../lib/form-modal";
 import { textField } from "../../lib/form-fields";
-import { ensureSessionZeroNote } from "../../checklist/session-zero-files";
+import { ensureSessionZeroNote, readSessionZeroBody, writeSessionZeroSection } from "../../checklist/session-zero-files";
 import { writeSessionZeroFm, type SessionZeroFm } from "../../checklist/session-zero-schema";
 import { createPcNote } from "../../roster/entity-files";
 import { featureEnabled } from "../../features";
@@ -51,10 +51,17 @@ export class SessionZeroPanel {
 	private zeroPath: string | null = null;
 	private fm: SessionZeroFm | null = null;
 	private pitchBody = "";
+	/** The session-zero note's own content (M17: `## Expectations` /
+	 * `## Logistics` editors) — empty until the note exists. */
+	private zeroBody = "";
 	private roster: PcModel[] = [];
+	private editingExpectations = false;
+	private editingLogistics = false;
 
 	private readonly sectionState = new SectionState();
 	private pitchMdComponent: Component | null = null;
+	private mdComponents: Component[] = [];
+	private debouncers: Array<{ cancel(): void; run(): unknown }> = [];
 	private rebuildQueue: DeferredRebuildQueue | null = null;
 
 	constructor(private readonly view: LazyCampaignView) {}
@@ -123,6 +130,7 @@ export class SessionZeroPanel {
 		this.roster = store?.pcsOf(campaign.path) ?? [];
 
 		this.pitchBody = await readCampaignBody(this.view.app, campaign.path);
+		this.zeroBody = this.zeroPath ? await readSessionZeroBody(this.view.app, this.zeroPath) : "";
 		if (this.campaign?.path !== campaign.path) return; // switched again mid-await
 
 		this.rebuild();
@@ -157,6 +165,14 @@ export class SessionZeroPanel {
 			this.view.removeChild(this.pitchMdComponent);
 			this.pitchMdComponent = null;
 		}
+		for (const component of this.mdComponents) this.view.removeChild(component);
+		this.mdComponents = [];
+		// FLUSH, don't drop — a pending debounced write holds real keystrokes
+		// (typing then switching tabs within the idle window); every write is
+		// pinned to the zero note captured at render time (foundation-panel's
+		// identical policy).
+		for (const debouncer of this.debouncers) debouncer.run();
+		this.debouncers = [];
 	}
 
 	// ---- Pitch & expectations -------------------------------------------------
@@ -179,8 +195,99 @@ export class SessionZeroPanel {
 				this.view.setMode("home", "foundation");
 			});
 
+			// M17: the note's own `## Expectations` prose, editable in place.
+			body.createEl("h4", { text: "Expectations" });
+			this.renderZeroSectionEditor(body, campaign, {
+				heading: "Expectations",
+				emptyText: "Nothing yet — cadence, tone, table style.",
+				isEditing: () => this.editingExpectations,
+				setEditing: (value) => {
+					this.editingExpectations = value;
+				},
+			});
+
 			this.renderChecklistGroup(body, campaign, fm, "pitch");
 		});
+	}
+
+	// ---- Session-zero body section editor (M17) -----------------------------
+
+	/** Markdown render + pencil → debounced textarea over one of the zero
+	 * note's managed sections — the foundation pitch-card pattern, with one
+	 * extra wrinkle: the note may not exist yet (`ensureSessionZeroNote` runs
+	 * on the first write, same lazily-created policy as the fm commits). */
+	private renderZeroSectionEditor(
+		body: HTMLElement,
+		campaign: CampaignModel,
+		options: {
+			heading: string;
+			emptyText: string;
+			isEditing: () => boolean;
+			setEditing: (value: boolean) => void;
+		}
+	): void {
+		const content = sectionContent(this.zeroBody, options.heading);
+		const mount = body.createDiv({ cls: "lazy-campaign-session-zero-section" });
+
+		if (options.isEditing()) {
+			const textarea = mount.createEl("textarea", {
+				cls: "lazy-campaign-strong-start-textarea",
+				attr: { rows: "3", "data-key": `session-zero-${options.heading.toLowerCase()}-textarea` },
+			});
+			textarea.value = content;
+
+			const debouncedWrite = debounce(() => void this.writeZeroSection(campaign, options.heading, textarea.value), 800, true);
+			this.debouncers.push(debouncedWrite);
+			this.view.registerDomEvent(textarea, "input", () => debouncedWrite());
+			this.view.registerDomEvent(textarea, "blur", () => debouncedWrite.run());
+
+			const doneBtn = mount.createEl("button", { cls: "mod-cta", text: "Done" });
+			this.view.registerDomEvent(doneBtn, "click", () => {
+				debouncedWrite.run();
+				options.setEditing(false);
+				this.rebuild();
+			});
+			return;
+		}
+
+		const pencil = mount.createEl("button", {
+			cls: "lazy-campaign-icon-button",
+			attr: { "aria-label": `Edit ${options.heading.toLowerCase()}`, type: "button" },
+		});
+		setIcon(pencil, "pencil");
+		this.view.registerDomEvent(pencil, "click", () => {
+			options.setEditing(true);
+			this.rebuild();
+		});
+
+		if (content.length === 0) {
+			renderEmptyState(mount, options.emptyText);
+			return;
+		}
+		const proseEl = mount.createDiv({ cls: "lazy-campaign-session-zero-section-prose" });
+		const component = this.view.addChild(new Component());
+		this.mdComponents.push(component);
+		void MarkdownRenderer.render(this.view.app, content, proseEl, this.zeroPath ?? campaign.path, component);
+	}
+
+	/** Ensure-then-write for a zero-note body section; keeps the in-memory
+	 * `zeroBody` in sync so mid-edit rebuilds don't need a vault re-read. */
+	private async writeZeroSection(campaign: CampaignModel, heading: string, content: string): Promise<void> {
+		const store = this.view.plugin.store;
+		if (!store) return;
+
+		if (!this.zeroPath) {
+			const file = await tryFileOp(
+				() => ensureSessionZeroNote(this.view.app, campaign, store),
+				"Couldn't create the session zero note — check the console for details."
+			);
+			if (!file) return;
+			this.zeroPath = file.path;
+			this.zeroBody = await readSessionZeroBody(this.view.app, this.zeroPath);
+		}
+
+		await writeSessionZeroSection(this.view.app, this.zeroPath, heading, content);
+		this.zeroBody = replaceSection(this.zeroBody, heading, content);
 	}
 
 	// ---- Safety tools -----------------------------------------------------
@@ -242,10 +349,17 @@ export class SessionZeroPanel {
 		renderCollapsibleSection(shell, this.view, this.sectionState, "logistics", "Logistics", (body) => {
 			this.renderChecklistGroup(body, campaign, fm, "logistics");
 
-			body.createEl("p", {
-				cls: "lazy-campaign-hint",
-				text: "Freeform expectations and logistics notes live in the session zero note's body.",
+			// M17: the note's own `## Logistics` prose, editable in place —
+			// "Open note" stays as the secondary escape hatch.
+			this.renderZeroSectionEditor(body, campaign, {
+				heading: "Logistics",
+				emptyText: "Nothing yet — schedule, place, snacks rotation.",
+				isEditing: () => this.editingLogistics,
+				setEditing: (value) => {
+					this.editingLogistics = value;
+				},
 			});
+
 			const openBtn = body.createEl("button", { text: "Open note" });
 			this.view.registerDomEvent(openBtn, "click", () => void this.openZeroNote(campaign));
 		});

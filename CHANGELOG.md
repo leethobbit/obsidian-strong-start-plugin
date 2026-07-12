@@ -9,6 +9,14 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Added
 
+- Full in-plugin editing (M17) — prep a whole game without opening a raw note:
+  - A shared entity editor for characters, NPCs, locations, and quests: every frontmatter field (player/role/level, NPC role/location/status, quest status) plus the whole note body, with rename-on-save that updates links everywhere and a guard against overwriting notes changed on disk mid-edit.
+  - A new **World** tab on Home listing the campaign's party, NPCs, locations, and quests — row tap to edit, one-tap quest done/reopen toggle, and per-group "New …" creation with all fields up front.
+  - Pencil buttons on the prep board's roster rows and NPC/location chips opening the same editor (chip label click still opens the note).
+  - Session zero's Expectations and Logistics prose is now editable in place.
+  - Foundation gains a House rules editor and a campaign details card for the advisory `system` label.
+  - Sessions list rows gain "Edit date" (the session number stays the stable key).
+
 - Starter campaign (M16): the "Create starter campaign" command builds the document's own CC-BY village of Whitesparrow and "The Night Blade" adventure — foundation, eight NPC notes, five location notes, a quest, and session 1 prepped through every step except your party.
 - Stress effects (M16, with the 5e module): the document's stress-check procedure in the run-mode 5e drawer — consent caveat first — plus rollable trigger and result tables.
 - Stars and wishes (M16): two optional prompts in the end-session flow, saved to their own section so player-facing recap exports never include table feedback.
@@ -35,6 +43,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Fixed
 
+- Switching to the prep board after an entity rename (or any external frontmatter change made while the board was hidden) showed stale chips/secrets from the previously cached session model (M17).
 - Run mode's top bar no longer clips the End button behind a horizontal scrollbar in narrow panes.
 - Icon buttons across the plugin rendered blank: Obsidian's default button padding squeezed the icon SVG to zero width inside fixed-size buttons.
 - The 5e reference drawer closed itself when clicking the manual party size/level steppers.

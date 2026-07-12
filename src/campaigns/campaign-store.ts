@@ -2,12 +2,12 @@ import { Component, TFile, type App } from "obsidian";
 import { asLazy } from "../lib/frontmatter";
 import { readCampaignFm } from "./campaign-schema";
 import { readSessionFm } from "../sessions/session-schema";
-import { readLocationFm, readNpcFm, readPcFm } from "../roster/entity-schema";
+import { readLocationFm, readNpcFm, readPcFm, readQuestFm } from "../roster/entity-schema";
 import { readSessionZeroFm } from "../checklist/session-zero-schema";
 import type { CampaignModel } from "./types";
 import type { SessionModel } from "../sessions/types";
 import type { SessionZeroModel } from "../checklist/types";
-import type { LocationNoteModel, NpcNoteModel, PcModel } from "../roster/types";
+import type { LocationNoteModel, NpcNoteModel, PcModel, QuestNoteModel } from "../roster/types";
 
 type ManagedType = "campaign" | "session" | "session-zero" | "pc" | "npc" | "location" | "quest" | "table";
 
@@ -213,6 +213,24 @@ export class CampaignStore extends Component {
 			models.push({ path: note.path, name: note.file.basename, campaign: fm.campaign });
 		}
 		return models.sort((a, b) => a.name.localeCompare(b.name));
+	}
+
+	/** Quest notes (`type: quest`) belonging to `campaignPath` — the Home /
+	 * World panel's quest group (M17). Open quests sort before done ones,
+	 * name-sorted within each. */
+	questsOf(campaignPath: string): QuestNoteModel[] {
+		const models: QuestNoteModel[] = [];
+		for (const note of this.index.values()) {
+			if (note.type !== "quest") continue;
+			const fm = readQuestFm(note.fm);
+			if (!fm) continue;
+			const dest = this.resolveWikilink(fm.campaign, note.path);
+			if (!dest || dest.path !== campaignPath) continue;
+			models.push({ path: note.path, name: note.file.basename, campaign: fm.campaign, status: fm.status });
+		}
+		return models.sort((a, b) =>
+			a.status === b.status ? a.name.localeCompare(b.name) : a.status === "open" ? -1 : 1
+		);
 	}
 
 	/** The campaign's session-zero note (`type: session-zero`), if one exists —

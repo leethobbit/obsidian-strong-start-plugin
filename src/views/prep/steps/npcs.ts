@@ -5,6 +5,7 @@ import { rollTable } from "../../../tables/roll";
 import { generateNpc } from "../../../generators/npc";
 import type { GeneratedResult } from "../../../generators/types";
 import { renderInspireControl } from "../../roll-chip";
+import { openEntityEditor } from "../../home/entity-editor-modal";
 import { renderChipEditor } from "./chip-editor";
 import type { StepContext } from "../step-context";
 
@@ -23,6 +24,7 @@ export function renderNpcsStep(container: HTMLElement, ctx: StepContext): void {
 			);
 			return file ? { file } : null;
 		},
+		onEdit: (path) => void openEntityEditor(ctx.app, { kind: "npc", campaign: ctx.campaign, existingPath: path }),
 	});
 
 	// "Roll a name" rolls the combined npc-names table into a chip; insert

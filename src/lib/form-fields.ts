@@ -26,3 +26,29 @@ export function textField(containerEl: HTMLElement, options: TextFieldOptions): 
 	});
 	return inputEl;
 }
+
+export interface DropdownFieldOptions {
+	name: string;
+	desc?: string;
+	/** value → display label, in render order. */
+	options: Record<string, string>;
+	value: string;
+	onChange: (value: string) => void;
+}
+
+/** A labelled dropdown, same `Setting`-based chrome as `textField` — for the
+ * small closed enums the entity editor writes (NPC alive/dead, quest
+ * open/done). Returns the underlying `<select>`. */
+export function dropdownField(containerEl: HTMLElement, options: DropdownFieldOptions): HTMLSelectElement {
+	// Definite assignment: `addDropdown`'s callback runs synchronously.
+	let selectEl!: HTMLSelectElement;
+	const setting = new Setting(containerEl).setName(options.name);
+	if (options.desc) setting.setDesc(options.desc);
+	setting.addDropdown((dropdown) => {
+		dropdown.addOptions(options.options);
+		dropdown.setValue(options.value);
+		dropdown.onChange(options.onChange);
+		selectEl = dropdown.selectEl;
+	});
+	return selectEl;
+}

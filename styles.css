@@ -2399,6 +2399,118 @@
 	}
 }
 
+/* ---- Home / World entity list + entity editor (M17) ----------------------------- */
+
+.lazy-campaign-world-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-world-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.lazy-campaign-world-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	min-height: 44px;
+	padding: var(--size-4-1) var(--size-4-2);
+	border-radius: var(--radius-m);
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-world-row:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.lazy-campaign-world-row-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.lazy-campaign-world-row-name {
+	font-weight: var(--font-medium);
+}
+
+.lazy-campaign-world-row-meta {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.lazy-campaign-world-row.is-quest-done .lazy-campaign-world-row-name {
+	color: var(--text-muted);
+	text-decoration: line-through;
+}
+
+.lazy-campaign-world-quest-toggle {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	min-width: 32px;
+	min-height: 32px;
+	padding: 0;
+	color: var(--text-muted);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-world-quest-toggle.is-done {
+	color: var(--text-accent);
+}
+
+.lazy-campaign-world-new {
+	align-self: flex-start;
+	margin-top: var(--size-4-1);
+}
+
+.lazy-campaign-entity-editor-footer {
+	display: flex;
+	justify-content: flex-start;
+	margin-top: var(--size-4-2);
+}
+
+.lazy-campaign-foundation-system-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-3);
+}
+
+.lazy-campaign-session-zero-section {
+	position: relative;
+	margin-bottom: var(--size-4-2);
+}
+
+.lazy-campaign-session-zero-section > .lazy-campaign-icon-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.lazy-campaign-session-zero-section-prose {
+	padding-right: var(--size-4-8);
+}
+
+/* Chip pencil (M17): compact inside the chip, but still a touch target. */
+.lazy-campaign-chip .lazy-campaign-chip-edit {
+	min-width: 28px;
+	min-height: 28px;
+	padding: 0;
+}
+
+body.is-phone .lazy-campaign-chip .lazy-campaign-chip-edit {
+	min-width: 40px;
+	min-height: 40px;
+}
+
 /* ---- End-session stars & wishes (M16) ------------------------------------------ */
 
 .lazy-campaign-end-session-feedback {
