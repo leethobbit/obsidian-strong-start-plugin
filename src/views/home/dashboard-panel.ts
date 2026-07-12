@@ -7,6 +7,8 @@ import { replaceSection, sectionContent } from "../../lib/sections";
 import { readCampaignBody, writeCampaignSection } from "../../campaigns/campaign-files";
 import { parseFronts, toggleFrontPortent } from "../../campaigns/fronts";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
+import { featureEnabled } from "../../features";
+import { SESSION_ZERO_CHECKLIST } from "../../content/session-zero";
 import type { CampaignModel } from "../../campaigns/types";
 import type { SessionModel } from "../../sessions/types";
 import type { LazyCampaignView } from "../lazy-view";
@@ -57,6 +59,7 @@ export class DashboardPanel {
 		const latest: SessionModel | undefined = sessions[0];
 
 		this.renderNextSessionCard(container, campaign, latest);
+		this.renderSessionZeroNudge(container, campaign);
 		this.renderSecretsCard(container, sessions);
 		this.renderFrontsCard(container, campaign, () => this.render(container, onOpenWizard));
 		this.renderRecentSessions(container, sessions);
@@ -184,6 +187,28 @@ export class DashboardPanel {
 
 		const openBtn = actions.createEl("button", { text: "Open note" });
 		this.view.registerDomEvent(openBtn, "click", () => void this.openSessionNote(latest.path));
+	}
+
+	/** A quiet secondary line under the next-session card, linking to the
+	 * Home / Session zero sub-tab — only while a session-zero note exists and
+	 * is incomplete (docs/plan.md M9). Skipped entirely once it's done or
+	 * absent, and when the `session-zero` feature is switched off. */
+	private renderSessionZeroNudge(container: HTMLElement, campaign: CampaignModel): void {
+		if (!featureEnabled(this.view.plugin.settings, "session-zero")) return;
+
+		const zero = this.view.plugin.store?.sessionZeroOf(campaign.path) ?? null;
+		if (!zero) return;
+
+		const total = SESSION_ZERO_CHECKLIST.length;
+		const done = zero.done.filter((id) => SESSION_ZERO_CHECKLIST.some((item) => item.id === id)).length;
+		if (done >= total) return;
+
+		const line = container.createDiv({ cls: "lazy-campaign-session-zero-nudge" });
+		const link = line.createEl("a", { text: `Session zero: ${done} of ${total} →`, attr: { href: "#" } });
+		this.view.registerDomEvent(link, "click", (evt) => {
+			evt.preventDefault();
+			this.view.setMode("home", "session-zero");
+		});
 	}
 
 	private renderProgressDots(card: HTMLElement, session: SessionModel): void {

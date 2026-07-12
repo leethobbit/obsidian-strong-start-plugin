@@ -1806,3 +1806,96 @@
 	display: flex;
 	gap: var(--size-4-2);
 }
+
+/* ---- Dashboard: session-zero nudge (M9) ------------------------------------- */
+
+.lazy-campaign-session-zero-nudge {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+/* ---- Home: Session zero sub-tab (M9) ---------------------------------------- */
+
+.lazy-campaign-session-zero-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-3);
+}
+
+.lazy-campaign-session-zero-progress {
+	color: var(--text-muted);
+	font-weight: var(--font-medium);
+}
+
+.lazy-campaign-session-zero-pitch-prose {
+	margin-bottom: var(--size-4-2);
+	color: var(--text-normal);
+}
+
+.lazy-campaign-session-zero-items {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+	margin-top: var(--size-4-2);
+}
+
+.lazy-campaign-session-zero-item {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--size-4-2);
+	min-height: 44px;
+	padding: var(--size-4-1) var(--size-4-2);
+	border-radius: var(--radius-m);
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-session-zero-item:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.lazy-campaign-session-zero-check {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	margin-top: 2px;
+	color: var(--text-muted);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-session-zero-check.is-done {
+	color: var(--text-success);
+}
+
+.lazy-campaign-session-zero-item-text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.lazy-campaign-session-zero-item-label {
+	color: var(--text-normal);
+	font-weight: var(--font-medium);
+}
+
+.lazy-campaign-session-zero-item.is-done .lazy-campaign-session-zero-item-label {
+	color: var(--text-muted);
+	text-decoration: line-through;
+}
+
+.lazy-campaign-session-zero-item-detail {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-session-zero-safety-copy h4 {
+	margin: var(--size-4-3) 0 var(--size-4-1);
+}
+
+.lazy-campaign-session-zero-safety-copy p {
+	margin: 0;
+	color: var(--text-muted);
+}

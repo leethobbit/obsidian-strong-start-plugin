@@ -1,7 +1,8 @@
-import { renderEmptyState } from "../panel-kit";
 import { DashboardPanel } from "./dashboard-panel";
 import { FoundationPanel } from "./foundation-panel";
+import { SessionZeroPanel } from "./session-zero-panel";
 import { CampaignWizardPanel } from "./campaign-wizard";
+import { featureEnabled } from "../../features";
 import type { LazyCampaignView } from "../lazy-view";
 
 export type HomeSubtab = "dashboard" | "foundation" | "session-zero";
@@ -43,6 +44,7 @@ export class HomePanel {
 
 	private readonly dashboard: DashboardPanel;
 	private readonly foundation: FoundationPanel;
+	private readonly sessionZero: SessionZeroPanel;
 
 	constructor(
 		private readonly view: LazyCampaignView,
@@ -50,10 +52,20 @@ export class HomePanel {
 	) {
 		this.dashboard = new DashboardPanel(view);
 		this.foundation = new FoundationPanel(view);
+		this.sessionZero = new SessionZeroPanel(view);
 	}
 
 	render(changedPaths?: ReadonlySet<string>): void {
 		this.ensureMounted();
+
+		// The sub-tab button is hidden entirely when the feature is off
+		// (session-zero-panel.ts has its own defensive fallback besides) — bounce
+		// back to Dashboard if a stale `ui.lastMode` or stray command left the
+		// panel pointed at a now-hidden tab.
+		if (this.subtab === "session-zero" && !featureEnabled(this.view.plugin.settings, "session-zero")) {
+			this.subtab = "dashboard";
+		}
+
 		this.renderSubtabRow();
 
 		const showWizard = this.wizardActive;
@@ -76,6 +88,7 @@ export class HomePanel {
 
 		if (this.subtab === "dashboard") this.dashboard.render(this.dashboardEl, () => this.openWizard());
 		if (this.subtab === "foundation") this.foundation.render(this.foundationEl, changedPaths);
+		if (this.subtab === "session-zero") this.sessionZero.render(this.sessionZeroEl, changedPaths);
 	}
 
 	setSubtab(subtab: HomeSubtab): void {
@@ -117,13 +130,14 @@ export class HomePanel {
 		this.dashboardEl = body.createDiv();
 		this.foundationEl = body.createDiv();
 		this.sessionZeroEl = body.createDiv();
-		renderEmptyState(this.sessionZeroEl, "Session zero is coming in a later milestone.");
 		this.wizardEl = this.containerEl.createDiv({ cls: "lazy-campaign-home-wizard-mount" });
 	}
 
 	private renderSubtabRow(): void {
 		this.subtabRowEl.empty();
+		const settings = this.view.plugin.settings;
 		for (const tab of SUBTABS) {
+			if (tab.id === "session-zero" && !featureEnabled(settings, "session-zero")) continue;
 			const btn = this.subtabRowEl.createEl("button", {
 				cls: `lazy-campaign-tables-subtab${this.subtab === tab.id && !this.wizardActive ? " is-active" : ""}`,
 				text: tab.label,

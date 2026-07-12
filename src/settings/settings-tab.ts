@@ -1,6 +1,7 @@
 import { normalizePath, type App, PluginSettingTab, Setting } from "obsidian";
 import type LazyCampaignPlugin from "../../main";
 import { DEFAULT_SETTINGS } from "./settings";
+import { FEATURES, featureEnabled } from "../features";
 import { ATTRIBUTION_TEXT, ATTRIBUTION_URL } from "../content/attribution";
 
 export class LazyCampaignPluginSettingTab extends PluginSettingTab {
@@ -32,6 +33,23 @@ export class LazyCampaignPluginSettingTab extends PluginSettingTab {
 						await this.plugin.persist();
 					})
 			);
+
+		new Setting(containerEl).setName("Features").setHeading();
+
+		for (const feature of FEATURES) {
+			new Setting(containerEl)
+				.setName(feature.label)
+				.setDesc(feature.description)
+				.addToggle((toggle) =>
+					toggle.setValue(featureEnabled(this.plugin.settings, feature.id)).onChange(async (value) => {
+						const disabled = new Set(this.plugin.settings.disabledFeatures);
+						if (value) disabled.delete(feature.id);
+						else disabled.add(feature.id);
+						this.plugin.settings.disabledFeatures = [...disabled];
+						await this.plugin.persist();
+					})
+				);
+		}
 
 		new Setting(containerEl).setName("About").setHeading();
 

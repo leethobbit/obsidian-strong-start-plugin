@@ -3,9 +3,10 @@ import { asLazy } from "../lib/frontmatter";
 import { readCampaignFm } from "./campaign-schema";
 import { readSessionFm } from "../sessions/session-schema";
 import { readLocationFm, readNpcFm, readPcFm } from "../roster/entity-schema";
-import { readSessionZeroFm, type SessionZeroFm } from "../checklist/session-zero-schema";
+import { readSessionZeroFm } from "../checklist/session-zero-schema";
 import type { CampaignModel } from "./types";
 import type { SessionModel } from "../sessions/types";
+import type { SessionZeroModel } from "../checklist/types";
 import type { LocationNoteModel, NpcNoteModel, PcModel } from "../roster/types";
 
 type ManagedType = "campaign" | "session" | "session-zero" | "pc" | "npc" | "location" | "table";
@@ -202,16 +203,17 @@ export class CampaignStore extends Component {
 	}
 
 	/** The campaign's session-zero note (`type: session-zero`), if one exists —
-	 * SCHEMA.md: one per campaign. Only `lines`/`veils` are read here (run
-	 * mode's safety card, M6); the checklist's `done` items are M9's concern. */
-	sessionZeroOf(campaignPath: string): SessionZeroFm | null {
+	 * SCHEMA.md: one per campaign. Read by run mode's safety card (M6,
+	 * `lines`/`veils` only) and the Home / Session zero panel (M9, the full
+	 * model including `done` + `path` for `patchSessionZero`). */
+	sessionZeroOf(campaignPath: string): SessionZeroModel | null {
 		for (const note of this.index.values()) {
 			if (note.type !== "session-zero") continue;
 			const fm = readSessionZeroFm(note.fm);
 			if (!fm) continue;
 			const dest = this.resolveWikilink(fm.campaign, note.path);
 			if (!dest || dest.path !== campaignPath) continue;
-			return fm;
+			return { ...fm, path: note.path };
 		}
 		return null;
 	}

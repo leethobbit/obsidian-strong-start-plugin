@@ -67,12 +67,14 @@ Path default: `<campaign folder>/Session zero.md`. One per campaign.
 lazyCampaign:
   type: session-zero
   campaign: "[[Greenhollow]]"
-  done: [tone, lines-veils, safety-xcard]   # checked checklist item ids
-  lines: ["harm to children"]               # hard lines (never on screen)
-  veils: ["torture"]                        # veils (off-screen/fade)
+  done: [one-page-guide, safety-discussion]  # checked checklist item ids (src/content/session-zero.ts)
+  lines: ["harm to children"]                # hard lines (never on screen)
+  veils: ["torture"]                         # veils (off-screen/fade)
 ```
 
-Body freeform (expectations, logistics). Lines/veils feed run mode's safety card.
+Checklist item ids are frozen constants: `one-page-guide, describe-theme, safety-discussion, choose-patron, build-characters, character-connections, short-adventure`.
+
+Managed body sections (scaffolded once, then user-owned): `## Expectations` · `## Logistics`. Lines/veils feed run mode's safety card.
 
 ### Player character — `type: pc`
 
