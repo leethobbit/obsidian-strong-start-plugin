@@ -1030,6 +1030,408 @@
 	gap: var(--size-4-1);
 }
 
+/* ---- Collapsible sections (panel-kit.ts SectionState) ----------------------- */
+
+.lazy-campaign-collapsible-header {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	width: 100%;
+	min-height: 44px;
+	padding: var(--size-4-1) 0;
+	color: var(--text-muted);
+	font-variant: small-caps;
+	text-transform: lowercase;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-collapsible-chevron {
+	display: flex;
+	align-items: center;
+}
+
+.lazy-campaign-collapsible-body.is-hidden {
+	display: none;
+}
+
+/* ---- Run mode ---------------------------------------------------------------
+   docs/plan.md: read-optimized, big type, one-tap-or-nothing, cannot be
+   accidentally edited — the log bar is the only writing surface. */
+
+.lazy-campaign-run-shell {
+	--lazy-run-font: 18px;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	font-size: var(--lazy-run-font);
+	line-height: 1.6;
+}
+
+.lazy-campaign-run-shell.is-text-sm {
+	--lazy-run-font: 16px;
+}
+
+.lazy-campaign-run-shell.is-text-md {
+	--lazy-run-font: 18px;
+}
+
+.lazy-campaign-run-shell.is-text-lg {
+	--lazy-run-font: 22px;
+}
+
+.lazy-campaign-run-topbar {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding-bottom: var(--size-4-2);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-run-session-label {
+	font-weight: var(--font-semibold);
+	white-space: nowrap;
+}
+
+.lazy-campaign-run-timer {
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.lazy-campaign-run-end-button {
+	margin-left: auto;
+}
+
+.lazy-campaign-run-icon-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	color: var(--text-muted);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-run-icon-button:hover {
+	color: var(--text-normal);
+}
+
+.lazy-campaign-run-popover-anchor {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.lazy-campaign-run-popover {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	z-index: 6;
+	min-width: 12rem;
+	margin-top: var(--size-4-1);
+	padding: var(--size-4-2);
+	background-color: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	box-shadow: var(--shadow-s);
+}
+
+.lazy-campaign-run-dice-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-run-dice-advrow {
+	display: flex;
+	gap: var(--size-4-1);
+	margin-top: var(--size-4-2);
+}
+
+.lazy-campaign-run-textsize-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-run-board {
+	display: flex;
+	flex: 1 1 auto;
+	gap: var(--size-4-5);
+	min-height: 0;
+	padding-top: var(--size-4-3);
+	overflow-y: auto;
+	container-type: inline-size;
+}
+
+.lazy-campaign-run-main {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: var(--size-4-5);
+	min-width: 0;
+}
+
+.lazy-campaign-run-glance {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	width: 18rem;
+	gap: var(--size-4-2);
+}
+
+@container (max-width: 700px) {
+	.lazy-campaign-run-board {
+		flex-direction: column;
+	}
+
+	.lazy-campaign-run-glance {
+		width: 100%;
+	}
+}
+
+.lazy-campaign-run-section-label {
+	margin-bottom: var(--size-4-1);
+	color: var(--text-muted);
+	font-variant: small-caps;
+	font-size: 0.8em;
+	text-transform: lowercase;
+}
+
+.lazy-campaign-run-strong-start-body {
+	font-size: 1.25em;
+}
+
+.lazy-campaign-run-scene-list,
+.lazy-campaign-run-secret-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-run-scene-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	min-height: 44px;
+	padding: var(--size-4-2);
+	color: var(--text-normal);
+	text-align: left;
+	background-color: var(--background-secondary);
+	border: none;
+	border-radius: var(--radius-m);
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-run-scene-check {
+	display: flex;
+	flex: 0 0 auto;
+	color: var(--text-accent);
+}
+
+.lazy-campaign-run-scene-row.is-done {
+	opacity: 0.6;
+}
+
+.lazy-campaign-run-scene-row.is-done .lazy-campaign-run-scene-text {
+	text-decoration: line-through;
+}
+
+.lazy-campaign-run-scene-row.is-done .lazy-campaign-run-scene-check {
+	color: var(--text-success);
+}
+
+.lazy-campaign-run-secret-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+	min-height: 44px;
+	padding: var(--size-4-3);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-run-secret-card.is-revealed {
+	cursor: default;
+	border-left: 2px solid var(--text-success);
+}
+
+.lazy-campaign-run-secret-card.is-peeked {
+	border-left: 2px solid var(--interactive-accent);
+}
+
+.lazy-campaign-run-secret-icon {
+	display: flex;
+	color: var(--text-muted);
+}
+
+.lazy-campaign-run-secret-text {
+	color: var(--text-normal);
+	white-space: pre-wrap;
+}
+
+.lazy-campaign-run-secret-mask {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-run-secret-mask-bar {
+	height: 0.8em;
+	background: repeating-linear-gradient(
+		135deg,
+		var(--background-modifier-border) 0,
+		var(--background-modifier-border) 6px,
+		var(--background-secondary) 6px,
+		var(--background-secondary) 12px
+	);
+	border-radius: var(--radius-s);
+}
+
+.lazy-campaign-run-secret-mask-bar:nth-child(1) {
+	width: 90%;
+}
+
+.lazy-campaign-run-secret-mask-bar:nth-child(2) {
+	width: 70%;
+}
+
+.lazy-campaign-run-secret-mask-bar:nth-child(3) {
+	width: 45%;
+}
+
+.lazy-campaign-run-secret-mark,
+.lazy-campaign-run-secret-undo {
+	align-self: flex-start;
+	min-height: 44px;
+}
+
+.lazy-campaign-run-glance-list {
+	margin: 0;
+	padding-left: var(--size-4-4);
+}
+
+.lazy-campaign-run-glance-item {
+	color: var(--text-normal);
+}
+
+.lazy-campaign-run-glance-link {
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-run-glance-role {
+	color: var(--text-muted);
+}
+
+.lazy-campaign-run-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--background-primary);
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-run-safety-card {
+	max-width: 32em;
+	padding: var(--size-4-6);
+	cursor: default;
+}
+
+.lazy-campaign-run-logbar {
+	flex: 0 0 auto;
+	padding-top: var(--size-4-2);
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-run-log-input {
+	width: 100%;
+	min-height: 44px;
+}
+
+.lazy-campaign-run-dice-toast {
+	position: absolute;
+	inset: 0;
+	z-index: 5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: fit-content;
+	height: fit-content;
+	margin: auto;
+	padding: var(--size-4-4) var(--size-4-6);
+	font-size: 3em;
+	font-weight: var(--font-bold);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-l);
+	box-shadow: var(--shadow-s);
+	pointer-events: none;
+	animation: lazy-campaign-run-dice-pop 200ms ease-out;
+	transition: opacity 300ms ease;
+}
+
+.lazy-campaign-run-dice-toast.is-nat20 {
+	box-shadow: 0 0 0 4px var(--color-yellow);
+}
+
+.lazy-campaign-run-dice-toast.is-nat1 {
+	animation:
+		lazy-campaign-run-dice-pop 200ms ease-out,
+		lazy-campaign-run-shake 400ms ease-in-out;
+}
+
+.lazy-campaign-run-dice-toast.is-leaving {
+	opacity: 0;
+}
+
+@keyframes lazy-campaign-run-dice-pop {
+	from {
+		transform: scale(0.6);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes lazy-campaign-run-shake {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	20% {
+		transform: translateX(-6px);
+	}
+	40% {
+		transform: translateX(6px);
+	}
+	60% {
+		transform: translateX(-4px);
+	}
+	80% {
+		transform: translateX(4px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lazy-campaign-run-dice-toast {
+		animation: none !important;
+		transition: none !important;
+	}
+}
+
 /* ---- Settings: About -------------------------------------------------------- */
 
 .lazy-campaign-settings-about p {

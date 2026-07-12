@@ -3,6 +3,7 @@ import { asLazy } from "../lib/frontmatter";
 import { readCampaignFm } from "./campaign-schema";
 import { readSessionFm } from "../sessions/session-schema";
 import { readLocationFm, readNpcFm, readPcFm } from "../roster/entity-schema";
+import { readSessionZeroFm, type SessionZeroFm } from "../checklist/session-zero-schema";
 import type { CampaignModel } from "./types";
 import type { SessionModel } from "../sessions/types";
 import type { LocationNoteModel, NpcNoteModel, PcModel } from "../roster/types";
@@ -198,6 +199,21 @@ export class CampaignStore extends Component {
 			models.push({ path: note.path, name: note.file.basename, campaign: fm.campaign });
 		}
 		return models.sort((a, b) => a.name.localeCompare(b.name));
+	}
+
+	/** The campaign's session-zero note (`type: session-zero`), if one exists —
+	 * SCHEMA.md: one per campaign. Only `lines`/`veils` are read here (run
+	 * mode's safety card, M6); the checklist's `done` items are M9's concern. */
+	sessionZeroOf(campaignPath: string): SessionZeroFm | null {
+		for (const note of this.index.values()) {
+			if (note.type !== "session-zero") continue;
+			const fm = readSessionZeroFm(note.fm);
+			if (!fm) continue;
+			const dest = this.resolveWikilink(fm.campaign, note.path);
+			if (!dest || dest.path !== campaignPath) continue;
+			return fm;
+		}
+		return null;
 	}
 
 	/** Table notes (`type: table`) anywhere in the vault — tables are

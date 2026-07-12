@@ -100,11 +100,11 @@ export class PrepPanel {
 		}
 
 		if (campaignChanged || !this.session || !sessions.some((s) => s.path === this.session?.path)) {
-			this.session = sessions[0];
+			this.setSession(sessions[0]);
 			this.activeStepId = STEPS[0].id;
 		}
 
-		if (changedPaths === undefined || campaignChanged) {
+		if (changedPaths === undefined || campaignChanged || !this.session) {
 			void this.doFullRebuildNow();
 			return;
 		}
@@ -196,9 +196,19 @@ export class PrepPanel {
 		const sessions = store.sessionsOf(campaign.path);
 		const created = sessions.find((s) => s.path === file.path);
 		this.sessions = sessions;
-		this.session = created ?? sessions[0] ?? null;
+		this.setSession(created ?? sessions[0] ?? null);
 		this.activeStepId = STEPS[0].id;
 		if (this.session) await this.doFullRebuildNow();
+	}
+
+	/** Sets the open session and syncs `plugin.ui.lastSessionPath` — the
+	 * shared selection Run mode reads so its picker agrees with whatever Prep
+	 * currently shows (docs/plan.md M6). */
+	private setSession(session: SessionModel | null): void {
+		this.session = session;
+		if (!session) return;
+		this.view.plugin.ui.lastSessionPath = session.path;
+		void this.view.plugin.persist();
 	}
 
 	// ---- Toolbar ------------------------------------------------------------
@@ -223,7 +233,7 @@ export class PrepPanel {
 			}
 			const target = this.sessions.find((s) => s.path === value);
 			if (!target) return;
-			this.session = target;
+			this.setSession(target);
 			this.activeStepId = STEPS[0].id;
 			void this.doFullRebuildNow();
 		});
@@ -233,7 +243,8 @@ export class PrepPanel {
 
 		const runBtn = this.toolbarEl.createEl("button", { cls: "mod-cta", text: "Run" });
 		this.view.registerDomEvent(runBtn, "click", () => {
-			new Notice("Run mode arrives in a later milestone.");
+			this.setSession(session);
+			this.view.setMode("run");
 		});
 
 		this.toolbarEl.createSpan({

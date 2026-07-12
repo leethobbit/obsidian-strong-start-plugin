@@ -1,6 +1,12 @@
 import { debounce, setIcon } from "obsidian";
 import { sectionContent } from "../../../lib/sections";
-import { parseBulletSection, renderBulletRows } from "../../../sessions/bullet-list";
+import {
+	parseBulletSection,
+	parseTaskBulletSection,
+	renderBulletRows,
+	renderTaskBulletRows,
+	type TaskRow,
+} from "../../../sessions/bullet-list";
 import type { StepContext } from "../step-context";
 
 export interface ListSectionOptions {
@@ -10,27 +16,43 @@ export interface ListSectionOptions {
 	heading: string;
 	placeholder: string;
 	hint: string;
+	/** Round-trip `- [ ]`/`- [x]` done flags without ever exposing a done
+	 * checkbox in this editor — it only ever edits row text; run mode owns
+	 * toggling done. Defaults to false: Rewards has no done concept and stays
+	 * on plain `-` bullets (docs/plan.md M6). */
+	taskAware?: boolean;
 }
 
 const ROW_INPUT_SELECTOR = ".lazy-campaign-list-row-input";
 
+function parse(content: string, taskAware: boolean): { rows: TaskRow[]; malformed: boolean } {
+	if (taskAware) return parseTaskBulletSection(content);
+	const plain = parseBulletSection(content);
+	return { rows: plain.rows.map((text) => ({ text, done: false })), malformed: plain.malformed };
+}
+
+function render(rows: readonly TaskRow[], taskAware: boolean): string {
+	return taskAware ? renderTaskBulletRows(rows) : renderBulletRows(rows.map((row) => row.text));
+}
+
 /**
  * Shared one-line-row list editor bound to a managed body section — used by
- * both the Scenes and Rewards steps (only heading/copy differ). Keeps its own
- * local `rows` array as the editing surface's source of truth; writes
- * through `ctx.writeSection` on idle debounce and on blur, and never reads
- * back through `ctx.body` after a local edit (that would replay the same
- * staleness problem the store's self-write soft path exists to avoid).
+ * both the Scenes and Rewards steps (only heading/copy/`taskAware` differ).
+ * Keeps its own local `rows` array as the editing surface's source of truth;
+ * writes through `ctx.writeSection` on idle debounce and on blur, and never
+ * reads back through `ctx.body` after a local edit (that would replay the
+ * same staleness problem the store's self-write soft path exists to avoid).
  */
 export function renderListSectionEditor(container: HTMLElement, ctx: StepContext, options: ListSectionOptions): void {
-	const parsed = parseBulletSection(sectionContent(ctx.body, options.heading));
+	const taskAware = options.taskAware ?? false;
+	const parsed = parse(sectionContent(ctx.body, options.heading), taskAware);
 
 	if (parsed.malformed) {
 		renderMalformedBanner(container, ctx, options.heading);
 		return;
 	}
 
-	let rows = parsed.rows.length > 0 ? parsed.rows : [""];
+	let rows = parsed.rows.length > 0 ? parsed.rows : [{ text: "", done: false }];
 	let focusIndex: number | null = null;
 
 	const listEl = container.createDiv({ cls: "lazy-campaign-list-rows" });
@@ -40,30 +62,30 @@ export function renderListSectionEditor(container: HTMLElement, ctx: StepContext
 	ctx.registerDebounce(debouncedCommit);
 
 	function commit(): void {
-		void ctx.writeSection(options.heading, renderBulletRows(rows));
+		void ctx.writeSection(options.heading, render(rows, taskAware));
 	}
 
 	function rebuildRows(): void {
 		listEl.empty();
 
-		rows.forEach((value, index) => {
+		rows.forEach((row, index) => {
 			const rowEl = listEl.createDiv({ cls: "lazy-campaign-list-row" });
 			const input = rowEl.createEl("input", {
 				type: "text",
 				cls: "lazy-campaign-list-row-input",
 				attr: { "data-key": `${options.stepId}-row-${index}`, placeholder: options.placeholder },
 			});
-			input.value = value;
+			input.value = row.text;
 
 			ctx.registerDomEvent(input, "input", () => {
-				rows[index] = input.value;
+				rows[index] = { ...rows[index], text: input.value };
 				debouncedCommit();
 			});
 			ctx.registerDomEvent(input, "blur", () => debouncedCommit.run());
 			ctx.registerDomEvent(input, "keydown", (evt) => {
 				if (evt.key !== "Enter") return;
 				evt.preventDefault();
-				rows.splice(index + 1, 0, "");
+				rows.splice(index + 1, 0, { text: "", done: false });
 				focusIndex = index + 1;
 				rebuildRows();
 				commit();
@@ -84,7 +106,7 @@ export function renderListSectionEditor(container: HTMLElement, ctx: StepContext
 			});
 			addIconButton(controls, "x", "Remove row", false, () => {
 				rows.splice(index, 1);
-				if (rows.length === 0) rows = [""];
+				if (rows.length === 0) rows = [{ text: "", done: false }];
 				focusIndex = null;
 				rebuildRows();
 				commit();

@@ -77,7 +77,7 @@ export default tseslint.config(
       // release; it still catches genuine Title Case slips.
       "obsidianmd/ui/sentence-case": ["warn", {
         brands: ["Lazy GM's campaign manager", "Lazy GM's Resource Document", "Obsidian"],
-        acronyms: [],
+        acronyms: ["X"], // the X-card safety tool
         ignoreWords: ["e.g.", "i.e."],
       }],
     },

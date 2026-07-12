@@ -50,6 +50,18 @@ export function revealSecret(secrets: readonly Secret[], id: string, note?: stri
 	);
 }
 
+/** Undo a run-mode reveal within its transient Undo window (docs/plan.md M6):
+ * strips `revealed` back off, leaving every other field (including any
+ * `note`) untouched. */
+export function unrevealSecret(secrets: readonly Secret[], id: string): Secret[] {
+	return secrets.map((secret) => {
+		if (secret.id !== id) return secret;
+		const rest = { ...secret };
+		delete rest.revealed;
+		return rest;
+	});
+}
+
 /**
  * The one delete helper every UI delete/retire action routes through
  * (AGENTS.md "Secrets" rule): tombstones instead of removing whenever the id

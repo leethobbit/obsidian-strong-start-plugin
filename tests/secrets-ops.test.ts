@@ -7,6 +7,7 @@ import {
 	removeSecret,
 	restoreSecret,
 	revealSecret,
+	unrevealSecret,
 } from "../src/sessions/secrets-ops";
 import { writeSessionFm } from "../src/sessions/session-schema";
 import type { Secret } from "../src/sessions/types";
@@ -95,6 +96,18 @@ describe("revealSecret", () => {
 	it("treats a blank note as no note, and preserves an existing one", () => {
 		const secrets: Secret[] = [{ id: "s-1", text: "x", note: "existing note" }];
 		expect(revealSecret(secrets, "s-1", "   ")).toEqual([{ id: "s-1", text: "x", revealed: true, note: "existing note" }]);
+	});
+});
+
+describe("unrevealSecret", () => {
+	it("strips `revealed` back off, leaving other fields (including note) alone", () => {
+		const secrets: Secret[] = [{ id: "s-1", text: "x", revealed: true, note: "Kara noticed" }];
+		expect(unrevealSecret(secrets, "s-1")).toEqual([{ id: "s-1", text: "x", note: "Kara noticed" }]);
+	});
+
+	it("is a no-op for an id that isn't revealed", () => {
+		const secrets: Secret[] = [{ id: "s-1", text: "x" }];
+		expect(unrevealSecret(secrets, "s-1")).toEqual(secrets);
 	});
 });
 

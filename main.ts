@@ -22,6 +22,11 @@ interface PersistedData {
 	ui: {
 		lastCampaignId?: string;
 		lastMode?: string;
+		/** The session path Prep and Run agree on showing (docs/plan.md M6:
+		 * "Run mode shows the same session the prep board has selected"). */
+		lastSessionPath?: string;
+		/** Run mode's text-size stepper (top-bar overflow menu), M6. */
+		runTextSize?: "sm" | "md" | "lg";
 	};
 	hints: {
 		dismissed: string[];

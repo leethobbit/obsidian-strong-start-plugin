@@ -57,7 +57,7 @@ lazyCampaign:
 
 Step ids (frozen constants): `characters, strong-start, scenes, secrets, locations, npcs, monsters, rewards`.
 
-Managed body sections: `## Strong start` · `## Scenes` (bullets) · `## Rewards` (bullets) · `## Log` (run-mode timestamped bullets). The end-session flow appends `## Recap`.
+Managed body sections: `## Strong start` · `## Scenes` (task-list bullets — `- [ ]`/`- [x]`, toggled one-tap in run mode; a plain `-` bullet reads as not-done) · `## Rewards` (bullets) · `## Log` (run-mode timestamped bullets, `- HH:MM <text>`). The end-session flow appends `## Recap`.
 
 ### Session zero — `type: session-zero`
 
