@@ -28,7 +28,8 @@ Everything the plugin creates is a plain markdown note in your vault — campaig
 - **Custom tables** — any note with a bullet list or die-range table becomes rollable; a custom table with a built-in's id replaces that built-in.
 - **Session zero & safety tools** — interactive checklist, lines & veils that surface in run mode's safety card.
 - **Player-facing exports** — copy a campaign recap that mechanically filters unrevealed secrets, a session-zero player guide, or a one-page session sheet.
-- **5e module** (toggleable) — encounter benchmark, improvised DCs/damage/stats, monster difficulty dials, wilderness travel reference.
+- **Starter campaign** — one command builds the document's own village of Whitesparrow and "The Night Blade" adventure as a ready-to-run campaign: eight NPCs, five locations, a quest, and session 1 fully prepped.
+- **5e module** (toggleable) — encounter benchmark, improvised DCs/damage/stats, monster difficulty dials, wilderness travel reference, stress-effect rules and tables.
 - **Lazy Solo 5e** (toggleable) — the document's solo-play oracle tables and procedure.
 - **Phone-ready** — bottom tab bar, drill-down prep, and a run mode built for the phone at the table.
 
@@ -37,7 +38,7 @@ Everything the plugin creates is a plain markdown note in your vault — campaig
 ## Getting started
 
 1. Enable the plugin, then open it from the ribbon (castle icon) or the "Open view" command.
-2. Follow the welcome guide, or run the **Create demo campaign** command to explore a fully populated example — delete its folder when you're done.
+2. Run the **Create starter campaign** command for a ready-to-run adventure (the CC-BY village of Whitesparrow — add your party and run session 1 tonight), or **Create demo campaign** to explore a mid-campaign example with carried secrets. Delete their folders when done.
 3. Create your own campaign from the dashboard and prep session 1.
 
 ## Install

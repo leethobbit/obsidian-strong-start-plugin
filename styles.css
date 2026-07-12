@@ -2399,6 +2399,13 @@
 	}
 }
 
+/* ---- End-session stars & wishes (M16) ------------------------------------------ */
+
+.lazy-campaign-end-session-feedback {
+	width: 100%;
+	margin-top: var(--size-4-2);
+}
+
 /* ---- Phone shell (M12) --------------------------------------------------------
    Bottom tab bar replaces the icon rail on phones; nav placements come from
    nav-model.ts (PHONE_BAR / PHONE_MORE_SHEET). Hidden by default — desktop and

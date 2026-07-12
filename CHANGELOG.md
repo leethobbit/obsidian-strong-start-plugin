@@ -9,6 +9,9 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Added
 
+- Starter campaign (M16): the "Create starter campaign" command builds the document's own CC-BY village of Whitesparrow and "The Night Blade" adventure — foundation, eight NPC notes, five location notes, a quest, and session 1 prepped through every step except your party.
+- Stress effects (M16, with the 5e module): the document's stress-check procedure in the run-mode 5e drawer — consent caveat first — plus rollable trigger and result tables.
+- Stars and wishes (M16): two optional prompts in the end-session flow, saved to their own section so player-facing recap exports never include table feedback.
 - Phone shell (M12): bottom tab bar (Run · Prep · Home · More) replacing the desktop rail on phones, a native "More" sheet (quick roll, Tables, Secrets, Help), prep as a step-list → full-screen step editor drill-down with a back header, soft-keyboard handling so the run-mode log bar rides above the keyboard, and a compact run top bar on narrow widths.
 - Prep timer (M13): a quiet "Prep: N min" toolbar counter (counts only while the board is visible) and a congratulatory toast when all eight steps are done under thirty minutes — never a guilt trip when over.
 - Sessions sub-tab on Home (M13): every session with date, prep/played status, and recap presence at a glance, plus per-row continue-prep/run/rename/open actions.

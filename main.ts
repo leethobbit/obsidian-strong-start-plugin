@@ -4,6 +4,7 @@ import { LazyCampaignPluginSettingTab } from "./src/settings/settings-tab";
 import { CampaignStore } from "./src/campaigns/campaign-store";
 import { CreateCampaignModal } from "./src/campaigns/create-campaign";
 import { createDemoCampaign } from "./src/campaigns/demo-campaign";
+import { createStarterCampaign } from "./src/campaigns/starter-campaign";
 import type { CampaignModel } from "./src/campaigns/types";
 import { createNextSession } from "./src/sessions/session-files";
 import { buildSessionSheet } from "./src/sessions/session-sheet";
@@ -16,6 +17,7 @@ import { buildRegistry, type TableRegistry } from "./src/tables/registry";
 import { TableStore } from "./src/tables/table-store";
 import { CORE_TABLES } from "./src/content";
 import { SOLO_TABLES } from "./src/content/solo";
+import { STRESS_TABLES } from "./src/content/stress";
 import { featureEnabled } from "./src/features";
 import { RollTableSuggestModal } from "./src/views/tables/roll-table-modal";
 import { LazyCampaignView, VIEW_TYPE_LAZY } from "./src/views/lazy-view";
@@ -110,6 +112,24 @@ export default class LazyCampaignPlugin extends Plugin {
 				if (!this.tables) return false;
 				if (!checking) new RollTableSuggestModal(this.app, this).open();
 				return true;
+			},
+		});
+
+		this.addCommand({
+			id: "create-starter-campaign",
+			name: "Create starter campaign",
+			callback: () => {
+				void (async () => {
+					const created = await tryFileOp(
+						() => createStarterCampaign(this.app, this.settings.campaignRoot),
+						"Couldn't create the starter campaign — check the console for details."
+					);
+					if (!created) return;
+					this.ui.lastCampaignId = created.id;
+					await this.persist();
+					new Notice("Whitesparrow is ready — session 1 is prepped; add your party and run it.");
+					await this.openView("home");
+				})();
 			},
 		});
 
@@ -315,12 +335,16 @@ export default class LazyCampaignPlugin extends Plugin {
 	/** Rebuild `this.tables` from `CORE_TABLES` + whatever `tableStore` has
 	 * currently parsed — the single seam every registry rebuild goes through
 	 * (initial build and every later table-store invalidation alike). The
-	 * `solo5e` gate lives here rather than in `CORE_TABLES` so the toggle
-	 * takes effect on the next rebuild without touching pure content. */
+	 * feature gates live here rather than in `CORE_TABLES` so a toggle takes
+	 * effect on the next rebuild without touching pure content: `solo5e`
+	 * gates the solo oracle tables, `dnd5e` gates the stress tables (5e
+	 * mechanics + the consent-sensitive horror framing belong to that module). */
 	refreshRegistry(): void {
-		const core = featureEnabled(this.settings, "solo5e")
-			? [...CORE_TABLES, ...SOLO_TABLES]
-			: CORE_TABLES;
+		const core = [
+			...CORE_TABLES,
+			...(featureEnabled(this.settings, "solo5e") ? SOLO_TABLES : []),
+			...(featureEnabled(this.settings, "dnd5e") ? STRESS_TABLES : []),
+		];
 		this.tables = buildRegistry(core, this.tableStore?.userTables() ?? []);
 	}
 

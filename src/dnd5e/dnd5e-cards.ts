@@ -9,6 +9,7 @@
 import { deadlyBenchmark, type DeadlyBenchmark } from "./benchmark";
 import { IMPROVISED_DC_BANDS, MONSTER_DIFFICULTY_DIALS, improviseDamage, quickMonsterStatsTable } from "./improvise";
 import { TRAVEL_DEFAULT_DC, TRAVEL_EXTRA_RULES, TRAVEL_FRAMEWORK, TRAVEL_ROLES } from "../content/wilderness";
+import { STRESS_PROCEDURE } from "../content/stress";
 import { renderEmptyState, renderStepper, type DomEventOwner } from "../views/panel-kit";
 import type { PcModel } from "../roster/types";
 
@@ -239,4 +240,21 @@ export function renderWildernessTravelSection(container: HTMLElement): void {
 		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: rule.name });
 		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: rule.text });
 	}
+}
+
+/** Stress effects (doc: "Stress Effects", M16) — the procedure around the
+ * `stress-triggers`/`stress-results` tables. The consent caveat leads on
+ * purpose: the source conditions these rules on player permission and
+ * session-zero review. */
+export function renderStressEffectsSection(container: HTMLElement): void {
+	const list = container.createDiv({ cls: "lazy-campaign-dnd5e-dials-list" });
+	for (const rule of STRESS_PROCEDURE) {
+		const item = list.createDiv({ cls: "lazy-campaign-dnd5e-dial" });
+		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: rule.name });
+		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: rule.text });
+	}
+	container.createEl("p", {
+		cls: "lazy-campaign-hint",
+		text: "Roll triggering situations and effects from the stress tables in the tables panel.",
+	});
 }

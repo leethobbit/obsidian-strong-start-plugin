@@ -6,7 +6,7 @@ TTRPG campaign manager built on the **Eight Steps of Lazy RPG Prep** (Lazy GM's 
 
 Full design plan (data model, UX, milestones): `docs/plan.md`. Frontmatter contract: `SCHEMA.md` (draft until 1.0, then frozen/additive-only).
 
-**Status (2026-07-12): M0–M15 shipped and verified. SCHEMA.md is FROZEN at contract 1.0 (additive-only). Remaining before store submission (all user-gated): the naming decision (shortlist in `docs/plan.md` M14 — every candidate is collision-free in the community store as of 2026-07-12), a real-device mobile pass, the BRAT beta round, and the release/submission runbook itself.**
+**Status (2026-07-12): M0–M16 shipped and verified (M16 = Whitesparrow starter campaign, stress-effect tables, stars & wishes). SCHEMA.md is FROZEN at contract 1.0 (additive-only). Remaining before store submission (all user-gated): the naming decision (shortlist in `docs/plan.md` M14 — every candidate is collision-free in the community store as of 2026-07-12), a real-device mobile pass, the BRAT beta round, and the release/submission runbook itself. A drafted M17 (5e-drawer deepening) is sketched in `docs/plan.md`'s M16 note.**
 
 **Boundary**: `obsidian-draft-schemes-plugin` (sibling repo) is Draw Steel-specific bestiary/lorekeeper. This plugin stays system-agnostic prep-flow (+ optional 5e improv module); bestiary/statblock features belong there, not here.
 

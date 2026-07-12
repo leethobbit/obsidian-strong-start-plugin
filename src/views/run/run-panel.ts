@@ -22,6 +22,7 @@ import {
 	renderImprovisedDamageTable,
 	renderImprovisedDcSection,
 	renderQuickMonsterStatsTable,
+	renderStressEffectsSection,
 	renderWildernessTravelSection,
 } from "../../dnd5e/dnd5e-cards";
 import { EndSessionModal } from "./end-session-modal";
@@ -810,6 +811,9 @@ export class RunPanel {
 		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "travel", "Wilderness travel", (sectionBody) =>
 			renderWildernessTravelSection(sectionBody)
 		);
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "stress", "Stress effects", (sectionBody) =>
+			renderStressEffectsSection(sectionBody)
+		);
 	}
 
 	private setDnd5eOpen(open: boolean): void {
@@ -903,11 +907,11 @@ export class RunPanel {
 		new EndSessionModal(this.view.app, {
 			tallies,
 			nextSessionNumber,
-			onSubmit: (recapText) => this.handleEndSession(session, recapText),
+			onSubmit: (recapText, stars, wishes) => this.handleEndSession(session, recapText, stars, wishes),
 		}).open();
 	}
 
-	private async handleEndSession(session: SessionModel, recapText: string): Promise<void> {
+	private async handleEndSession(session: SessionModel, recapText: string, stars: string, wishes: string): Promise<void> {
 		const file = this.view.app.vault.getFileByPath(session.path);
 		if (!(file instanceof TFile)) return;
 
@@ -916,6 +920,18 @@ export class RunPanel {
 			const result = await tryFileOp(async () => {
 				if (recapText.length > 0) {
 					await this.view.app.vault.process(file, (body) => replaceSection(body, "Recap", recapText));
+				}
+				// Stars & wishes land in their OWN section, not the recap — the
+				// player-recap export shares `## Recap` verbatim, and table
+				// feedback is the GM's working material, not story-so-far.
+				if (stars.length > 0 || wishes.length > 0) {
+					const feedback = [
+						stars.length > 0 ? `**Stars:** ${stars}` : null,
+						wishes.length > 0 ? `**Wishes:** ${wishes}` : null,
+					]
+						.filter((line): line is string => line !== null)
+						.join("\n\n");
+					await this.view.app.vault.process(file, (body) => replaceSection(body, "Stars and wishes", feedback));
 				}
 				await writeLazyFrontmatter(
 					this.view.app,

@@ -6,8 +6,9 @@ export interface EndSessionModalOptions {
 	tallies: RunTallies;
 	/** The session number that would come next — for the carry-forward notice. */
 	nextSessionNumber: number;
-	/** Called with the (possibly empty) recap text on "End session". */
-	onSubmit: (recapText: string) => void | Promise<void>;
+	/** Called with the (possibly empty) recap text and the (possibly empty)
+	 * stars/wishes answers on "End session". */
+	onSubmit: (recapText: string, stars: string, wishes: string) => void | Promise<void>;
 }
 
 /**
@@ -18,6 +19,8 @@ export interface EndSessionModalOptions {
  */
 export class EndSessionModal extends FormModal {
 	private recap = "";
+	private stars = "";
+	private wishes = "";
 
 	constructor(
 		app: App,
@@ -49,6 +52,24 @@ export class EndSessionModal extends FormModal {
 		});
 		this.registerFirstInput(textarea);
 
+		// Stars and wishes (docs/plan.md M16, doc: "Stars and Wishes") — two
+		// optional prompts asked while the table's reactions are still fresh.
+		// Same bare-listener exception as the recap textarea above.
+		const starsInput = this.contentEl.createEl("textarea", {
+			cls: "lazy-campaign-end-session-textarea lazy-campaign-end-session-feedback",
+			attr: { rows: "2", placeholder: "Stars — what did the players enjoy? Leave blank to skip." },
+		});
+		starsInput.addEventListener("input", () => {
+			this.stars = starsInput.value;
+		});
+		const wishesInput = this.contentEl.createEl("textarea", {
+			cls: "lazy-campaign-end-session-textarea lazy-campaign-end-session-feedback",
+			attr: { rows: "2", placeholder: "Wishes — what do they want more of? Leave blank to skip." },
+		});
+		wishesInput.addEventListener("input", () => {
+			this.wishes = wishesInput.value;
+		});
+
 		if (t.carryCount > 0) {
 			this.contentEl.createEl("p", {
 				cls: "lazy-campaign-hint",
@@ -68,7 +89,7 @@ export class EndSessionModal extends FormModal {
 	}
 
 	private async handleSubmit(): Promise<void> {
-		await this.options.onSubmit(this.recap.trim());
+		await this.options.onSubmit(this.recap.trim(), this.stars.trim(), this.wishes.trim());
 		this.close();
 	}
 }
