@@ -2,11 +2,12 @@ import { generateTreasure } from "../../../generators/treasure";
 import { oneLiner } from "../../../generators/types";
 import { mountRollChip } from "../../roll-chip";
 import { renderListSectionEditor } from "./list-section-editor";
+import { sectionEditorCtxFrom } from "./section-editor-ctx";
 import type { StepContext } from "../step-context";
 
 export function renderRewardsStep(container: HTMLElement, ctx: StepContext): void {
 	container.createEl("h3", { text: "Select magic item rewards" });
-	const handle = renderListSectionEditor(container, ctx, {
+	const handle = renderListSectionEditor(container, sectionEditorCtxFrom(ctx), ctx.body, {
 		stepId: "rewards",
 		heading: "Rewards",
 		placeholder: "A reward…",

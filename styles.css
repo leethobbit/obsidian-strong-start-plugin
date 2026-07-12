@@ -1565,3 +1565,244 @@
 .lazy-campaign-settings-about p {
 	color: var(--text-muted);
 }
+
+/* ---- Home: Dashboard/Foundation/Session zero sub-tabs (M8) ------------------ */
+
+.lazy-campaign-home-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-3);
+	height: 100%;
+}
+
+.lazy-campaign-home-body {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	gap: var(--size-4-4);
+	min-height: 0;
+	overflow-y: auto;
+}
+
+.lazy-campaign-home-wizard-mount {
+	height: 100%;
+}
+
+/* ---- Fronts: shared pip control (Dashboard card + Foundation checkboxes) ---- */
+
+.lazy-campaign-fronts-card-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-fronts-card-row {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-fronts-card-name {
+	font-weight: var(--font-semibold);
+}
+
+.lazy-campaign-fronts-card-pips {
+	display: flex;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-fronts-pip {
+	width: var(--size-4-4);
+	height: var(--size-4-4);
+	padding: 0;
+	background-color: var(--background-modifier-border);
+	border: none;
+	border-radius: var(--radius-full);
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-fronts-pip:hover {
+	background-color: var(--text-faint);
+}
+
+.lazy-campaign-fronts-pip.is-done {
+	background-color: var(--color-orange);
+}
+
+/* ---- Foundation sub-tab (M8) ------------------------------------------------ */
+
+.lazy-campaign-foundation-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-4);
+}
+
+.lazy-campaign-foundation-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-foundation-card-header h3 {
+	margin: 0;
+}
+
+.lazy-campaign-foundation-pitch-prose {
+	color: var(--text-normal);
+}
+
+.lazy-campaign-front-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+	padding: var(--size-4-3);
+	margin-top: var(--size-4-2);
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+}
+
+.lazy-campaign-front-name-input {
+	font-weight: var(--font-semibold);
+}
+
+.lazy-campaign-front-name-input,
+.lazy-campaign-front-goal-input,
+.lazy-campaign-front-doom-input,
+.lazy-campaign-front-portent-input {
+	width: 100%;
+}
+
+.lazy-campaign-front-portents {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-front-portent-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-front-portent-row .lazy-campaign-front-portent-input {
+	flex: 1 1 auto;
+}
+
+.lazy-campaign-front-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-wizard-field-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-wizard-field-row input {
+	flex: 1 1 auto;
+}
+
+.lazy-campaign-list-row-dice {
+	flex: 0 0 auto;
+}
+
+/* ---- Campaign creation wizard (M8) ------------------------------------------ */
+
+.lazy-campaign-wizard-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-4);
+	height: 100%;
+	max-width: 40rem;
+	margin: 0 auto;
+}
+
+.lazy-campaign-wizard-dots {
+	justify-content: center;
+}
+
+.lazy-campaign-progress-dot.is-active {
+	background-color: var(--interactive-accent);
+	box-shadow: 0 0 0 2px var(--background-secondary), 0 0 0 3px var(--interactive-accent);
+}
+
+.lazy-campaign-wizard-content {
+	flex: 1 1 auto;
+	overflow-y: auto;
+}
+
+.lazy-campaign-wizard-textarea {
+	width: 100%;
+	resize: vertical;
+}
+
+.lazy-campaign-wizard-error {
+	color: var(--text-error);
+}
+
+.lazy-campaign-wizard-quick-create {
+	margin-top: var(--size-4-4);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-wizard-truths {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-wizard-truth-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.lazy-campaign-wizard-truth-number {
+	flex: 0 0 auto;
+	width: 1.5em;
+	color: var(--text-muted);
+	text-align: right;
+}
+
+.lazy-campaign-wizard-truth-input {
+	flex: 1 1 auto;
+}
+
+.lazy-campaign-wizard-party-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin-bottom: var(--size-4-1);
+}
+
+.lazy-campaign-wizard-party-input {
+	flex: 1 1 auto;
+}
+
+.lazy-campaign-wizard-summary {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-wizard-nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex: 0 0 auto;
+	gap: var(--size-4-2);
+	padding-top: var(--size-4-3);
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-wizard-nav-right {
+	display: flex;
+	gap: var(--size-4-2);
+}

@@ -46,8 +46,10 @@ async function createEntityNote(
 	return file;
 }
 
-export async function createPcNote(app: App, campaign: CampaignModel, name: string, player: string): Promise<TFile> {
-	return createEntityNote(app, campaign, "PCs", name, writePcFm({ campaign: `[[${campaign.name}]]`, player }));
+/** `body` lets the campaign creation wizard's party step (docs/plan.md M8)
+ * seed a one-liner into the freeform PC body in one write. */
+export async function createPcNote(app: App, campaign: CampaignModel, name: string, player: string, body = ""): Promise<TFile> {
+	return createEntityNote(app, campaign, "PCs", name, writePcFm({ campaign: `[[${campaign.name}]]`, player }), body);
 }
 
 /** `body` lets generator "Save as note" flows (`src/generators/insert.ts`)

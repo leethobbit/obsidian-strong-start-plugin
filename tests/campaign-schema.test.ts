@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
 	CAMPAIGN_BODY_SECTIONS,
+	buildCampaignBody,
 	campaignBodyScaffold,
 	readCampaignFm,
 	writeCampaignFm,
 } from "../src/campaigns/campaign-schema";
+import { parseFronts } from "../src/campaigns/fronts";
+import { parseBulletSection } from "../src/sessions/bullet-list";
+import { sectionContent } from "../src/lib/sections";
 
 describe("readCampaignFm", () => {
 	it("reads a well-formed object", () => {
@@ -57,5 +61,51 @@ describe("campaign body scaffold", () => {
 		for (const heading of CAMPAIGN_BODY_SECTIONS) {
 			expect(scaffold).toContain(`## ${heading}`);
 		}
+	});
+});
+
+describe("buildCampaignBody", () => {
+	it("an all-skipped wizard run produces the identical empty scaffold", () => {
+		expect(buildCampaignBody("", [], [])).toBe(campaignBodyScaffold());
+	});
+
+	it("fills the pitch section verbatim", () => {
+		const body = buildCampaignBody("Prevent the coming of the Black Moon", [], []);
+		expect(sectionContent(body, "Campaign pitch")).toBe("Prevent the coming of the Black Moon");
+	});
+
+	it("fills six truths as a bullet list", () => {
+		const truths = ["Truth one", "Truth two", "Truth three"];
+		const body = buildCampaignBody("", truths, []);
+		expect(parseBulletSection(sectionContent(body, "Six truths"))).toEqual({ rows: truths, malformed: false });
+	});
+
+	it("drops blank truth inputs (six fixed slots, only some filled)", () => {
+		const body = buildCampaignBody("", ["Truth one", "", "  ", "Truth two", "", ""], []);
+		expect(parseBulletSection(sectionContent(body, "Six truths")).rows).toEqual(["Truth one", "Truth two"]);
+	});
+
+	it("fills fronts, each becoming its own `###` block", () => {
+		const body = buildCampaignBody("", [], [
+			{ name: "Dark necromancer", goal: "Raise an army", portents: ["First sign", "Second sign", ""], doom: "The dead rise." },
+		]);
+		const fronts = parseFronts(sectionContent(body, "Fronts"));
+		expect(fronts).toEqual([
+			{
+				name: "Dark necromancer",
+				goal: "Raise an army",
+				portents: [
+					{ text: "First sign", done: false },
+					{ text: "Second sign", done: false },
+				],
+				doom: "The dead rise.",
+				extra: [],
+			},
+		]);
+	});
+
+	it("leaves House rules empty — the wizard has no step for it", () => {
+		const body = buildCampaignBody("A pitch", ["A truth"], []);
+		expect(sectionContent(body, "House rules")).toBe("");
 	});
 });

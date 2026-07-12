@@ -18,6 +18,7 @@ import { CHAMBER_TABLES } from "./chambers";
 import { ITEM_TABLES } from "./items";
 import { TOWN_EVENTS_TABLES } from "./town-events";
 import { DUNGEON_MONSTERS_TABLES } from "./dungeon-monsters";
+import { CAMPAIGN_TABLES } from "./campaign";
 
 export const CORE_TABLES: readonly RollTable[] = [
 	...STRONG_START_TABLES,
@@ -35,4 +36,5 @@ export const CORE_TABLES: readonly RollTable[] = [
 	...ITEM_TABLES,
 	...TOWN_EVENTS_TABLES,
 	...DUNGEON_MONSTERS_TABLES,
+	...CAMPAIGN_TABLES,
 ];

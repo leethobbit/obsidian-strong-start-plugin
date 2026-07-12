@@ -1,9 +1,10 @@
 import { renderListSectionEditor } from "./list-section-editor";
+import { sectionEditorCtxFrom } from "./section-editor-ctx";
 import type { StepContext } from "../step-context";
 
 export function renderScenesStep(container: HTMLElement, ctx: StepContext): void {
 	container.createEl("h3", { text: "Outline potential scenes" });
-	renderListSectionEditor(container, ctx, {
+	renderListSectionEditor(container, sectionEditorCtxFrom(ctx), ctx.body, {
 		stepId: "scenes",
 		heading: "Scenes",
 		placeholder: "A scene…",

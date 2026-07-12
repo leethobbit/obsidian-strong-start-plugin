@@ -2,12 +2,11 @@ import { DropdownComponent, ItemView, Notice, setIcon, type WorkspaceLeaf } from
 import type LazyCampaignPlugin from "../../main";
 import { DESTINATIONS, type NavDestination, type NavGroup, type NavMode } from "./nav-model";
 import { renderEmptyState } from "./panel-kit";
-import { DashboardPanel } from "./home/dashboard-panel";
+import { HomePanel, type HomeSubtab } from "./home/home-panel";
 import { PrepPanel } from "./prep/prep-panel";
 import { RunPanel } from "./run/run-panel";
 import { TablesPanel } from "./tables/tables-panel";
 import { SecretsPanel } from "./secrets/secrets-panel";
-import { CreateCampaignModal } from "../campaigns/create-campaign";
 
 export const VIEW_TYPE_LAZY = "lazy-campaign";
 
@@ -35,6 +34,12 @@ class PlaceholderPanel implements Panel {
 
 const RAIL_GROUP_ORDER: readonly NavGroup[] = ["hub", "pipeline", "insight"];
 
+const HOME_SUBTABS: readonly HomeSubtab[] = ["dashboard", "foundation", "session-zero"];
+
+function isHomeSubtab(value: string | undefined): value is HomeSubtab {
+	return HOME_SUBTABS.some((s) => s === value);
+}
+
 /**
  * The single host view. Every surface is a panel swapped inside this view,
  * driven by `nav-model.ts` — never add a second view type (AGENTS.md).
@@ -48,6 +53,10 @@ export class LazyCampaignView extends ItemView {
 	private bodyEl!: HTMLElement;
 	private readonly panels = new Map<NavMode, { el: HTMLElement; panel: Panel }>();
 	private unsubscribe: (() => void) | null = null;
+	/** Set alongside `panels.get("home")` in `buildPanels()` — the header's
+	 * "New campaign…" dropdown option needs to reach past the `Panel`
+	 * interface to open the wizard, not just re-render. */
+	private homePanel: HomePanel | null = null;
 
 	constructor(leaf: WorkspaceLeaf, plugin: LazyCampaignPlugin) {
 		super(leaf);
@@ -97,12 +106,13 @@ export class LazyCampaignView extends ItemView {
 		this.unsubscribe = null;
 	}
 
-	setMode(mode: NavMode, _subtab?: string): void {
-		// M1: sub-tabs (Home > Foundation/Session zero, Tables > Generators)
-		// aren't implemented yet, so `_subtab` is accepted but unused for now.
+	setMode(mode: NavMode, subtab?: string): void {
 		this.mode = mode;
 		this.plugin.ui.lastMode = mode;
 		void this.plugin.persist();
+		if (mode === "home" && this.homePanel && isHomeSubtab(subtab)) {
+			this.homePanel.setSubtab(subtab);
+		}
 		this.renderRail();
 		this.renderActivePanel();
 	}
@@ -126,7 +136,7 @@ export class LazyCampaignView extends ItemView {
 			el.hide();
 			const panel: Panel =
 				dest.mode === "home"
-					? new DashboardPanel(this, el)
+					? (this.homePanel = new HomePanel(this, el))
 					: dest.mode === "prep"
 						? new PrepPanel(this, el)
 						: dest.mode === "run"
@@ -179,7 +189,8 @@ export class LazyCampaignView extends ItemView {
 		dropdown.setValue(active?.path ?? "__new__");
 		dropdown.onChange((value) => {
 			if (value === "__new__") {
-				new CreateCampaignModal(this.app, plugin).open();
+				this.setMode("home");
+				this.homePanel?.openWizard();
 				return;
 			}
 			const campaign = campaigns.find((c) => c.path === value);

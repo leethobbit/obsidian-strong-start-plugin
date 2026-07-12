@@ -7,10 +7,33 @@ import {
 	renderTaskBulletRows,
 	type TaskRow,
 } from "../../../sessions/bullet-list";
-import type { StepContext } from "../step-context";
+import { mountRollChip, type RegisterDomEvent } from "../../roll-chip";
+import type { RollResult } from "../../../tables/types";
+
+/**
+ * The plumbing this editor needs from its host — a narrower cut than the prep
+ * board's `StepContext` so the Foundation sub-tab (campaign note, not a
+ * session) can reuse it directly. `StepContext` satisfies this structurally;
+ * prep step callers pass `{ ...ctx, notePath: ctx.session.path }`.
+ */
+export interface SectionEditorCtx {
+	registerDomEvent: RegisterDomEvent;
+	registerDebounce: (debouncer: { cancel(): void }) => void;
+	writeSection: (heading: string, content: string) => Promise<void>;
+	openNote: (path: string) => Promise<void>;
+	/** Vault path of the note being edited — only consulted by the malformed-
+	 * section banner's "Open note" affordance. */
+	notePath: string;
+}
+
+export interface ListSectionDiceOptions {
+	tableId: string;
+	sourceLabel: string;
+	rollTable: (id: string) => RollResult | null;
+}
 
 export interface ListSectionOptions {
-	/** Stable prefix for row `data-key`s, e.g. "scenes"/"rewards". */
+	/** Stable prefix for row `data-key`s, e.g. "scenes"/"rewards"/"truths". */
 	stepId: string;
 	/** Managed H2 heading this editor is bound to. */
 	heading: string;
@@ -21,6 +44,11 @@ export interface ListSectionOptions {
 	 * toggling done. Defaults to false: Rewards has no done concept and stays
 	 * on plain `-` bullets (docs/plan.md M6). */
 	taskAware?: boolean;
+	/** Optional roll affordance shown beside any currently-empty row — the
+	 * uniform suggestion chip (Insert/Reroll/×), never auto-filling
+	 * (AGENTS.md "Rolls never auto-insert"). Foundation's Six truths editor
+	 * uses this; Scenes/Rewards don't pass it. */
+	dice?: ListSectionDiceOptions;
 }
 
 const ROW_INPUT_SELECTOR = ".lazy-campaign-list-row-input";
@@ -45,19 +73,21 @@ function render(rows: readonly TaskRow[], taskAware: boolean): string {
 
 /**
  * Shared one-line-row list editor bound to a managed body section — used by
- * both the Scenes and Rewards steps (only heading/copy/`taskAware` differ).
- * Keeps its own local `rows` array as the editing surface's source of truth;
- * writes through `ctx.writeSection` on idle debounce and on blur, and never
- * reads back through `ctx.body` after a local edit (that would replay the
+ * the Scenes and Rewards prep steps and the Foundation sub-tab's Six truths
+ * editor (only heading/copy/`taskAware`/`dice` differ). Keeps its own local
+ * `rows` array as the editing surface's source of truth; writes through
+ * `ctx.writeSection` on idle debounce and on blur, and never reads back
+ * through a fresh body snapshot after a local edit (that would replay the
  * same staleness problem the store's self-write soft path exists to avoid).
  */
 export function renderListSectionEditor(
 	container: HTMLElement,
-	ctx: StepContext,
+	ctx: SectionEditorCtx,
+	body: string,
 	options: ListSectionOptions
 ): ListSectionEditorHandle {
 	const taskAware = options.taskAware ?? false;
-	const parsed = parse(sectionContent(ctx.body, options.heading), taskAware);
+	const parsed = parse(sectionContent(body, options.heading), taskAware);
 
 	if (parsed.malformed) {
 		renderMalformedBanner(container, ctx, options.heading);
@@ -69,7 +99,7 @@ export function renderListSectionEditor(
 	let focusIndex: number | null = null;
 
 	const listEl = container.createDiv({ cls: "lazy-campaign-list-rows" });
-	container.createEl("p", { cls: "lazy-campaign-hint", text: options.hint });
+	if (options.hint.length > 0) container.createEl("p", { cls: "lazy-campaign-hint", text: options.hint });
 
 	const debouncedCommit = debounce(() => commit(), 800, true);
 	ctx.registerDebounce(debouncedCommit);
@@ -124,6 +154,15 @@ export function renderListSectionEditor(
 				rebuildRows();
 				commit();
 			});
+
+			if (options.dice && row.text.trim().length === 0) {
+				renderRowDice(rowEl, options.dice, (text) => {
+					rows[index] = { ...rows[index], text };
+					focusIndex = null;
+					rebuildRows();
+					commit();
+				});
+			}
 		});
 
 		if (focusIndex !== null) {
@@ -149,6 +188,24 @@ export function renderListSectionEditor(
 		ctx.registerDomEvent(button, "click", onClick);
 	}
 
+	function renderRowDice(rowEl: HTMLElement, dice: ListSectionDiceOptions, onInsert: (text: string) => void): void {
+		const chipMount = rowEl.createDiv({ cls: "lazy-campaign-list-row-dice" });
+		const rollBtn = rowEl.createEl("button", {
+			cls: "lazy-campaign-icon-button",
+			attr: { "aria-label": "Roll for inspiration", type: "button" },
+		});
+		setIcon(rollBtn, "dices");
+		ctx.registerDomEvent(rollBtn, "click", () => {
+			mountRollChip({
+				container: chipMount,
+				sourceLabel: dice.sourceLabel,
+				roll: () => dice.rollTable(dice.tableId),
+				onInsert,
+				registerDomEvent: ctx.registerDomEvent,
+			});
+		});
+	}
+
 	rebuildRows();
 
 	return {
@@ -167,11 +224,11 @@ export function renderListSectionEditor(
 	};
 }
 
-function renderMalformedBanner(container: HTMLElement, ctx: StepContext, heading: string): void {
+function renderMalformedBanner(container: HTMLElement, ctx: SectionEditorCtx, heading: string): void {
 	const banner = container.createDiv({ cls: "lazy-campaign-malformed-banner" });
 	banner.createSpan({
 		text: `The ${heading} section was edited outside the board — open the note to fix it up by hand.`,
 	});
 	const openBtn = banner.createEl("button", { text: "Open note" });
-	ctx.registerDomEvent(openBtn, "click", () => void ctx.openNote(ctx.session.path));
+	ctx.registerDomEvent(openBtn, "click", () => void ctx.openNote(ctx.notePath));
 }

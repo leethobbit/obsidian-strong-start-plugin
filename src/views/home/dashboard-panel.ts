@@ -3,8 +3,10 @@ import { createNextSession } from "../../sessions/session-files";
 import { STEPS } from "../../sessions/steps";
 import { openSecrets, type DerivedSecret } from "../../sessions/carryover";
 import { tryFileOp } from "../../lib/notify";
+import { replaceSection, sectionContent } from "../../lib/sections";
+import { readCampaignBody, writeCampaignSection } from "../../campaigns/campaign-files";
+import { parseFronts, toggleFrontPortent } from "../../campaigns/fronts";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
-import { CreateCampaignModal } from "../../campaigns/create-campaign";
 import type { CampaignModel } from "../../campaigns/types";
 import type { SessionModel } from "../../sessions/types";
 import type { LazyCampaignView } from "../lazy-view";
@@ -15,29 +17,37 @@ const TOP_SECRETS_LIMIT = 3;
 const STALE_THRESHOLD = 3;
 
 const RECENT_SESSIONS_LIMIT = 5;
+const FRONTS_HEADING = "Fronts";
 
 /**
- * The Home / Dashboard sub-tab. Zero-campaign empty state, a next-session
- * card, a secrets-in-play card, and a recent-sessions list. Kept honest —
- * fronts/party cards land in later milestones once those note types exist.
+ * The Home / Dashboard sub-tab (mounted by `home-panel.ts` into a container it
+ * owns and reuses across re-renders). Zero-campaign empty state, a
+ * next-session card, a secrets-in-play card, a fronts card (the dashboard's
+ * only editable element — tapping a grim-portent pip toggles it), and a
+ * recent-sessions list.
  */
 export class DashboardPanel {
-	constructor(
-		private readonly view: LazyCampaignView,
-		private readonly containerEl: HTMLElement
-	) {}
+	/** Cached campaign-note body backing the fronts card, refetched whenever
+	 * the active campaign changes — `render()` itself stays synchronous
+	 * (matching every other card here), the async read just triggers one more
+	 * `render()` once it resolves. */
+	private frontsBody = "";
+	private frontsBodyPath: string | null = null;
+	private frontsBodyLoading = false;
 
-	render(): void {
-		this.containerEl.empty();
+	constructor(private readonly view: LazyCampaignView) {}
+
+	render(container: HTMLElement, onOpenWizard: () => void): void {
+		container.empty();
 		const plugin = this.view.plugin;
 		const campaign = plugin.activeCampaign();
 
 		if (!campaign) {
-			renderEmptyStateAction(this.containerEl, this.view, {
+			renderEmptyStateAction(container, this.view, {
 				title: "No campaign yet",
 				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero.",
 				ctaText: "Create your campaign",
-				onCta: () => new CreateCampaignModal(this.view.app, plugin).open(),
+				onCta: () => onOpenWizard(),
 			});
 			return;
 		}
@@ -46,15 +56,16 @@ export class DashboardPanel {
 		const sessions = store ? store.sessionsOf(campaign.path) : [];
 		const latest: SessionModel | undefined = sessions[0];
 
-		this.renderNextSessionCard(campaign, latest);
-		this.renderSecretsCard(sessions);
-		this.renderRecentSessions(sessions);
+		this.renderNextSessionCard(container, campaign, latest);
+		this.renderSecretsCard(container, sessions);
+		this.renderFrontsCard(container, campaign, () => this.render(container, onOpenWizard));
+		this.renderRecentSessions(container, sessions);
 	}
 
-	private renderSecretsCard(sessions: SessionModel[]): void {
+	private renderSecretsCard(container: HTMLElement, sessions: SessionModel[]): void {
 		const inPlay = openSecrets(sessions).filter((d) => d.state === "in-play");
 
-		const card = this.containerEl.createDiv({ cls: "lazy-campaign-card" });
+		const card = container.createDiv({ cls: "lazy-campaign-card" });
 		const heading = card.createEl("h3", { cls: "lazy-campaign-secrets-card-heading", text: "Secrets in play" });
 
 		const staleCount = inPlay.filter((d) => d.sessionsCarried >= STALE_THRESHOLD).length;
@@ -84,8 +95,72 @@ export class DashboardPanel {
 		});
 	}
 
-	private renderNextSessionCard(campaign: CampaignModel, latest: SessionModel | undefined): void {
-		const card = this.containerEl.createDiv({ cls: "lazy-campaign-card" });
+	private renderFrontsCard(container: HTMLElement, campaign: CampaignModel, requestRerender: () => void): void {
+		const card = container.createDiv({ cls: "lazy-campaign-card" });
+		card.createEl("h3", { text: "Fronts" });
+
+		if (this.frontsBodyPath !== campaign.path) {
+			if (!this.frontsBodyLoading) {
+				this.frontsBodyLoading = true;
+				void readCampaignBody(this.view.app, campaign.path).then((body) => {
+					this.frontsBody = body;
+					this.frontsBodyPath = campaign.path;
+					this.frontsBodyLoading = false;
+					requestRerender();
+				});
+			}
+			renderEmptyState(card, "Loading…");
+			return;
+		}
+
+		const fronts = parseFronts(sectionContent(this.frontsBody, FRONTS_HEADING));
+		if (fronts.length === 0) {
+			renderEmptyState(card, "Nothing to fight yet. Optimistic.");
+			const link = card.createEl("a", { text: "Add a front on the foundation tab →", attr: { href: "#" } });
+			this.view.registerDomEvent(link, "click", (evt) => {
+				evt.preventDefault();
+				this.view.setMode("home", "foundation");
+			});
+			return;
+		}
+
+		const list = card.createDiv({ cls: "lazy-campaign-fronts-card-list" });
+		fronts.forEach((front, frontIndex) => {
+			const row = list.createDiv({ cls: "lazy-campaign-fronts-card-row" });
+			row.createSpan({ cls: "lazy-campaign-fronts-card-name", text: front.name });
+
+			if (front.portents.length === 0) {
+				row.createSpan({ cls: "lazy-campaign-hint", text: "No grim portents yet" });
+				return;
+			}
+
+			const pips = row.createDiv({ cls: "lazy-campaign-fronts-card-pips" });
+			front.portents.forEach((portent, portentIndex) => {
+				const pip = pips.createEl("button", {
+					cls: `lazy-campaign-fronts-pip${portent.done ? " is-done" : ""}`,
+					attr: { type: "button", "aria-label": portent.text, title: portent.text },
+				});
+				this.view.registerDomEvent(pip, "click", () => void this.toggleFront(campaign, frontIndex, portentIndex, requestRerender));
+			});
+		});
+	}
+
+	/** Tap a grim-portent pip: docs/plan.md calls this the dashboard's only
+	 * editable element. Toggles the one targeted `- [ ]`/`- [x]` line via
+	 * `fronts.ts` (byte-preserving every other line) and refreshes the
+	 * in-memory cache directly rather than re-reading the file back. */
+	private async toggleFront(campaign: CampaignModel, frontIndex: number, portentIndex: number, requestRerender: () => void): Promise<void> {
+		const raw = sectionContent(this.frontsBody, FRONTS_HEADING);
+		const toggled = toggleFrontPortent(raw, frontIndex, portentIndex);
+		if (toggled === raw) return;
+
+		await writeCampaignSection(this.view.app, campaign.path, FRONTS_HEADING, toggled);
+		this.frontsBody = replaceSection(this.frontsBody, FRONTS_HEADING, toggled);
+		requestRerender();
+	}
+
+	private renderNextSessionCard(container: HTMLElement, campaign: CampaignModel, latest: SessionModel | undefined): void {
+		const card = container.createDiv({ cls: "lazy-campaign-card" });
 		card.createEl("h3", { text: campaign.name });
 
 		const actions = card.createDiv({ cls: "lazy-campaign-card-action" });
@@ -122,8 +197,8 @@ export class DashboardPanel {
 		}
 	}
 
-	private renderRecentSessions(sessions: SessionModel[]): void {
-		const card = this.containerEl.createDiv({ cls: "lazy-campaign-card" });
+	private renderRecentSessions(container: HTMLElement, sessions: SessionModel[]): void {
+		const card = container.createDiv({ cls: "lazy-campaign-card" });
 		card.createEl("h3", { text: "Recent sessions" });
 
 		if (sessions.length === 0) {
