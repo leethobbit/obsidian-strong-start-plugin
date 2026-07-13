@@ -9,6 +9,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Added
 
+- Run mode's Scenes and Secrets sections are collapsible and much more compact — hidden secrets are one-line masked rows (peek/reveal/undo unchanged), and a scene with a detail block gains a chevron that expands its rendered detail in place.
 - Run mode's glance sidebar is now master-detail: tapping an NPC, location, monster, or reward link opens a focus pane in the sidebar — key fields (NPC role/location/status, location aspects) plus the rendered note body — with back, edit-in-modal, and open-note actions, instead of leaving run mode for a new leaf. Inline `[[links]]` inside reward rows are tappable too.
 - Run mode's log bar grows into a collapsible Log/Notes pane: the `## Log` history is finally visible (rolling, timestamped, auto-scrolling) above the append input, and a Notes tab holds a free-form scratchpad saved to the session's `## Notes` section. Pinned, debounced writes — typing then instantly switching sessions can't lose keystrokes or write to the wrong note.
 - Session notes gain a `## Notes` scratchpad section (scaffolded on new sessions; older notes gain it on first write) — the home of run mode's Notes tab.

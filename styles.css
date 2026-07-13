@@ -1435,19 +1435,35 @@
 	font-size: 1.25em;
 }
 
+/* The main column's Scenes/Secrets collapsible headers keep the muted
+   small-caps section-label look. */
+.lazy-campaign-run-section .lazy-campaign-collapsible-label {
+	color: var(--text-muted);
+	font-variant: small-caps;
+	font-size: 0.8em;
+	text-transform: lowercase;
+}
+
 .lazy-campaign-run-scene-list,
 .lazy-campaign-run-secret-list {
 	display: flex;
 	flex-direction: column;
-	gap: var(--size-4-2);
+	gap: var(--size-4-1);
 }
 
 .lazy-campaign-run-scene-row {
 	display: flex;
+	align-items: stretch;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-run-scene-toggle {
+	display: flex;
+	flex: 1 1 auto;
 	align-items: center;
 	gap: var(--size-4-2);
 	min-height: 44px;
-	padding: var(--size-4-2);
+	padding: var(--size-4-1) var(--size-4-2);
 	color: var(--text-normal);
 	text-align: left;
 	background-color: var(--background-secondary);
@@ -1455,6 +1471,29 @@
 	border-radius: var(--radius-m);
 	box-shadow: none;
 	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-run-scene-expand {
+	flex: 0 0 auto;
+	min-width: 44px;
+	color: var(--text-muted);
+	background-color: var(--background-secondary);
+	border: none;
+	border-radius: var(--radius-m);
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.lazy-campaign-run-scene-detail {
+	margin: 0 0 var(--size-4-1) var(--size-4-6);
+}
+
+.lazy-campaign-run-scene-detail > :first-child {
+	margin-top: 0;
+}
+
+.lazy-campaign-run-scene-detail > :last-child {
+	margin-bottom: 0;
 }
 
 .lazy-campaign-run-scene-check {
@@ -1480,10 +1519,22 @@
 	flex-direction: column;
 	gap: var(--size-4-2);
 	min-height: 44px;
-	padding: var(--size-4-3);
+	padding: var(--size-4-1) var(--size-4-2);
 	background-color: var(--background-secondary);
 	border-radius: var(--radius-m);
 	cursor: var(--cursor-link);
+}
+
+/* Hidden and revealed secrets are compact one-line rows; only the peeked
+   state expands into a column (text + Mark revealed). */
+.lazy-campaign-run-secret-card.is-hidden,
+.lazy-campaign-run-secret-card.is-revealed {
+	flex-direction: row;
+	align-items: center;
+}
+
+.lazy-campaign-run-secret-card.is-revealed .lazy-campaign-run-secret-text {
+	flex: 1 1 auto;
 }
 
 .lazy-campaign-run-secret-card.is-revealed {
@@ -1507,11 +1558,11 @@
 
 .lazy-campaign-run-secret-mask {
 	display: flex;
-	flex-direction: column;
-	gap: var(--size-4-1);
+	flex: 1 1 auto;
 }
 
 .lazy-campaign-run-secret-mask-bar {
+	width: 100%;
 	height: 0.8em;
 	background: repeating-linear-gradient(
 		135deg,
@@ -1521,18 +1572,6 @@
 		var(--background-secondary) 12px
 	);
 	border-radius: var(--radius-s);
-}
-
-.lazy-campaign-run-secret-mask-bar:nth-child(1) {
-	width: 90%;
-}
-
-.lazy-campaign-run-secret-mask-bar:nth-child(2) {
-	width: 70%;
-}
-
-.lazy-campaign-run-secret-mask-bar:nth-child(3) {
-	width: 45%;
 }
 
 .lazy-campaign-run-secret-mark,

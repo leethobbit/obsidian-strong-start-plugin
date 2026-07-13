@@ -69,6 +69,13 @@ export class RunPanel {
 	private readonly elapsedStart = new Map<string, number>();
 	private readonly sectionStates = new Map<string, SectionState>();
 
+	/** Scene rows whose detail block is expanded, keyed by scene TEXT (indices
+	 * reorder as done rows sink). In-memory; reset on session switch. */
+	private readonly expandedScenes = new Set<string>();
+	/** Markdown child components for expanded scene details — disposed at the
+	 * top of every `renderScenes()` (per-region bucket, not the single slot). */
+	private readonly sceneMdBucket: Component[] = [];
+
 	private peekedSecretId: string | null = null;
 	private undoVisibleForId: string | null = null;
 	private undoTimeoutHandle: number | null = null;
@@ -204,6 +211,7 @@ export class RunPanel {
 			this.clearUndo();
 			this.closePopover();
 			this.glancePane.resetForSession();
+			this.expandedScenes.clear();
 			if (!this.elapsedStart.has(session.path)) this.elapsedStart.set(session.path, Date.now());
 		}
 
@@ -264,15 +272,31 @@ export class RunPanel {
 		const strongStartBody = strongStartSection.createDiv({ cls: "lazy-campaign-run-strong-start-body" });
 		void this.renderStrongStart(strongStartBody, session);
 
-		const scenesSection = mainCol.createDiv({ cls: "lazy-campaign-run-section" });
-		scenesSection.createDiv({ cls: "lazy-campaign-run-section-label", text: "Scenes" });
-		this.scenesListEl = scenesSection.createDiv({ cls: "lazy-campaign-run-scene-list" });
-		this.renderScenes();
+		// Scenes and Secrets are collapsible (run-screen redesign: they were
+		// the panel's biggest space hogs). The collapsible body is built once
+		// and CSS-toggled, so `renderScenes()`/`renderSecrets()` partial
+		// re-renders keep pointing at live elements.
+		const state = this.sectionStateFor(session.path);
 
+		const scenesSection = mainCol.createDiv({ cls: "lazy-campaign-run-section" });
+		renderCollapsibleSection(scenesSection, this.view, state, "scenes", "Scenes", (body) => {
+			this.scenesListEl = body.createDiv({ cls: "lazy-campaign-run-scene-list" });
+			this.renderScenes();
+		});
+
+		const secretCount = session.secrets.filter((s) => !s.archived).length;
 		const secretsSection = mainCol.createDiv({ cls: "lazy-campaign-run-section" });
-		secretsSection.createDiv({ cls: "lazy-campaign-run-section-label", text: "Secrets" });
-		this.secretsListEl = secretsSection.createDiv({ cls: "lazy-campaign-run-secret-list" });
-		this.renderSecrets();
+		renderCollapsibleSection(
+			secretsSection,
+			this.view,
+			state,
+			"secrets",
+			secretCount > 0 ? `Secrets (${secretCount})` : "Secrets",
+			(body) => {
+				this.secretsListEl = body.createDiv({ cls: "lazy-campaign-run-secret-list" });
+				this.renderSecrets();
+			}
+		);
 
 		this.glancePane.render(glanceCol, session, campaign, this.bodyText, this.sectionStateFor(session.path));
 
@@ -290,6 +314,8 @@ export class RunPanel {
 		for (const debouncer of this.debouncers) void debouncer.run();
 		this.debouncers = [];
 		this.glancePane.dispose();
+		for (const component of this.sceneMdBucket) this.view.removeChild(component);
+		this.sceneMdBucket.length = 0;
 		if (this.mdComponent) {
 			this.view.removeChild(this.mdComponent);
 			this.mdComponent = null;
@@ -537,6 +563,8 @@ export class RunPanel {
 	private renderScenes(): void {
 		const container = this.scenesListEl;
 		if (!container) return;
+		for (const component of this.sceneMdBucket) this.view.removeChild(component);
+		this.sceneMdBucket.length = 0;
 		container.empty();
 
 		if (this.scenesMalformed) {
@@ -556,14 +584,43 @@ export class RunPanel {
 		const ordered = [...indexed.filter((e) => !e.row.done), ...indexed.filter((e) => e.row.done)];
 
 		for (const { row, index } of ordered) {
-			const btn = container.createEl("button", {
-				cls: `lazy-campaign-run-scene-row${row.done ? " is-done" : ""}`,
+			// A row wrapper, not one big <button> — the detail chevron is its
+			// own button, and nesting buttons is invalid HTML that breaks tap
+			// handling on mobile.
+			const wrap = container.createDiv({ cls: `lazy-campaign-run-scene-row${row.done ? " is-done" : ""}` });
+			const toggle = wrap.createEl("button", {
+				cls: "lazy-campaign-run-scene-toggle",
 				attr: { type: "button", "aria-pressed": row.done ? "true" : "false" },
 			});
-			const icon = btn.createSpan({ cls: "lazy-campaign-run-scene-check" });
+			const icon = toggle.createSpan({ cls: "lazy-campaign-run-scene-check" });
 			setIcon(icon, row.done ? "check-circle" : "circle");
-			btn.createSpan({ cls: "lazy-campaign-run-scene-text", text: row.text });
-			this.view.registerDomEvent(btn, "click", () => void this.toggleScene(index));
+			toggle.createSpan({ cls: "lazy-campaign-run-scene-text", text: row.text });
+			this.view.registerDomEvent(toggle, "click", () => void this.toggleScene(index));
+
+			const detail = row.detail;
+			if (!detail) continue;
+
+			const expanded = this.expandedScenes.has(row.text);
+			const expandBtn = wrap.createEl("button", {
+				cls: "lazy-campaign-run-scene-expand",
+				attr: {
+					type: "button",
+					"aria-label": expanded ? "Hide scene detail" : "Show scene detail",
+					"aria-expanded": expanded ? "true" : "false",
+				},
+			});
+			setIcon(expandBtn, expanded ? "chevron-down" : "chevron-right");
+			this.view.registerDomEvent(expandBtn, "click", () => {
+				if (!this.expandedScenes.delete(row.text)) this.expandedScenes.add(row.text);
+				this.renderScenes();
+			});
+
+			if (expanded) {
+				const detailEl = container.createDiv({ cls: "lazy-campaign-run-scene-detail" });
+				const component = this.view.addChild(new Component());
+				this.sceneMdBucket.push(component);
+				void MarkdownRenderer.render(this.view.app, detail, detailEl, this.session?.path ?? "", component);
+			}
 		}
 	}
 
@@ -625,9 +682,9 @@ export class RunPanel {
 		if (revealed || peeked) {
 			card.createDiv({ cls: "lazy-campaign-run-secret-text", text: secret.text });
 		} else {
+			// One bar, one line — hidden secrets are a compact masked row now
+			// (run-screen redesign), not a three-bar card.
 			const mask = card.createDiv({ cls: "lazy-campaign-run-secret-mask" });
-			mask.createSpan({ cls: "lazy-campaign-run-secret-mask-bar" });
-			mask.createSpan({ cls: "lazy-campaign-run-secret-mask-bar" });
 			mask.createSpan({ cls: "lazy-campaign-run-secret-mask-bar" });
 		}
 
