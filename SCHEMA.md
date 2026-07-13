@@ -59,7 +59,9 @@ lazyCampaign:
 
 Step ids (frozen constants): `characters, strong-start, scenes, secrets, locations, npcs, monsters, rewards`.
 
-Managed body sections: `## Strong start` · `## Scenes` (task-list bullets — `- [ ]`/`- [x]`, toggled one-tap in run mode; a plain `-` bullet reads as not-done) · `## Rewards` (bullets) · `## Log` (run-mode timestamped bullets, `- HH:MM <text>`). The end-session flow appends `## Recap`.
+Managed body sections: `## Strong start` · `## Scenes` (task-list bullets — `- [ ]`/`- [x]`, toggled one-tap in run mode; a plain `-` bullet reads as not-done) · `## Rewards` (bullets) · `## Notes` (free-form GM scratchpad, edited from run mode's Notes tab; added to the scaffold post-1.0 — older notes gain it lazily on first write) · `## Log` (run-mode timestamped bullets, `- HH:MM <text>`). The end-session flow appends `## Recap`.
+
+Scene detail blocks: a `## Scenes` bullet may be followed by indented lines (spaces or tabs) — its detail block, shown by run mode's expand chevron and edited per-row in prep. Detail round-trips verbatim (common indent normalized to four spaces); indented sub-bullets belong to the detail, not the scene list.
 
 ### Session zero — `type: session-zero`
 

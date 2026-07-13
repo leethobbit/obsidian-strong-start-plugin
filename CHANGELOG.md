@@ -9,6 +9,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Added
 
+- Session notes gain a `## Notes` scratchpad section (scaffolded on new sessions; older notes gain it on first write) — the home of run mode's Notes tab.
 - The Whitesparrow starter campaign is now discoverable in the UI, not just the command palette: the no-campaign Dashboard empty state gains a "Start with Whitesparrow" button, and the campaign wizard's first step links to it.
 
 - Full in-plugin editing (M17) — prep a whole game without opening a raw note:

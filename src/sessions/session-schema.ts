@@ -117,7 +117,7 @@ export function toSessionFm(model: SessionModel): SessionFm {
 	};
 }
 
-export const SESSION_BODY_SECTIONS = ["Strong start", "Scenes", "Rewards", "Log"] as const;
+export const SESSION_BODY_SECTIONS = ["Strong start", "Scenes", "Rewards", "Notes", "Log"] as const;
 
 /** Fresh session note body: one empty managed section per heading, in order. */
 export function sessionBodyScaffold(): string {

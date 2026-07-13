@@ -130,4 +130,8 @@ describe("session body scaffold", () => {
 			expect(scaffold).toContain(`## ${heading}`);
 		}
 	});
+
+	it("scaffolds the run-mode sections in reading order, Notes before Log", () => {
+		expect([...SESSION_BODY_SECTIONS]).toEqual(["Strong start", "Scenes", "Rewards", "Notes", "Log"]);
+	});
 });
