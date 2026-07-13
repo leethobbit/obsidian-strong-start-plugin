@@ -211,6 +211,20 @@ export class CampaignWizardPanel {
 			evt.preventDefault();
 			new CreateCampaignModal(this.view.app, this.view.plugin, () => this.options.onCreated()).open();
 		});
+
+		const starter = container.createEl("p", { cls: "lazy-campaign-wizard-quick-create" });
+		const starterLink = starter.createEl("a", {
+			text: "First campaign? Start with Whitesparrow, a ready-to-run village adventure",
+			attr: { href: "#" },
+		});
+		this.view.registerDomEvent(starterLink, "click", (evt) => {
+			evt.preventDefault();
+			void (async () => {
+				// Only close the wizard when the starter actually got created —
+				// on failure the GM keeps whatever they'd already typed here.
+				if (await this.view.plugin.createStarterCampaignAndOpen()) this.options.onCreated();
+			})();
+		});
 	}
 
 	// ---- Step 2: six truths --------------------------------------------------

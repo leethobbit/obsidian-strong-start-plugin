@@ -48,9 +48,11 @@ export class DashboardPanel {
 		if (!campaign) {
 			renderEmptyStateAction(container, this.view, {
 				title: "No campaign yet",
-				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero.",
+				body: "The lazy way: a pitch, six truths, a front or two — fifteen minutes and you're ready for session zero. Or skip straight to the table with Whitesparrow, a ready-to-run village adventure.",
 				ctaText: "Create your campaign",
 				onCta: () => onOpenWizard(),
+				secondaryText: "Start with Whitesparrow",
+				onSecondary: () => void plugin.createStarterCampaignAndOpen(),
 			});
 			return;
 		}

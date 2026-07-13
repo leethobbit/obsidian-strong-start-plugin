@@ -113,13 +113,26 @@ export class LazyCampaignView extends ItemView {
 		this.phone?.setActive(this.mode);
 		this.phone?.alignAboveNavbar();
 
-		const store = this.plugin.store;
-		if (store) {
+		// On app startup this view's onOpen runs during workspace layout
+		// restore, BEFORE the plugin's onLayoutReady callback has constructed
+		// the store — subscribing directly here would silently no-op and leave
+		// the view frozen on its zero-campaign render until reopened. Deferring
+		// through onLayoutReady covers both paths: it fires immediately when
+		// the layout is already ready (manual open), and otherwise runs after
+		// the plugin's own callback (registered first, in onload), so the
+		// store exists either way.
+		this.app.workspace.onLayoutReady(() => {
+			if (!this.contentEl.isConnected) return; // view closed before the layout finished restoring
+			const store = this.plugin.store;
+			if (!store) return;
 			this.unsubscribe = store.subscribe((changedPaths) => {
 				this.renderHeader();
 				this.renderActivePanel(changedPaths);
 			});
-		}
+			// Catch up on anything the store indexed before we subscribed.
+			this.renderHeader();
+			this.renderActivePanel();
+		});
 	}
 
 	async onClose(): Promise<void> {

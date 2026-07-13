@@ -119,17 +119,7 @@ export default class LazyCampaignPlugin extends Plugin {
 			id: "create-starter-campaign",
 			name: "Create starter campaign",
 			callback: () => {
-				void (async () => {
-					const created = await tryFileOp(
-						() => createStarterCampaign(this.app, this.settings.campaignRoot),
-						"Couldn't create the starter campaign — check the console for details."
-					);
-					if (!created) return;
-					this.ui.lastCampaignId = created.id;
-					await this.persist();
-					new Notice("Whitesparrow is ready — session 1 is prepped; add your party and run it.");
-					await this.openView("home");
-				})();
+				void this.createStarterCampaignAndOpen();
 			},
 		});
 
@@ -227,6 +217,24 @@ export default class LazyCampaignPlugin extends Plugin {
 	onunload(): void {
 		// Never detach leaves here — Obsidian owns leaf lifecycle. The view's
 		// own onClose() tears down its store subscription.
+	}
+
+	/** Shared entry for the "Create starter campaign" command and the
+	 * no-campaign CTAs (Dashboard empty state, wizard step 1): builds
+	 * Whitesparrow, makes it active, and lands on Home. Returns false when
+	 * creation failed (`tryFileOp` has already surfaced the Notice) so the
+	 * wizard knows not to close itself. */
+	async createStarterCampaignAndOpen(): Promise<boolean> {
+		const created = await tryFileOp(
+			() => createStarterCampaign(this.app, this.settings.campaignRoot),
+			"Couldn't create the starter campaign — check the console for details."
+		);
+		if (!created) return false;
+		this.ui.lastCampaignId = created.id;
+		await this.persist();
+		new Notice("Whitesparrow is ready — session 1 is prepped; add your party and run it.");
+		await this.openView("home");
+		return true;
 	}
 
 	/** The campaign to act on for global entry points (ribbon/command "New
