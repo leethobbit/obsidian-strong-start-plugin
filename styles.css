@@ -440,6 +440,16 @@
 	flex: 1 1 auto;
 }
 
+.lazy-campaign-list-row-detail-toggle.has-detail {
+	color: var(--text-accent);
+}
+
+.lazy-campaign-list-row-detail {
+	width: calc(100% - var(--size-4-6));
+	margin: var(--size-2-2) 0 var(--size-4-2) var(--size-4-6);
+	resize: vertical;
+}
+
 .lazy-campaign-list-row-controls {
 	display: flex;
 	flex: 0 0 auto;

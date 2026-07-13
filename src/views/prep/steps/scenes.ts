@@ -12,5 +12,8 @@ export function renderScenesStep(container: HTMLElement, ctx: StepContext): void
 		// Run mode toggles scenes done one-tap (`- [ ]`/`- [x]`, M6) — this
 		// editor preserves that flag round-trip even though it only edits text.
 		taskAware: true,
+		// Per-scene detail block (run-screen redesign): the indented text run
+		// mode expands under the scene's chevron.
+		withDetail: true,
 	});
 }

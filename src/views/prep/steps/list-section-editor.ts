@@ -49,9 +49,22 @@ export interface ListSectionOptions {
 	 * (AGENTS.md "Rolls never auto-insert"). Foundation's Six truths editor
 	 * uses this; Scenes/Rewards don't pass it. */
 	dice?: ListSectionDiceOptions;
+	/** Per-row detail editing (`TaskRow.detail` — the indented block run mode
+	 * expands under a scene). Adds a toggle button per row opening an indented
+	 * textarea. Requires `taskAware`; ignored otherwise. Scenes only —
+	 * Rewards/Six truths have no detail concept. */
+	withDetail?: boolean;
 }
 
 const ROW_INPUT_SELECTOR = ".lazy-campaign-list-row-input";
+
+/** Editing-surface row: `TaskRow` plus a transient open flag for the detail
+ * textarea. The flag lives on the row (not an index set) so move/remove carry
+ * it with the row; `renderTaskBulletRows` only reads text/done/detail, so it
+ * never leaks into the note. */
+interface EditorRow extends TaskRow {
+	detailOpen?: boolean;
+}
 
 export interface ListSectionEditorHandle {
 	/** Append a new row with `text` and commit — used by the Rewards step's
@@ -87,6 +100,7 @@ export function renderListSectionEditor(
 	options: ListSectionOptions
 ): ListSectionEditorHandle {
 	const taskAware = options.taskAware ?? false;
+	const withDetail = (options.withDetail ?? false) && taskAware;
 	const parsed = parse(sectionContent(body, options.heading), taskAware);
 
 	if (parsed.malformed) {
@@ -95,7 +109,7 @@ export function renderListSectionEditor(
 		return { addRow: () => {} };
 	}
 
-	let rows = parsed.rows.length > 0 ? parsed.rows : [{ text: "", done: false }];
+	let rows: EditorRow[] = parsed.rows.length > 0 ? parsed.rows : [{ text: "", done: false }];
 	let focusIndex: number | null = null;
 
 	const listEl = container.createDiv({ cls: "lazy-campaign-list-rows" });
@@ -136,6 +150,24 @@ export function renderListSectionEditor(
 			});
 
 			const controls = rowEl.createDiv({ cls: "lazy-campaign-list-row-controls" });
+			if (withDetail) {
+				const detailBtn = controls.createEl("button", {
+					cls: `lazy-campaign-icon-button lazy-campaign-list-row-detail-toggle${
+						(row.detail ?? "").trim().length > 0 ? " has-detail" : ""
+					}`,
+					attr: {
+						"aria-label": row.detailOpen ? "Hide scene detail" : "Edit scene detail",
+						"aria-expanded": row.detailOpen ? "true" : "false",
+						type: "button",
+					},
+				});
+				setIcon(detailBtn, "text");
+				ctx.registerDomEvent(detailBtn, "click", () => {
+					rows[index] = { ...rows[index], detailOpen: !rows[index].detailOpen };
+					focusIndex = null;
+					rebuildRows();
+				});
+			}
 			addIconButton(controls, "arrow-up", "Move up", index === 0, () => {
 				[rows[index - 1], rows[index]] = [rows[index], rows[index - 1]];
 				focusIndex = index - 1;
@@ -163,6 +195,25 @@ export function renderListSectionEditor(
 					rebuildRows();
 					commit();
 				});
+			}
+
+			if (withDetail && row.detailOpen) {
+				const detailArea = listEl.createEl("textarea", {
+					cls: "lazy-campaign-list-row-detail",
+					attr: {
+						rows: "3",
+						placeholder: "Detail shown in run mode — read-aloud, DCs, tactics…",
+						"data-key": `${options.stepId}-detail-${index}`,
+					},
+				});
+				detailArea.value = row.detail ?? "";
+				ctx.registerDomEvent(detailArea, "input", () => {
+					const value = detailArea.value;
+					// "Cleared = deleted": whitespace-only detail drops the key.
+					rows[index] = { ...rows[index], detail: value.trim().length > 0 ? value : undefined };
+					debouncedCommit();
+				});
+				ctx.registerDomEvent(detailArea, "blur", () => debouncedCommit.run());
 			}
 		});
 
