@@ -9,7 +9,7 @@ import { patchSessionSecrets } from "../../sessions/session-files";
 import { displayText, isWikilink } from "../../sessions/link-list";
 import { asLazy, writeLazyFrontmatter } from "../../lib/frontmatter";
 import { beginSelfWrite, isSelfWrite } from "../../lib/self-write";
-import { DeferredRebuildQueue } from "../../lib/focus-preserve";
+import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
 import { tryFileOp } from "../../lib/notify";
 import { renderHint } from "../../help/hint";
 import { rollDice } from "../../tables/dice";
@@ -27,6 +27,7 @@ import {
 } from "../../dnd5e/dnd5e-cards";
 import { EndSessionModal } from "./end-session-modal";
 import { mountDicePopover, rollDetail, type DiceConfig } from "./dice-popover";
+import { mountBottomPane, type BottomPaneHost } from "./bottom-pane";
 import type { CampaignModel } from "../../campaigns/types";
 import type { Secret, SessionModel } from "../../sessions/types";
 import type { LazyCampaignView } from "../lazy-view";
@@ -45,13 +46,16 @@ interface ActivePopover {
 
 /**
  * The at-the-table run panel (docs/plan.md M6): read-optimized, big type,
- * one-tap-or-nothing, cannot be accidentally edited — the log bar at the
- * bottom is the only writing surface. Shows whatever session Prep currently
- * has selected (`plugin.ui.lastSessionPath`), falling back to the latest.
+ * one-tap-or-nothing, cannot be accidentally edited — the bottom pane's log
+ * input and Notes scratchpad are the only writing surfaces (the scratchpad is
+ * the run-screen redesign's deliberate amendment to M6's log-only rule).
+ * Shows whatever session Prep currently has selected
+ * (`plugin.ui.lastSessionPath`), falling back to the latest.
  *
  * Mirrors `prep-panel.ts`'s self-write soft path / deferred-rebuild
- * architecture (AGENTS.md risk #2), scoped down: the only editable text here
- * is the log input, so `DeferredRebuildQueue` only ever needs to guard that.
+ * architecture (AGENTS.md risk #2), scoped down to those two fields —
+ * `DeferredRebuildQueue` guards them, and pending Notes writes are flushed
+ * (awaited) before every body re-read.
  */
 export class RunPanel {
 	private campaign: CampaignModel | null = null;
@@ -79,6 +83,10 @@ export class RunPanel {
 	/** Last-composed dice pool — reopening the popover keeps the config
 	 * (in-memory only, same policy as the other run-mode UI state). */
 	private readonly diceConfig: DiceConfig = { count: 1, sides: 20, modifier: 0 };
+
+	/** Pending debounced writers (the Notes scratchpad). FLUSHED, never
+	 * dropped — see `flushDebouncers` and prep-panel's identical contract. */
+	private debouncers: Array<{ cancel(): void; run(): unknown }> = [];
 
 	private shellEl: HTMLElement | null = null;
 	private timerEl: HTMLElement | null = null;
@@ -196,9 +204,24 @@ export class RunPanel {
 			if (!this.elapsedStart.has(session.path)) this.elapsedStart.set(session.path, Date.now());
 		}
 
+		// Land pending pinned writes BEFORE the body re-read — otherwise the
+		// rebuilt Notes textarea re-seeds from a disk body older than what
+		// was just typed (the flush is awaitable, so this closes the window
+		// prep's fire-and-forget flush leaves open).
+		await this.flushDebouncers();
 		await this.ensureBody(session.path, true);
 		if (this.session?.path !== session.path) return; // switched again mid-await
-		this.fullRebuild();
+		preserveFocus(this.containerEl, () => this.fullRebuild());
+	}
+
+	/** Run every pending debounced writer and await the writes. Each write is
+	 * pinned to the note it was typed against and diff-guarded, so a late
+	 * flush after a session switch is a safe no-op (prep-panel's contract). */
+	private async flushDebouncers(): Promise<void> {
+		const settled = this.debouncers.map((debouncer) => debouncer.run());
+		this.debouncers = [];
+		const pending = settled.filter((result): result is Promise<unknown> => result instanceof Promise);
+		if (pending.length > 0) await Promise.allSettled(pending);
 	}
 
 	private fullRebuild(): void {
@@ -250,8 +273,7 @@ export class RunPanel {
 
 		this.renderGlance(glanceCol, session);
 
-		const logBar = shell.createDiv({ cls: "lazy-campaign-run-logbar" });
-		this.renderLogBar(logBar, session);
+		mountBottomPane(shell.createDiv(), this.bottomPaneHost(), session.path, this.bodyText);
 
 		this.renderDnd5eDrawer(shell, campaign);
 
@@ -260,6 +282,10 @@ export class RunPanel {
 
 	private disposeDom(): void {
 		this.closePopover();
+		// Teardown safety net (view close, empty states): fire-and-forget
+		// flush. Rebuilds go through `flushDebouncers` first, which awaits.
+		for (const debouncer of this.debouncers) void debouncer.run();
+		this.debouncers = [];
 		if (this.mdComponent) {
 			this.view.removeChild(this.mdComponent);
 			this.mdComponent = null;
@@ -851,28 +877,26 @@ export class RunPanel {
 		this.view.registerDomEvent(overlay, "click", () => overlay.remove());
 	}
 
-	// ---- Log bar (the only writing surface) ------------------------------------
+	// ---- Bottom pane (log history + notes scratchpad) ---------------------------
 
-	private renderLogBar(container: HTMLElement, session: SessionModel): void {
-		container.empty();
-		const input = container.createEl("input", {
-			type: "text",
-			cls: "lazy-campaign-run-log-input",
-			attr: { placeholder: "Log a note…", "data-key": "run-log-input" },
-		});
-		this.view.registerDomEvent(input, "keydown", (evt) => {
-			if (evt.isComposing) return; // Enter confirming an IME candidate must not commit
-			if (evt.key !== "Enter") return;
-			evt.preventDefault();
-			const text = input.value.trim();
-			if (text.length === 0) return;
-			input.value = "";
-			void this.appendLog(session, text).then(() => input.focus());
-		});
+	private bottomPaneHost(): BottomPaneHost {
+		const plugin = this.view.plugin;
+		return {
+			registerDomEvent: (el, type, cb) => this.view.registerDomEvent(el, type, cb),
+			registerDebounce: (debouncer) => this.debouncers.push(debouncer),
+			appendLog: (path, text) => this.appendLog(path, text),
+			writeSectionAt: (path, heading, content) => this.writeSectionAt(path, heading, content),
+			paneState: () => ({ open: plugin.ui.runBottomOpen ?? false, tab: plugin.ui.runBottomTab ?? "log" }),
+			setPaneState: (next) => {
+				if (next.open !== undefined) plugin.ui.runBottomOpen = next.open;
+				if (next.tab !== undefined) plugin.ui.runBottomTab = next.tab;
+				void plugin.persist();
+			},
+		};
 	}
 
-	private async appendLog(session: SessionModel, text: string): Promise<void> {
-		const file = this.view.app.vault.getFileByPath(session.path);
+	private async appendLog(path: string, text: string): Promise<void> {
+		const file = this.view.app.vault.getFileByPath(path);
 		if (!(file instanceof TFile)) return;
 
 		const line = `- ${formatClockTime(new Date())} ${text}`;
@@ -885,6 +909,25 @@ export class RunPanel {
 					return replaceSection(body, "Log", next);
 				});
 			}, "Couldn't save that log entry — check the console for details.");
+		} finally {
+			done();
+		}
+	}
+
+	private async writeSectionAt(path: string, heading: string, content: string): Promise<void> {
+		const file = this.view.app.vault.getFileByPath(path);
+		if (!(file instanceof TFile)) return;
+
+		const done = beginSelfWrite(file.path);
+		try {
+			await tryFileOp(async () => {
+				await this.view.app.vault.process(file, (body) => {
+					// Section-level diff guard: skip the write entirely if
+					// nothing actually changed, preventing write loops.
+					if (sectionContent(body, heading) === content.replace(/\s+$/, "")) return body;
+					return replaceSection(body, heading, content);
+				});
+			}, "Couldn't save that section — check the console for details.");
 		} finally {
 			done();
 		}

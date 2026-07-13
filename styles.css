@@ -1568,10 +1568,85 @@
 	cursor: default;
 }
 
-.lazy-campaign-run-logbar {
+.lazy-campaign-run-bottom {
+	display: flex;
 	flex: 0 0 auto;
+	flex-direction: column;
+	gap: var(--size-4-1);
 	padding-top: var(--size-4-2);
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+.lazy-campaign-run-bottom-tabs {
+	display: none;
+	align-items: center;
+}
+
+.lazy-campaign-run-bottom.is-open .lazy-campaign-run-bottom-tabs {
+	display: flex;
+}
+
+.lazy-campaign-run-bottom-collapse {
+	margin-left: auto;
+}
+
+.lazy-campaign-run-bottom-body {
+	display: none;
+	min-height: 0;
+}
+
+.lazy-campaign-run-bottom.is-open .lazy-campaign-run-bottom-body {
+	display: block;
+}
+
+.lazy-campaign-run-log-history {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-2-2);
+	max-height: 35cqh;
+	overflow-y: auto;
+	padding-right: var(--size-4-1);
+}
+
+.lazy-campaign-run-bottom.is-tab-notes .lazy-campaign-run-log-history {
+	display: none;
+}
+
+.lazy-campaign-run-log-row {
+	font-size: 0.9em;
+}
+
+.lazy-campaign-run-log-time {
+	margin-right: var(--size-4-1);
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.lazy-campaign-run-notes-input {
+	display: none;
+	width: 100%;
+	max-height: 35cqh;
+	min-height: 8em;
+	resize: vertical;
+	font-size: inherit;
+}
+
+.lazy-campaign-run-bottom.is-tab-notes .lazy-campaign-run-notes-input {
+	display: block;
+}
+
+.lazy-campaign-run-bottom-inputrow {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+}
+
+.lazy-campaign-run-bottom.is-open.is-tab-notes .lazy-campaign-run-bottom-inputrow {
+	display: none;
+}
+
+.lazy-campaign-run-bottom.is-open .lazy-campaign-run-bottom-expand {
+	display: none;
 }
 
 .lazy-campaign-run-log-input {
@@ -2777,10 +2852,16 @@ body.is-phone .lazy-campaign-run-end-button {
 	font-size: var(--font-ui-small);
 }
 
-/* The log bar rides above the soft keyboard: Obsidian shrinks the app
+/* The bottom pane rides above the soft keyboard: Obsidian shrinks the app
    container, and with the bottom bar hidden while typing the flex column's
    natural bottom IS the keyboard top. Safe-area padding for the no-keyboard
    case. */
-body.is-phone .lazy-campaign-run-logbar {
+body.is-phone .lazy-campaign-run-bottom {
 	padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* An expanded log history would squeeze the board to nothing behind the soft
+   keyboard while typing a log line — hide it until the keyboard drops. */
+body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-history {
+	display: none;
 }

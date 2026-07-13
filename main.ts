@@ -37,6 +37,10 @@ interface PersistedData {
 		lastSessionPath?: string;
 		/** Run mode's text-size stepper (top-bar overflow menu), M6. */
 		runTextSize?: "sm" | "md" | "lg";
+		/** Run mode's bottom Log/Notes pane — open state and active tab
+		 * (device preference, same tier as `runTextSize`). */
+		runBottomOpen?: boolean;
+		runBottomTab?: "log" | "notes";
 	};
 	hints: {
 		dismissed: string[];

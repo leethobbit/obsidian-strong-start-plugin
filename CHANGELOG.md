@@ -9,6 +9,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Added
 
+- Run mode's log bar grows into a collapsible Log/Notes pane: the `## Log` history is finally visible (rolling, timestamped, auto-scrolling) above the append input, and a Notes tab holds a free-form scratchpad saved to the session's `## Notes` section. Pinned, debounced writes — typing then instantly switching sessions can't lose keystrokes or write to the wrong note.
 - Session notes gain a `## Notes` scratchpad section (scaffolded on new sessions; older notes gain it on first write) — the home of run mode's Notes tab.
 - The Whitesparrow starter campaign is now discoverable in the UI, not just the command palette: the no-campaign Dashboard empty state gains a "Start with Whitesparrow" button, and the campaign wizard's first step links to it.
 
