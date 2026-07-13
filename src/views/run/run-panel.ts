@@ -1,20 +1,18 @@
-import { Component, MarkdownRenderer, Notice, setIcon, TFile, type App } from "obsidian";
+import { Component, MarkdownRenderer, Notice, setIcon, TFile } from "obsidian";
 import { renderEmptyState, renderEmptyStateAction, renderCollapsibleSection, SectionState } from "../panel-kit";
 import { replaceSection, sectionContent } from "../../lib/sections";
-import { parseBulletSection, parseTaskBulletSection, renderTaskBulletRows, type TaskRow } from "../../sessions/bullet-list";
+import { parseTaskBulletSection, renderTaskBulletRows, type TaskRow } from "../../sessions/bullet-list";
 import { toSessionFm, writeSessionFm } from "../../sessions/session-schema";
 import { deriveRunTallies } from "../../sessions/run-derive";
 import { revealSecret, unrevealSecret } from "../../sessions/secrets-ops";
 import { patchSessionSecrets } from "../../sessions/session-files";
-import { displayText, isWikilink } from "../../sessions/link-list";
-import { asLazy, writeLazyFrontmatter } from "../../lib/frontmatter";
+import { writeLazyFrontmatter } from "../../lib/frontmatter";
 import { beginSelfWrite, isSelfWrite } from "../../lib/self-write";
 import { DeferredRebuildQueue, preserveFocus } from "../../lib/focus-preserve";
 import { tryFileOp } from "../../lib/notify";
 import { renderHint } from "../../help/hint";
 import { rollDice } from "../../tables/dice";
 import { formatClockTime, formatElapsed } from "../../lib/format-elapsed";
-import { readNpcFm } from "../../roster/entity-schema";
 import { featureEnabled } from "../../features";
 import {
 	renderBenchmarkCard,
@@ -28,6 +26,7 @@ import {
 import { EndSessionModal } from "./end-session-modal";
 import { mountDicePopover, rollDetail, type DiceConfig } from "./dice-popover";
 import { mountBottomPane, type BottomPaneHost } from "./bottom-pane";
+import { GlancePane } from "./glance-pane";
 import type { CampaignModel } from "../../campaigns/types";
 import type { Secret, SessionModel } from "../../sessions/types";
 import type { LazyCampaignView } from "../lazy-view";
@@ -88,6 +87,8 @@ export class RunPanel {
 	 * dropped — see `flushDebouncers` and prep-panel's identical contract. */
 	private debouncers: Array<{ cancel(): void; run(): unknown }> = [];
 
+	private readonly glancePane: GlancePane;
+
 	private shellEl: HTMLElement | null = null;
 	private timerEl: HTMLElement | null = null;
 	private scenesListEl: HTMLElement | null = null;
@@ -109,6 +110,7 @@ export class RunPanel {
 		private readonly containerEl: HTMLElement
 	) {
 		this.textSize = this.view.plugin.ui.runTextSize ?? "md";
+		this.glancePane = new GlancePane(view, (path) => this.openInNewLeaf(path));
 
 		this.rebuildQueue = new DeferredRebuildQueue(containerEl, () => void this.doFullRebuildNow(false));
 		this.rebuildQueue.bind(
@@ -201,6 +203,7 @@ export class RunPanel {
 			this.peekedSecretId = null;
 			this.clearUndo();
 			this.closePopover();
+			this.glancePane.resetForSession();
 			if (!this.elapsedStart.has(session.path)) this.elapsedStart.set(session.path, Date.now());
 		}
 
@@ -271,7 +274,7 @@ export class RunPanel {
 		this.secretsListEl = secretsSection.createDiv({ cls: "lazy-campaign-run-secret-list" });
 		this.renderSecrets();
 
-		this.renderGlance(glanceCol, session);
+		this.glancePane.render(glanceCol, session, campaign, this.bodyText, this.sectionStateFor(session.path));
 
 		mountBottomPane(shell.createDiv(), this.bottomPaneHost(), session.path, this.bodyText);
 
@@ -286,6 +289,7 @@ export class RunPanel {
 		// flush. Rebuilds go through `flushDebouncers` first, which awaits.
 		for (const debouncer of this.debouncers) void debouncer.run();
 		this.debouncers = [];
+		this.glancePane.dispose();
 		if (this.mdComponent) {
 			this.view.removeChild(this.mdComponent);
 			this.mdComponent = null;
@@ -711,23 +715,7 @@ export class RunPanel {
 		this.undoVisibleForId = null;
 	}
 
-	// ---- Glance column (NPCs/Locations/Monsters/Rewards) -----------------------
-
-	private renderGlance(container: HTMLElement, session: SessionModel): void {
-		container.empty();
-		const state = this.sectionStateFor(session.path);
-
-		renderCollapsibleSection(container, this.view, state, "npcs", "NPCs", (body) =>
-			this.renderLinkGlance(body, session.npcs, session.path)
-		);
-		renderCollapsibleSection(container, this.view, state, "locations", "Locations", (body) =>
-			this.renderLinkGlance(body, session.locations, session.path)
-		);
-		renderCollapsibleSection(container, this.view, state, "monsters", "Monsters", (body) =>
-			this.renderLinkGlance(body, session.monsters, session.path)
-		);
-		renderCollapsibleSection(container, this.view, state, "rewards", "Rewards", (body) => this.renderRewardsGlance(body));
-	}
+	// ---- Glance column — see glance-pane.ts (master-detail focus pane) ---------
 
 	private sectionStateFor(path: string): SectionState {
 		let state = this.sectionStates.get(path);
@@ -736,42 +724,6 @@ export class RunPanel {
 			this.sectionStates.set(path, state);
 		}
 		return state;
-	}
-
-	private renderLinkGlance(body: HTMLElement, items: readonly string[], sourcePath: string): void {
-		if (items.length === 0) {
-			renderEmptyState(body, "None yet.");
-			return;
-		}
-
-		const list = body.createEl("ul", { cls: "lazy-campaign-run-glance-list" });
-		for (const raw of items) {
-			const item = list.createEl("li", { cls: "lazy-campaign-run-glance-item" });
-
-			if (isWikilink(raw)) {
-				const name = displayText(raw);
-				const dest = this.view.app.metadataCache.getFirstLinkpathDest(name, sourcePath);
-				const link = item.createEl("a", { cls: "lazy-campaign-run-glance-link", text: name, attr: { href: "#" } });
-				this.view.registerDomEvent(link, "click", (evt) => {
-					evt.preventDefault();
-					if (dest) void this.openInNewLeaf(dest.path);
-				});
-				const role = dest ? roleForFile(this.view.app, dest) : undefined;
-				if (role) item.createSpan({ cls: "lazy-campaign-run-glance-role", text: ` — ${role}` });
-			} else {
-				item.createSpan({ text: raw });
-			}
-		}
-	}
-
-	private renderRewardsGlance(body: HTMLElement): void {
-		const rows = parseBulletSection(sectionContent(this.bodyText, "Rewards")).rows;
-		if (rows.length === 0) {
-			renderEmptyState(body, "None yet.");
-			return;
-		}
-		const list = body.createEl("ul", { cls: "lazy-campaign-run-glance-list" });
-		for (const row of rows) list.createEl("li", { cls: "lazy-campaign-run-glance-item", text: row });
 	}
 
 	private async openInNewLeaf(path: string | undefined): Promise<void> {
@@ -984,11 +936,4 @@ export class RunPanel {
 
 		this.view.setMode("home");
 	}
-}
-
-function roleForFile(app: App, file: TFile): string | undefined {
-	const cache = app.metadataCache.getFileCache(file);
-	const lazy = asLazy(cache?.frontmatter);
-	if (!lazy || lazy.type !== "npc") return undefined;
-	return readNpcFm(lazy)?.role;
 }

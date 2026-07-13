@@ -1400,12 +1400,19 @@
 	gap: var(--size-4-2);
 }
 
+/* The focus pane earns a wider column — 18rem list chrome is too narrow for
+   rendered note prose. */
+.lazy-campaign-run-glance.is-detail {
+	width: 24rem;
+}
+
 @container (max-width: 700px) {
 	.lazy-campaign-run-board {
 		flex-direction: column;
 	}
 
-	.lazy-campaign-run-glance {
+	.lazy-campaign-run-glance,
+	.lazy-campaign-run-glance.is-detail {
 		width: 100%;
 	}
 
@@ -1549,6 +1556,41 @@
 
 .lazy-campaign-run-glance-role {
 	color: var(--text-muted);
+}
+
+.lazy-campaign-run-entity-header {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	min-height: 44px;
+}
+
+.lazy-campaign-run-entity-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	font-weight: var(--font-bold);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.lazy-campaign-run-entity-fields {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: var(--size-2-2) var(--size-4-3);
+	margin: var(--size-4-2) 0;
+}
+
+.lazy-campaign-run-entity-field-label {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.lazy-campaign-run-entity-body {
+	overflow-y: auto;
+	min-height: 0;
 }
 
 .lazy-campaign-run-overlay {
