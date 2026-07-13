@@ -33,3 +33,31 @@ export function displayText(link: string): string {
 	if (!match) return link;
 	return match[2] ?? match[1];
 }
+
+/** One token of mixed prose-and-wikilink text: `display` is what to show
+ * (alias-aware for links); `target` is the linkpath to resolve, present only
+ * on links. */
+export interface LinkToken {
+	kind: "text" | "link";
+	display: string;
+	target?: string;
+}
+
+const INLINE_WIKILINK_RE = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
+
+/** Split free text into plain-text and wikilink tokens, in order — run mode's
+ * glance rows use this to make `[[…]]` mentions tappable inside otherwise
+ * plain entries ("Nightculler — see [[The Lost Throne]]"). A text without
+ * links comes back as one text token; an empty string as no tokens. */
+export function tokenizeWikilinks(text: string): LinkToken[] {
+	const tokens: LinkToken[] = [];
+	let last = 0;
+	for (const match of text.matchAll(INLINE_WIKILINK_RE)) {
+		const index = match.index ?? 0;
+		if (index > last) tokens.push({ kind: "text", display: text.slice(last, index) });
+		tokens.push({ kind: "link", display: match[2] ?? match[1], target: match[1] });
+		last = index + match[0].length;
+	}
+	if (last < text.length) tokens.push({ kind: "text", display: text.slice(last) });
+	return tokens;
+}

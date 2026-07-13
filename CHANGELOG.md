@@ -9,6 +9,8 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Added
 
+- The Whitesparrow starter campaign is now discoverable in the UI, not just the command palette: the no-campaign Dashboard empty state gains a "Start with Whitesparrow" button, and the campaign wizard's first step links to it.
+
 - Full in-plugin editing (M17) — prep a whole game without opening a raw note:
   - A shared entity editor for characters, NPCs, locations, and quests: every frontmatter field (player/role/level, NPC role/location/status, quest status) plus the whole note body, with rename-on-save that updates links everywhere and a guard against overwriting notes changed on disk mid-edit.
   - A new **World** tab on Home listing the campaign's party, NPCs, locations, and quests — row tap to edit, one-tap quest done/reopen toggle, and per-group "New …" creation with all fields up front.
@@ -36,6 +38,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Changed
 
+- Scene checklists understand per-scene detail: indented lines under a scene bullet in `## Scenes` parse as that scene's detail block and round-trip through prep edits and run-mode toggles. (Previously, indented sub-bullets silently flattened into top-level scenes on the next write.)
 - Navigation rail now shows a text label beside each destination icon (wider rail) instead of icons alone.
 - SCHEMA.md is frozen at contract 1.0 — additive-only from here (M14).
 - README rewritten with the weekly loop, feature overview, screenshots, and install instructions (M14).
@@ -43,6 +46,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Fixed
 
+- A plugin view restored on app startup never subscribed to the campaign store (the store didn't exist yet), leaving the campaign switcher stuck on "New campaign…" and the whole view blind to note changes until closed and reopened.
 - Switching to the prep board after an entity rename (or any external frontmatter change made while the board was hidden) showed stale chips/secrets from the previously cached session model (M17).
 - Run mode's top bar no longer clips the End button behind a horizontal scrollbar in narrow panes.
 - Icon buttons across the plugin rendered blank: Obsidian's default button padding squeezed the icon SVG to zero width inside fixed-size buttons.

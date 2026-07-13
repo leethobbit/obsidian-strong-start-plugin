@@ -121,3 +121,106 @@ describe("task round trip", () => {
 		expect(parseTaskBulletSection(rendered)).toEqual({ rows, malformed: false });
 	});
 });
+
+describe("scene detail blocks", () => {
+	it("attaches indented lines to the preceding row as detail", () => {
+		const section = "- [ ] Ambush on the vale road\n    Six bandits, fallen tree.\n    Rain and mist; DC 13 to spot.\n- [x] The sheriff's offer\n";
+		expect(parseTaskBulletSection(section)).toEqual({
+			rows: [
+				{ text: "Ambush on the vale road", done: false, detail: "Six bandits, fallen tree.\nRain and mist; DC 13 to spot." },
+				{ text: "The sheriff's offer", done: true },
+			],
+			malformed: false,
+		});
+	});
+
+	it("attaches detail to plain (non-checkbox) bullets too", () => {
+		const result = parseTaskBulletSection("- Scout the mill\n    The wheel turns at night.\n");
+		expect(result.rows).toEqual([{ text: "Scout the mill", done: false, detail: "The wheel turns at night." }]);
+		expect(result.malformed).toBe(false);
+	});
+
+	it("keeps detail per-row across multiple rows", () => {
+		const section = "- [ ] one\n    d1\n- [ ] two\n    d2\n";
+		expect(parseTaskBulletSection(section).rows).toEqual([
+			{ text: "one", done: false, detail: "d1" },
+			{ text: "two", done: false, detail: "d2" },
+		]);
+	});
+
+	it("dedents tab-indented detail", () => {
+		const result = parseTaskBulletSection("- [ ] one\n\td1\n\td2\n");
+		expect(result.rows).toEqual([{ text: "one", done: false, detail: "d1\nd2" }]);
+	});
+
+	it("treats an indented sub-bullet as detail, not a top-level row", () => {
+		const result = parseTaskBulletSection("- [ ] one\n    - sub point\n");
+		expect(result.rows).toEqual([{ text: "one", done: false, detail: "- sub point" }]);
+		expect(result.malformed).toBe(false);
+	});
+
+	it("preserves nested structure inside a detail block via common-prefix dedent", () => {
+		const result = parseTaskBulletSection("- [ ] one\n    top\n        nested\n");
+		expect(result.rows).toEqual([{ text: "one", done: false, detail: "top\n    nested" }]);
+	});
+
+	it("keeps a blank line inside a detail block, drops trailing blanks", () => {
+		const section = "- [ ] one\n    first paragraph\n\n    second paragraph\n\n- [ ] two\n";
+		expect(parseTaskBulletSection(section).rows).toEqual([
+			{ text: "one", done: false, detail: "first paragraph\n\nsecond paragraph" },
+			{ text: "two", done: false },
+		]);
+	});
+
+	it("drops blank lines between a bullet and its first detail line", () => {
+		const result = parseTaskBulletSection("- [ ] one\n\n    detail\n");
+		expect(result.rows).toEqual([{ text: "one", done: false, detail: "detail" }]);
+	});
+
+	it("flags an indented line before any row as malformed without losing rows", () => {
+		const result = parseTaskBulletSection("    orphan detail\n- [ ] one\n");
+		expect(result.malformed).toBe(true);
+		expect(result.rows).toEqual([{ text: "one", done: false }]);
+	});
+
+	it("renders detail indented under its bullet", () => {
+		const rows: TaskRow[] = [{ text: "one", done: false, detail: "d1\nd2" }, { text: "two", done: true }];
+		expect(renderTaskBulletRows(rows)).toBe("- [ ] one\n    d1\n    d2\n- [x] two");
+	});
+
+	it("renders interior detail blank lines unindented", () => {
+		const rows: TaskRow[] = [{ text: "one", done: false, detail: "a\n\nb" }];
+		expect(renderTaskBulletRows(rows)).toBe("- [ ] one\n    a\n\n    b");
+	});
+
+	it("drops an empty-text row together with its detail", () => {
+		const rows: TaskRow[] = [{ text: "  ", done: false, detail: "orphaned" }, { text: "kept", done: false }];
+		expect(renderTaskBulletRows(rows)).toBe("- [ ] kept");
+	});
+
+	it("omits whitespace-only detail", () => {
+		const rows: TaskRow[] = [{ text: "one", done: false, detail: "   \n  " }];
+		expect(renderTaskBulletRows(rows)).toBe("- [ ] one");
+	});
+
+	it("round-trips detail rows deep-equal", () => {
+		const rows: TaskRow[] = [
+			{ text: "one", done: false, detail: "para one\n\npara two\n    nested" },
+			{ text: "two", done: true },
+			{ text: "three", done: false, detail: "- sub a\n- sub b" },
+		];
+		expect(parseTaskBulletSection(renderTaskBulletRows(rows))).toEqual({ rows, malformed: false });
+	});
+
+	it("render(parse(render(rows))) is a fixed point", () => {
+		const rows: TaskRow[] = [{ text: "one", done: false, detail: "a\n\nb" }, { text: "two", done: true }];
+		const once = renderTaskBulletRows(rows);
+		const twice = renderTaskBulletRows(parseTaskBulletSection(once).rows);
+		expect(twice).toBe(once);
+	});
+
+	it("keeps flat lists byte-identical through parse+render", () => {
+		const flat = "- [ ] Scout the mill\n- [x] Confront the mayor";
+		expect(renderTaskBulletRows(parseTaskBulletSection(flat).rows)).toBe(flat);
+	});
+});

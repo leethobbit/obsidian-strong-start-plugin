@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildScaffold, healSections, parseSections, replaceSection, sectionContent } from "../src/lib/sections";
+import { buildScaffold, healSections, parseSections, removeSection, replaceSection, sectionContent } from "../src/lib/sections";
 
 const SCAFFOLD = "## Campaign pitch\n\n## Six truths\n\n## Fronts\n\n## House rules\n";
 
@@ -90,5 +90,27 @@ describe("sectionContent", () => {
 
 	it("returns an empty string when the heading is missing", () => {
 		expect(sectionContent("## Other\ntext\n", "Strong start")).toBe("");
+	});
+});
+
+describe("removeSection", () => {
+	it("removes the heading line and content, leaving neighbors byte-identical", () => {
+		const body = "## Aspects\n- steamy\n- deep\n\n## History\nOld stone.\n";
+		expect(removeSection(body, "Aspects")).toBe("## History\nOld stone.\n");
+	});
+
+	it("matches the heading case-insensitively", () => {
+		const body = "intro\n\n## ASPECTS\n- one\n\n## Next\nkeep\n";
+		expect(removeSection(body, "aspects")).toBe("intro\n\n## Next\nkeep\n");
+	});
+
+	it("removes a last section without touching prior content", () => {
+		const body = "## Keep\ntext\n\n## Aspects\n- one\n";
+		expect(removeSection(body, "Aspects")).toBe("## Keep\ntext\n\n");
+	});
+
+	it("no-ops when the heading is absent", () => {
+		const body = "## Keep\ntext\n";
+		expect(removeSection(body, "Aspects")).toBe(body);
 	});
 });

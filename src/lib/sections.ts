@@ -68,6 +68,17 @@ export function replaceSection(body: string, heading: string, newContent: string
 	return body.slice(0, target.start) + replacement + body.slice(target.end);
 }
 
+/** Remove one section — heading line and content — matching `heading`
+ * case-insensitively; everything outside its span survives byte-for-byte.
+ * No-op when the heading isn't present. Used by run mode's entity focus pane
+ * to render a location's body without duplicating the `## Aspects` section it
+ * already lifted into the fields block. */
+export function removeSection(body: string, heading: string): string {
+	const target = parseSections(body).find((s) => s.heading.toLowerCase() === heading.toLowerCase());
+	if (!target) return body;
+	return body.slice(0, target.start) + body.slice(target.end);
+}
+
 /** Append any of `requiredHeadings` that aren't already present (case-insensitive
  * match), each as an empty section, preserving all existing content untouched. */
 export function healSections(body: string, requiredHeadings: readonly string[]): string {
