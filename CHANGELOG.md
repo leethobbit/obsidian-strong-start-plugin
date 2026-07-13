@@ -39,6 +39,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Changed
 
+- Run mode's dice popover now composes any pool — dice-count stepper, die-type buttons (d4–d100), and a modifier stepper replace the fixed presets; the toast shows the per-die breakdown, and the popover stays open for rerolls. Natural-20/1 garnish now keys off the natural die, so 1d20+5 rolling a 20 still earns it (multi-die pools never do).
 - Scene checklists understand per-scene detail: indented lines under a scene bullet in `## Scenes` parse as that scene's detail block and round-trip through prep edits and run-mode toggles. (Previously, indented sub-bullets silently flattened into top-level scenes on the next write.)
 - Navigation rail now shows a text label beside each destination icon (wider rail) instead of icons alone.
 - SCHEMA.md is frozen at contract 1.0 — additive-only from here (M14).

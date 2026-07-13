@@ -26,6 +26,7 @@ import {
 	renderWildernessTravelSection,
 } from "../../dnd5e/dnd5e-cards";
 import { EndSessionModal } from "./end-session-modal";
+import { mountDicePopover, rollDetail, type DiceConfig } from "./dice-popover";
 import type { CampaignModel } from "../../campaigns/types";
 import type { Secret, SessionModel } from "../../sessions/types";
 import type { LazyCampaignView } from "../lazy-view";
@@ -36,16 +37,6 @@ const TEXT_SIZE_ORDER: readonly RunTextSize[] = ["sm", "md", "lg"];
 const UNDO_WINDOW_MS = 5000;
 const DICE_TOAST_LEAVE_MS = 1200;
 const DICE_TOAST_TOTAL_MS = 1500;
-
-const DICE_PRESETS: ReadonlyArray<{ label: string; expr: string }> = [
-	{ label: "d4", expr: "1d4" },
-	{ label: "d6", expr: "1d6" },
-	{ label: "d8", expr: "1d8" },
-	{ label: "d10", expr: "1d10" },
-	{ label: "d12", expr: "1d12" },
-	{ label: "d100", expr: "1d100" },
-	{ label: "2d6", expr: "2d6" },
-];
 
 interface ActivePopover {
 	anchorEl: HTMLElement;
@@ -85,6 +76,9 @@ export class RunPanel {
 
 	private mdComponent: Component | null = null;
 	private activePopover: ActivePopover | null = null;
+	/** Last-composed dice pool — reopening the popover keeps the config
+	 * (in-memory only, same policy as the other run-mode UI state). */
+	private readonly diceConfig: DiceConfig = { count: 1, sides: 20, modifier: 0 };
 
 	private shellEl: HTMLElement | null = null;
 	private timerEl: HTMLElement | null = null;
@@ -403,28 +397,28 @@ export class RunPanel {
 	}
 
 	private buildDicePopover(el: HTMLElement): void {
-		el.empty();
-		const grid = el.createDiv({ cls: "lazy-campaign-run-dice-grid" });
-		for (const preset of DICE_PRESETS) {
-			const btn = grid.createEl("button", { text: preset.label, attr: { type: "button" } });
-			this.view.registerDomEvent(btn, "click", () => {
-				this.closePopover();
-				const result = rollDice(preset.expr, this.view.plugin.rng);
-				if (result) this.showDiceToast(String(result.total));
-			});
-		}
-
-		const advRow = el.createDiv({ cls: "lazy-campaign-run-dice-advrow" });
-		const advBtn = advRow.createEl("button", { text: "Advantage", attr: { type: "button" } });
-		this.view.registerDomEvent(advBtn, "click", () => {
-			this.closePopover();
-			this.rollAdvantage(true);
-		});
-		const disBtn = advRow.createEl("button", { text: "Disadvantage", attr: { type: "button" } });
-		this.view.registerDomEvent(disBtn, "click", () => {
-			this.closePopover();
-			this.rollAdvantage(false);
-		});
+		mountDicePopover(
+			el,
+			{
+				registerDomEvent: (target, type, cb) => this.view.registerDomEvent(target, type, cb),
+				rng: this.view.plugin.rng,
+				onRoll: (result, config) => {
+					// Garnish only a lone d20 (judged on the natural die, so
+					// `1d20+5` rolling a 20 still earns it; `2d20`/`3d6` never do).
+					const natural = config.count === 1 && config.sides === 20;
+					this.showDiceToast(String(result.total), {
+						detail: rollDetail(result),
+						nat20: natural && result.rolls[0] === 20,
+						nat1: natural && result.rolls[0] === 1,
+					});
+				},
+				onAdvantage: (keepHigh) => {
+					this.closePopover();
+					this.rollAdvantage(keepHigh);
+				},
+			},
+			this.diceConfig
+		);
 	}
 
 	private buildOverflowPopover(el: HTMLElement): void {
@@ -475,12 +469,13 @@ export class RunPanel {
 		this.showDiceToast(`${a.total} / ${b.total} → ${kept}`, { nat20: kept === 20, nat1: kept === 1 });
 	}
 
-	private showDiceToast(display: string, options?: { nat20?: boolean; nat1?: boolean }): void {
+	private showDiceToast(display: string, options?: { nat20?: boolean; nat1?: boolean; detail?: string }): void {
 		if (!this.shellEl) return;
 		const toast = this.shellEl.createDiv({ cls: "lazy-campaign-run-dice-toast" });
 		if (options?.nat20) toast.addClass("is-nat20");
 		if (options?.nat1) toast.addClass("is-nat1");
-		toast.setText(display);
+		toast.createDiv({ cls: "lazy-campaign-run-dice-toast-total", text: display });
+		if (options?.detail) toast.createDiv({ cls: "lazy-campaign-run-dice-toast-detail", text: options.detail });
 
 		// setTimeout handles get their own clearTimeout teardown —
 		// registerInterval's contract is for setInterval handles.
