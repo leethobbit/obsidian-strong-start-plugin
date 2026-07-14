@@ -9,6 +9,9 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Added
 
+- 5e Monster Builder (M18, with the 5e module): build a custom monster from the Lazy GM's 5e Monster Builder Resource Document's statistics-by-CR table — pick a CR (or let the party's levels suggest one), start from one of the seven general-use stat blocks (Minion through Champion), tune AC/HP/attacks with automatic damage re-splits, tag a tactical role, and toggle the document's ten monster features with a live stat-block preview. Saves as a new `type: monster` campaign note (readable markdown stat block, freeform notes section) with rename-safe editing from the World tab, the prep Monsters step (which links the new note as a chip), and the run-mode 5e drawer.
+- Boss-and-minions pairing table (filterable) and monsters-by-adventure-location encounter tables in the prep Monsters step and the run-mode 5e drawer.
+
 - The prep board's Scenes step can author per-scene detail: a toggle on each row opens an indented textarea (accented when detail exists) writing the scene's detail block.
 - Run mode's Scenes and Secrets sections are collapsible and much more compact — hidden secrets are one-line masked rows (peek/reveal/undo unchanged), and a scene with a detail block gains a chevron that expands its rendered detail in place.
 - Run mode's glance sidebar is now master-detail: tapping an NPC, location, monster, or reward link opens a focus pane in the sidebar — key fields (NPC role/location/status, location aspects) plus the rendered note body — with back, edit-in-modal, and open-note actions, instead of leaving run mode for a new leaf. Inline `[[links]]` inside reward rows are tappable too.
@@ -44,6 +47,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Changed
 
+- The run drawer's "Quick monster stats" section is now "Monster stats by CR", backed by the Monster Builder document's fuller per-CR table (HP ranges, attack counts, per-attack dice) instead of the older resource document's rough formulas — the two documents disagree, and the newer table wins everywhere monsters are built.
 - Run mode's dice popover now composes any pool — dice-count stepper, die-type buttons (d4–d100), and a modifier stepper replace the fixed presets; the toast shows the per-die breakdown, and the popover stays open for rerolls. Natural-20/1 garnish now keys off the natural die, so 1d20+5 rolling a 20 still earns it (multi-die pools never do).
 - Scene checklists understand per-scene detail: indented lines under a scene bullet in `## Scenes` parse as that scene's detail block and round-trip through prep edits and run-mode toggles. (Previously, indented sub-bullets silently flattened into top-level scenes on the next write.)
 - Navigation rail now shows a text label beside each destination icon (wider rail) instead of icons alone.

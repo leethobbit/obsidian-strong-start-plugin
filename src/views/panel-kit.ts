@@ -120,7 +120,7 @@ export function renderStepper(container: HTMLElement, owner: DomEventOwner, opti
  */
 export function renderCollapsibleSection(
 	container: HTMLElement,
-	owner: Component,
+	owner: DomEventOwner,
 	state: SectionState,
 	key: string,
 	label: string,

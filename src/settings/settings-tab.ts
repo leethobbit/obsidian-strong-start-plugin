@@ -2,7 +2,12 @@ import { normalizePath, Notice, type App, PluginSettingTab, Setting } from "obsi
 import type LazyCampaignPlugin from "../../main";
 import { DEFAULT_SETTINGS } from "./settings";
 import { FEATURES, featureEnabled } from "../features";
-import { ATTRIBUTION_TEXT, ATTRIBUTION_URL } from "../content/attribution";
+import {
+	ATTRIBUTION_TEXT,
+	ATTRIBUTION_URL,
+	MONSTER_BUILDER_ATTRIBUTION_TEXT,
+	MONSTER_BUILDER_ATTRIBUTION_URL,
+} from "../content/attribution";
 
 export class LazyCampaignPluginSettingTab extends PluginSettingTab {
 	plugin: LazyCampaignPlugin;
@@ -73,6 +78,13 @@ export class LazyCampaignPluginSettingTab extends PluginSettingTab {
 			// Document title, not a sentence — keep the source's own capitalization.
 			text: "Lazy GM's Resource Document",
 			href: ATTRIBUTION_URL,
+			attr: { target: "_blank", rel: "noopener" },
+		});
+		aboutEl.createEl("p", { text: MONSTER_BUILDER_ATTRIBUTION_TEXT });
+		aboutEl.createEl("a", {
+			// Document title, not a sentence — keep the source's own capitalization.
+			text: "Lazy GM's 5e Monster Builder Resource Document",
+			href: MONSTER_BUILDER_ATTRIBUTION_URL,
 			attr: { target: "_blank", rel: "noopener" },
 		});
 	}

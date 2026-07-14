@@ -7,7 +7,9 @@
 // — AGENTS.md: data.json is for settings/UI state, not scratch state like this).
 
 import { deadlyBenchmark, type DeadlyBenchmark } from "./benchmark";
-import { IMPROVISED_DC_BANDS, MONSTER_DIFFICULTY_DIALS, improviseDamage, quickMonsterStatsTable } from "./improvise";
+import { IMPROVISED_DC_BANDS, MONSTER_DIFFICULTY_DIALS, improviseDamage } from "./improvise";
+import { MONSTER_STATS_BY_CR } from "../content/monster-builder";
+import { BOSS_MINION_PAIRINGS, MONSTERS_BY_LOCATION } from "../content/monster-builder-pairings";
 import { TRAVEL_DEFAULT_DC, TRAVEL_EXTRA_RULES, TRAVEL_FRAMEWORK, TRAVEL_ROLES } from "../content/wilderness";
 import { STRESS_PROCEDURE } from "../content/stress";
 import { renderEmptyState, renderStepper, type DomEventOwner } from "../views/panel-kit";
@@ -191,22 +193,113 @@ export function renderImprovisedDamageTable(container: HTMLElement): void {
 	}
 }
 
-/** Quick monster statistics (doc: "Improvised Statistics") by CR. */
-export function renderQuickMonsterStatsTable(container: HTMLElement): void {
-	const table = container.createEl("table", { cls: "lazy-campaign-dnd5e-table" });
-	const head = table.createEl("thead").createEl("tr");
-	for (const label of ["CR", "AC", "Attack", "Save DC", "HP", "Damage"]) head.createEl("th", { text: label });
+/**
+ * Monster statistics by CR (Lazy GM's 5e Monster Builder RD) — supersedes the
+ * old formula-derived quick-stats table (M18; the two source docs disagree on
+ * quick-stat math, and this per-CR table is the newer, fuller one). Compact
+ * slice by default with an "All CRs" toggle.
+ */
+export function renderMonsterStatsByCrTable(container: HTMLElement, owner: DomEventOwner): void {
+	const wrap = container.createDiv({ cls: "lazy-campaign-dnd5e-table-scroll" });
+	let expanded = false;
 
-	const body = table.createEl("tbody");
-	for (const stats of quickMonsterStatsTable(COMPACT_CRS)) {
-		const row = body.createEl("tr");
-		row.createEl("td", { text: String(stats.cr) });
-		row.createEl("td", { text: String(stats.armorClass) });
-		row.createEl("td", { text: `+${stats.attackBonus}` });
-		row.createEl("td", { text: String(stats.saveDc) });
-		row.createEl("td", { text: String(stats.hitPoints) });
-		row.createEl("td", { text: String(stats.damage) });
+	const renderTable = (): void => {
+		wrap.empty();
+		const table = wrap.createEl("table", { cls: "lazy-campaign-dnd5e-table" });
+		const head = table.createEl("thead").createEl("tr");
+		for (const label of ["CR", "AC/DC", "HP", "Attack", "Attacks", "Damage"]) head.createEl("th", { text: label });
+
+		const lines = expanded ? MONSTER_STATS_BY_CR : MONSTER_STATS_BY_CR.filter((line) => COMPACT_CRS.includes(line.cr));
+		const body = table.createEl("tbody");
+		for (const line of lines) {
+			const row = body.createEl("tr");
+			row.createEl("td", { text: line.label });
+			row.createEl("td", { text: String(line.acDc) });
+			row.createEl("td", { text: `${line.hpAvg} (${line.hpMin}–${line.hpMax})` });
+			row.createEl("td", { text: `+${line.profBonus}` });
+			row.createEl("td", { text: String(line.attacks) });
+			row.createEl("td", { text: `${line.damagePerAttack} (${line.damageDice})` });
+		}
+
+		const toggle = wrap.createEl("a", {
+			cls: "lazy-campaign-dnd5e-table-toggle",
+			text: expanded ? "Fewer CRs" : "All CRs",
+			attr: { href: "#" },
+		});
+		owner.registerDomEvent(toggle, "click", (evt) => {
+			evt.preventDefault();
+			expanded = !expanded;
+			renderTable();
+		});
+	};
+
+	renderTable();
+}
+
+/** Bosses and minions (Monster Builder RD) — the pairing table with a small
+ * text filter over boss names and environments. */
+export function renderBossMinionTable(container: HTMLElement, owner: DomEventOwner): void {
+	const filterInput = container.createEl("input", {
+		cls: "lazy-campaign-dnd5e-table-filter",
+		attr: { type: "search", placeholder: "Filter by boss or environment…" },
+	});
+	const wrap = container.createDiv({ cls: "lazy-campaign-dnd5e-table-scroll" });
+
+	const renderRows = (): void => {
+		wrap.empty();
+		const query = filterInput.value.trim().toLowerCase();
+		const rows = BOSS_MINION_PAIRINGS.filter(
+			(pairing) =>
+				query.length === 0 ||
+				pairing.boss.toLowerCase().includes(query) ||
+				pairing.environments.toLowerCase().includes(query)
+		);
+		if (rows.length === 0) {
+			renderEmptyState(wrap, "No bosses match that filter.");
+			return;
+		}
+		const table = wrap.createEl("table", { cls: "lazy-campaign-dnd5e-table" });
+		const head = table.createEl("thead").createEl("tr");
+		for (const label of ["CR", "Boss", "Environments", "Minions"]) head.createEl("th", { text: label });
+		const body = table.createEl("tbody");
+		for (const pairing of rows) {
+			const row = body.createEl("tr");
+			row.createEl("td", { text: String(pairing.bossCr) });
+			row.createEl("td", { text: pairing.boss });
+			row.createEl("td", { text: pairing.environments });
+			row.createEl("td", { text: pairing.minions });
+		}
+	};
+
+	owner.registerDomEvent(filterInput, "input", renderRows);
+	renderRows();
+}
+
+/** Monsters by adventure location (Monster Builder RD) — one location at a
+ * time behind a select, each row a level band + example encounter. */
+export function renderLocationMonstersSection(container: HTMLElement, owner: DomEventOwner): void {
+	const select = container.createEl("select", { cls: "dropdown lazy-campaign-dnd5e-location-select" });
+	for (const table of MONSTERS_BY_LOCATION) {
+		select.createEl("option", { text: table.name, attr: { value: table.id } });
 	}
+	const wrap = container.createDiv({ cls: "lazy-campaign-dnd5e-table-scroll" });
+
+	const renderRows = (): void => {
+		wrap.empty();
+		const location = MONSTERS_BY_LOCATION.find((table) => table.id === select.value) ?? MONSTERS_BY_LOCATION[0];
+		const table = wrap.createEl("table", { cls: "lazy-campaign-dnd5e-table" });
+		const head = table.createEl("thead").createEl("tr");
+		for (const label of ["Levels", "Example encounter"]) head.createEl("th", { text: label });
+		const body = table.createEl("tbody");
+		for (const row of location.rows) {
+			const tr = body.createEl("tr");
+			tr.createEl("td", { text: row.levelBand });
+			tr.createEl("td", { text: row.encounter });
+		}
+	};
+
+	owner.registerDomEvent(select, "change", renderRows);
+	renderRows();
 }
 
 /** Monster difficulty dials (doc: "Monster Difficulty Dials") — a plain

@@ -29,7 +29,8 @@ Everything the plugin creates is a plain markdown note in your vault — campaig
 - **Session zero & safety tools** — interactive checklist, lines & veils that surface in run mode's safety card.
 - **Player-facing exports** — copy a campaign recap that mechanically filters unrevealed secrets, a session-zero player guide, or a one-page session sheet.
 - **Starter campaign** — one command builds the document's own village of Whitesparrow and "The Night Blade" adventure as a ready-to-run campaign: eight NPCs, five locations, a quest, and session 1 fully prepped.
-- **5e module** (toggleable) — encounter benchmark, improvised DCs/damage/stats, monster difficulty dials, wilderness travel reference, stress-effect rules and tables.
+- **5e module** (toggleable) — encounter benchmark, improvised DCs/damage, monster difficulty dials, wilderness travel reference, stress-effect rules and tables.
+- **Monster builder** (5e module) — build a custom monster from the Lazy GM's per-CR statistics table (or seven general-use stat blocks), customize attacks, roles, and features with a live preview, and save it as a campaign note; boss/minion pairings and monsters-by-location reference tables included.
 - **Lazy Solo 5e** (toggleable) — the document's solo-play oracle tables and procedure.
 - **Phone-ready** — bottom tab bar, drill-down prep, and a run mode built for the phone at the table.
 
@@ -58,6 +59,8 @@ Not yet in the community plugin store. Until then:
 ## Attribution
 
 This plugin includes content from the [Lazy GM's Resource Document](https://slyflourish.com/lazy_gm_resource_document.html) by Michael E. Shea of [SlyFlourish.com](https://slyflourish.com), released under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). Portions of that document are derived from the System Reference Document 5.1 by Wizards of the Coast LLC, also licensed under CC-BY 4.0.
+
+The 5e module's monster builder includes material taken from the [Lazy GM's 5e Monster Builder Resource Document](https://slyflourish.com/lazy_5e_monster_building_resource_document.html) written by Teos Abadía of [Alphastream.org](https://alphastream.org), Scott Fitzgerald Gray of [Insaneangel.com](https://insaneangel.com), and Michael E. Shea of [SlyFlourish.com](https://slyflourish.com), available under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/). That document likewise includes material from the SRD 5.1 (CC-BY 4.0).
 
 ## License
 

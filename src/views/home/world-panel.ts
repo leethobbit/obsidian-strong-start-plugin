@@ -12,9 +12,18 @@ import { writeLazyFrontmatter } from "../../lib/frontmatter";
 import { writeQuestFm } from "../../roster/entity-schema";
 import { renderCollapsibleSection, renderEmptyState, renderEmptyStateAction, SectionState } from "../panel-kit";
 import { openEntityEditor, type EntityKind } from "./entity-editor-modal";
+import { openMonsterBuilder } from "../../dnd5e/monster-builder-modal";
+import { crLabel } from "../../dnd5e/monster-build";
+import { featureEnabled } from "../../features";
 import type { CampaignModel } from "../../campaigns/types";
 import type { QuestNoteModel } from "../../roster/types";
 import type { LazyCampaignView } from "../lazy-view";
+
+/** The World tab's group keys: the shared-editor entity kinds plus monsters,
+ * whose editor is the 5e Monster Builder modal (M18) — deliberately NOT an
+ * `EntityKind` (one editor per type; the twelve-field 5e form doesn't belong
+ * in the shared editor's switch). */
+type WorldKind = EntityKind | "monster";
 
 interface WorldRow {
 	path: string;
@@ -68,6 +77,18 @@ export class WorldPanel {
 			"No NPCs yet — the prep board's step 6 and the generators both make them."
 		);
 
+		if (featureEnabled(plugin.settings, "dnd5e")) {
+			const monsters = store.monstersOf(campaign.path);
+			this.renderGroup(shell, campaign, "monster", `Monsters (${monsters.length})`, "Build a monster",
+				monsters.map((monster) => ({
+					path: monster.path,
+					name: monster.name,
+					meta: joinMeta([`CR ${crLabel(monster.cr)}`, monster.role, monster.flavor]),
+				})),
+				"No monsters yet — build one from the CR table or a general-use stat block."
+			);
+		}
+
 		const locations = store.locationNotesOf(campaign.path);
 		this.renderGroup(shell, campaign, "location", `Locations (${locations.length})`, "New location",
 			locations.map((location) => ({ path: location.path, name: location.name, meta: "" })),
@@ -89,7 +110,7 @@ export class WorldPanel {
 	private renderGroup(
 		shell: HTMLElement,
 		campaign: CampaignModel,
-		kind: EntityKind,
+		kind: WorldKind,
 		label: string,
 		newLabel: string,
 		rows: WorldRow[],
@@ -107,11 +128,26 @@ export class WorldPanel {
 			}
 
 			const newBtn = body.createEl("button", { cls: "lazy-campaign-world-new", text: newLabel });
-			this.view.registerDomEvent(newBtn, "click", () => void openEntityEditor(this.view.app, { kind, campaign }));
+			this.view.registerDomEvent(newBtn, "click", () => this.openEditor(campaign, kind));
 		});
 	}
 
-	private renderRow(list: HTMLElement, campaign: CampaignModel, kind: EntityKind, row: WorldRow, quest?: QuestNoteModel): void {
+	/** Route to the right editor: monsters get the 5e builder modal, everything
+	 * else the shared entity editor. */
+	private openEditor(campaign: CampaignModel, kind: WorldKind, existingPath?: string): void {
+		if (kind === "monster") {
+			const pcs = this.view.plugin.store?.pcsOf(campaign.path) ?? [];
+			void openMonsterBuilder(this.view.app, {
+				campaign,
+				existingPath,
+				partyLevels: pcs.map((pc) => pc.level).filter((level): level is number => level !== undefined),
+			});
+			return;
+		}
+		void openEntityEditor(this.view.app, { kind, campaign, existingPath });
+	}
+
+	private renderRow(list: HTMLElement, campaign: CampaignModel, kind: WorldKind, row: WorldRow, quest?: QuestNoteModel): void {
 		const rowEl = list.createDiv({ cls: "lazy-campaign-world-row" });
 
 		// Quests get a one-tap done toggle where other kinds show nothing.
@@ -144,7 +180,7 @@ export class WorldPanel {
 		setIcon(openBtn, "file-text");
 
 		const edit = (): void => {
-			void openEntityEditor(this.view.app, { kind, campaign, existingPath: row.path });
+			this.openEditor(campaign, kind, row.path);
 		};
 		this.view.registerDomEvent(editBtn, "click", (evt) => {
 			evt.stopPropagation();

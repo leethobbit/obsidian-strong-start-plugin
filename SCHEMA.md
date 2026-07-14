@@ -131,6 +131,41 @@ lazyCampaign:
 
 Body freeform; the generator seeds it with the quest outline.
 
+### Monster — `type: monster` (added M18, additive)
+
+Path default: `<campaign folder>/Monsters/<Name>.md`. Created by the 5e Monster Builder
+(Lazy GM's 5e Monster Builder Resource Document, CC-BY 4.0); every surface that shows or
+edits these notes gates on the `dnd5e` feature toggle, but the notes themselves are plain
+vault notes and survive the toggle being off.
+
+```yaml
+lazyCampaign:
+  type: monster
+  campaign: "[[Greenhollow]]"
+  cr: 5                  # number; fractions as 0.125 / 0.25 / 0.5 (reader accepts "1/8" strings)
+  role: bruiser          # optional: ambusher|artillery|bruiser|controller|defender|leader|skirmisher
+  flavor: "Large fiend"  # optional free size/type line
+  ac: 16
+  dc: 15                 # save DC for the monster's own abilities (defaults equal to ac)
+  hp: 95
+  profBonus: 7           # attack bonus AND proficient save/check bonus (single number by design)
+  attacks: 3             # attacks per round, before feature costs
+  damagePerAttack: 12    # damage per round is always derived (attacks × damagePerAttack), never stored
+  damageDice: "3d6 + 2"  # optional dice equation; absent = averages only
+  damageTypes: slashing  # optional free string
+  abilities: [str, con]  # proficient abilities (lowercase); may be absent/empty
+  features: [knockdown, damaging-aura]  # ids from the Ten Useful Monster Features; unknown ids preserved
+  template: brute        # optional provenance: which general-use preset seeded it
+```
+
+`campaign` and `cr` are required — a monster note missing either is ignored. Missing numeric
+fields read back as the CR table's baseline for that CR (self-healing for hand-edited notes).
+Ability-score arrays, skills, and multiattack prose stay in the body, not frontmatter.
+
+Managed body sections (seeded once at creation, then user-owned): `## Stat block` (rendered
+markdown stat block, or a preset's verbatim block; regenerated only via the builder's explicit
+"Refresh stat block" action) · `## Notes` (freeform).
+
 ### Custom table — `type: table`
 
 ```yaml

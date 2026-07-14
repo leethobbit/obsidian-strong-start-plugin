@@ -2,11 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
 	IMPROVISED_DC_BANDS,
 	MONSTER_DIFFICULTY_DIALS,
-	STANDARD_CHALLENGE_RATINGS,
 	improviseDamage,
 	improviseDamageDice,
-	quickMonsterStats,
-	quickMonsterStatsTable,
 } from "../src/dnd5e/improvise";
 
 describe("IMPROVISED_DC_BANDS", () => {
@@ -47,61 +44,6 @@ describe("improviseDamageDice", () => {
 	it("returns null below CR 1 or for fractional CR (no clean per-CR dice grouping)", () => {
 		expect(improviseDamageDice(0.5)).toBeNull();
 		expect(improviseDamageDice(0)).toBeNull();
-	});
-});
-
-describe("quickMonsterStats", () => {
-	it("matches the doc's formulas at CR 0", () => {
-		expect(quickMonsterStats(0)).toEqual({
-			cr: 0,
-			armorClass: 12,
-			attackBonus: 3,
-			saveDc: 12,
-			savingThrowWithProficiency: 3,
-			hitPoints: 0,
-			damage: 0,
-		});
-	});
-
-	it("matches the doc's formulas at an even CR", () => {
-		expect(quickMonsterStats(4)).toEqual({
-			cr: 4,
-			armorClass: 14,
-			attackBonus: 5,
-			saveDc: 14,
-			savingThrowWithProficiency: 5,
-			hitPoints: 80,
-			damage: 28,
-		});
-	});
-
-	it("rounds the 1/2 CR term down at an odd CR (consistent with the doc's spell-infused-monster rounding rule)", () => {
-		const stats = quickMonsterStats(5); // half CR = 2 (floor(2.5))
-		expect(stats.armorClass).toBe(14);
-		expect(stats.attackBonus).toBe(5);
-		expect(stats.hitPoints).toBe(100);
-		expect(stats.damage).toBe(35);
-	});
-});
-
-describe("quickMonsterStatsTable", () => {
-	it("covers the full standard CR scale with no gaps", () => {
-		expect(quickMonsterStatsTable().map((row) => row.cr)).toEqual([...STANDARD_CHALLENGE_RATINGS]);
-	});
-
-	it("is monotonically non-decreasing across CR for every stat (no overlaps working backwards)", () => {
-		const rows = quickMonsterStatsTable();
-		for (let i = 1; i < rows.length; i++) {
-			expect(rows[i].armorClass).toBeGreaterThanOrEqual(rows[i - 1].armorClass);
-			expect(rows[i].attackBonus).toBeGreaterThanOrEqual(rows[i - 1].attackBonus);
-			expect(rows[i].hitPoints).toBeGreaterThanOrEqual(rows[i - 1].hitPoints);
-			expect(rows[i].damage).toBeGreaterThanOrEqual(rows[i - 1].damage);
-		}
-	});
-
-	it("accepts a custom CR list for a compact display", () => {
-		const rows = quickMonsterStatsTable([1, 5, 10]);
-		expect(rows.map((r) => r.cr)).toEqual([1, 5, 10]);
 	});
 });
 

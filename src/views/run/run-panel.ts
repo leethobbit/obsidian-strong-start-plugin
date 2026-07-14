@@ -16,13 +16,16 @@ import { formatClockTime, formatElapsed } from "../../lib/format-elapsed";
 import { featureEnabled } from "../../features";
 import {
 	renderBenchmarkCard,
+	renderBossMinionTable,
 	renderDifficultyDialsList,
 	renderImprovisedDamageTable,
 	renderImprovisedDcSection,
-	renderQuickMonsterStatsTable,
+	renderLocationMonstersSection,
+	renderMonsterStatsByCrTable,
 	renderStressEffectsSection,
 	renderWildernessTravelSection,
 } from "../../dnd5e/dnd5e-cards";
+import { openMonsterBuilder } from "../../dnd5e/monster-builder-modal";
 import { EndSessionModal } from "./end-session-modal";
 import { mountDicePopover, rollDetail, type DiceConfig } from "./dice-popover";
 import { mountBottomPane, type BottomPaneHost } from "./bottom-pane";
@@ -823,6 +826,15 @@ export class RunPanel {
 		const body = drawer.createDiv({ cls: "lazy-campaign-run-dnd5e-drawer-body" });
 		const pcs = this.view.plugin.store?.pcsOf(campaign.path) ?? [];
 
+		const buildRow = body.createDiv({ cls: "lazy-campaign-run-dnd5e-build-row" });
+		const buildBtn = buildRow.createEl("button", { text: "Build a monster" });
+		this.view.registerDomEvent(buildBtn, "click", () => {
+			void openMonsterBuilder(this.view.plugin.app, {
+				campaign,
+				partyLevels: pcs.map((pc) => pc.level).filter((level): level is number => level !== undefined),
+			});
+		});
+
 		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "benchmark", "Encounter benchmark", (sectionBody) =>
 			renderBenchmarkCard(sectionBody, { owner: this.view, pcs })
 		);
@@ -832,8 +844,14 @@ export class RunPanel {
 		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "damage", "Improvised damage", (sectionBody) =>
 			renderImprovisedDamageTable(sectionBody)
 		);
-		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "stats", "Quick monster stats", (sectionBody) =>
-			renderQuickMonsterStatsTable(sectionBody)
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "stats", "Monster stats by CR", (sectionBody) =>
+			renderMonsterStatsByCrTable(sectionBody, this.view)
+		);
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "boss-minions", "Boss and minions", (sectionBody) =>
+			renderBossMinionTable(sectionBody, this.view)
+		);
+		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "location-monsters", "Monsters by location", (sectionBody) =>
+			renderLocationMonstersSection(sectionBody, this.view)
 		);
 		renderCollapsibleSection(body, this.view, this.dnd5eSectionState, "dials", "Difficulty dials", (sectionBody) =>
 			renderDifficultyDialsList(sectionBody)

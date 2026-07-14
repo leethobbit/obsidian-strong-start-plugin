@@ -52,55 +52,21 @@ export function improviseDamageDice(cr: number): { singleTarget: string; multiTa
 	return { singleTarget: `${cr * 2}d6`, multiTarget: `${cr}d6` };
 }
 
-/** "Improvised Statistics" (doc): guidelines for AC, attack modifiers, saving
- * throw DCs, and other combat statistics, "based on its challenge rating". */
-export interface MonsterStatBlock {
-	cr: number;
-	/** AC = 12 + 1/2 CR. */
-	armorClass: number;
-	/** Attack Bonus = 3 + 1/2 CR. */
-	attackBonus: number;
-	/** DC = 12 + 1/2 CR (for the monster's own save-inducing abilities). */
-	saveDc: number;
-	/** Saving Throw with Proficiency = 3 + 1/2 CR. */
-	savingThrowWithProficiency: number;
-	/** Hit Points = 20 × CR. */
-	hitPoints: number;
-	/** Damage = 7 × CR (or 2d6 per CR) — same formula as single-target
-	 * improvised damage. */
-	damage: number;
-}
-
-/**
- * `1/2 CR` rounds down — the doc states this explicitly for the structurally
- * identical spell attack bonus/save DC formula under "Spell-Infused Monsters"
- * ("a spell attack bonus of 3 + one-half the monster's challenge rating, and
- * a spell save DC of 12 + one-half the monster's challenge rating (rounded
- * down in both cases)"); applied consistently here for the same half-CR term.
- */
-export function quickMonsterStats(cr: number): MonsterStatBlock {
-	const halfCr = Math.floor(cr / 2);
-	return {
-		cr,
-		armorClass: 12 + halfCr,
-		attackBonus: 3 + halfCr,
-		saveDc: 12 + halfCr,
-		savingThrowWithProficiency: 3 + halfCr,
-		hitPoints: 20 * cr,
-		damage: 7 * cr,
-	};
-}
+// NOTE (M18): this module previously carried "Improvised Statistics"
+// (`quickMonsterStats` — AC = 12 + ½CR, HP = 20 × CR, attack = 3 + ½CR).
+// Those formulas were transcribed verbatim from THIS doc, but the newer Lazy
+// GM's 5e Monster Builder Resource Document ships a full per-CR statistics
+// table that disagrees with them (e.g. CR 5: table AC 15/HP 95/attack +7 vs
+// formulas AC 14/HP 100/attack +5). The per-CR table
+// (src/content/monster-builder.ts, MONSTER_STATS_BY_CR) deliberately
+// superseded the formulas everywhere — don't "restore" quickMonsterStats.
 
 /** The standard 5e challenge rating scale (0 to 30) — the full row set for a
- * "quick monster statistics by CR" reference table; callers slice/filter for
- * a more compact display. */
+ * monster-statistics-by-CR reference table; callers slice/filter for a more
+ * compact display. */
 export const STANDARD_CHALLENGE_RATINGS: readonly number[] = [
 	0, 0.125, 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
 ];
-
-export function quickMonsterStatsTable(crs: readonly number[] = STANDARD_CHALLENGE_RATINGS): MonsterStatBlock[] {
-	return crs.map(quickMonsterStats);
-}
 
 /** "Monster Difficulty Dials" (doc): the four named dials, condensed to one
  * line each. "Mix and Match" is the doc's guidance about combining dials, not

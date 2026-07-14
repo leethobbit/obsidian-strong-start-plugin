@@ -2956,3 +2956,131 @@ body.is-phone .lazy-campaign-run-bottom {
 body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-history {
 	display: none;
 }
+
+/* ---- 5e Monster Builder (M18) ------------------------------------------- */
+
+/* Reference tables can outgrow the drawer/prep column — scroll inside their
+   own wrapper, never the page. */
+.lazy-campaign-dnd5e-table-scroll {
+	overflow-x: auto;
+}
+
+.lazy-campaign-dnd5e-table-toggle {
+	display: inline-block;
+	margin-top: var(--size-4-1);
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-dnd5e-table-filter {
+	width: 100%;
+	margin-bottom: var(--size-4-2);
+}
+
+.lazy-campaign-dnd5e-location-select {
+	margin-bottom: var(--size-4-2);
+}
+
+.lazy-campaign-run-dnd5e-build-row,
+.lazy-campaign-monster-build-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin: var(--size-4-2) 0;
+	flex-wrap: wrap;
+}
+
+/* Builder modal */
+.lazy-campaign-monster-builder {
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+.lazy-campaign-monster-presets-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--size-4-1);
+	margin-bottom: var(--size-4-2);
+}
+
+.lazy-campaign-monster-preset {
+	font-size: var(--font-ui-smaller);
+}
+
+.lazy-campaign-monster-party-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin: var(--size-4-1) 0 var(--size-4-2);
+	flex-wrap: wrap;
+}
+
+.lazy-campaign-monster-field-label {
+	display: block;
+	font-size: var(--font-ui-small);
+	font-weight: var(--font-semibold);
+	margin-bottom: var(--size-4-1);
+}
+
+.lazy-campaign-monster-abilities {
+	margin: var(--size-4-2) 0;
+}
+
+.lazy-campaign-monster-chip {
+	font-size: var(--font-ui-smaller);
+	margin-right: var(--size-4-1);
+	opacity: 0.7;
+}
+
+.lazy-campaign-monster-chip.is-active {
+	opacity: 1;
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.lazy-campaign-monster-features {
+	margin: var(--size-4-2) 0;
+}
+
+.lazy-campaign-monster-feature-row label {
+	display: flex;
+	align-items: baseline;
+	gap: var(--size-4-1);
+	font-size: var(--font-ui-small);
+	cursor: pointer;
+}
+
+.lazy-campaign-monster-preview {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	padding: var(--size-4-2);
+	margin: var(--size-4-2) 0;
+	background-color: var(--background-secondary);
+}
+
+.lazy-campaign-monster-preview-title {
+	font-weight: var(--font-semibold);
+}
+
+.lazy-campaign-monster-preview-flavor {
+	font-style: italic;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+}
+
+.lazy-campaign-monster-preview-stats {
+	font-size: var(--font-ui-small);
+	margin-top: var(--size-4-1);
+}
+
+.lazy-campaign-monster-preview-feature {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	margin-top: var(--size-4-1);
+}
+
+/* The preview is a luxury on a phone-width modal — keep it, but compact. */
+@media (max-width: 500px) {
+	.lazy-campaign-monster-preview-feature {
+		display: none;
+	}
+}

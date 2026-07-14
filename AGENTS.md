@@ -6,9 +6,9 @@ TTRPG campaign manager built on the **Eight Steps of Lazy RPG Prep** (Lazy GM's 
 
 Full design plan (data model, UX, milestones): `docs/plan.md`. Frontmatter contract: `SCHEMA.md` (draft until 1.0, then frozen/additive-only).
 
-**Status (2026-07-12): M0–M17 shipped and verified (M17 = full in-plugin editing: entity editor modal, Home World tab, section editors — see `docs/plan.md`). SCHEMA.md is FROZEN at contract 1.0 (additive-only). Remaining before store submission (all user-gated): the naming decision (shortlist in `docs/plan.md` M14 — every candidate is collision-free in the community store as of 2026-07-12), a real-device mobile pass, the BRAT beta round, and the release/submission runbook itself. A drafted 5e-drawer-deepening milestone is sketched in `docs/plan.md`'s M16 note.**
+**Status (2026-07-12): M0–M17 shipped and verified (M17 = full in-plugin editing: entity editor modal, Home World tab, section editors — see `docs/plan.md`). SCHEMA.md is FROZEN at contract 1.0 (additive-only). Remaining before store submission (all user-gated): the naming decision (shortlist in `docs/plan.md` M14 — every candidate is collision-free in the community store as of 2026-07-12), a real-device mobile pass, the BRAT beta round, and the release/submission runbook itself. A drafted 5e-drawer-deepening milestone is sketched in `docs/plan.md`'s M16 note. M18 (2026-07-14) added the 5e Monster Builder: `type: monster` notes, builder modal, general-use presets, and boss/location reference tables — all gated on `dnd5e`.**
 
-**Boundary**: `obsidian-draft-schemes-plugin` (sibling repo) is Draw Steel-specific bestiary/lorekeeper. This plugin stays system-agnostic prep-flow (+ optional 5e improv module); bestiary/statblock features belong there, not here.
+**Boundary**: `obsidian-draft-schemes-plugin` (sibling repo) is Draw Steel-specific bestiary/lorekeeper. This plugin stays system-agnostic prep-flow (+ optional 5e improv module). Quick CUSTOM monster stat blocks built from the Lazy GM's 5e Monster Builder RD (M18, `type: monster`, gated on `dnd5e`) live here — that's improv tooling. Full bestiaries, published-monster import/browsing, and rich statblock rendering still belong in the sibling repo, not here.
 
 ## Stack reference
 
@@ -30,7 +30,7 @@ Obsidian plugin conventions (toolchain, Vault API rules, deferred views, mobile,
 
 ## Architecture rules
 
-- **Discovery**: query `app.metadataCache` for `frontmatter.lazyCampaign?.type` (`campaign | session | session-zero | pc | npc | location | quest | table`). Never walk folders — folders are tidy defaults, a note dragged anywhere still works.
+- **Discovery**: query `app.metadataCache` for `frontmatter.lazyCampaign?.type` (`campaign | session | session-zero | pc | npc | location | quest | monster | table`). Never walk folders — folders are tidy defaults, a note dragged anywhere still works.
 - **Frontmatter vs body**: state (ids, flags, link arrays, secrets) lives under the single `lazyCampaign` key via `processFrontMatter`; prose lives in the body under managed H2 sections edited only through `src/lib/sections.ts` (replace one section, never rewrite whole bodies). "Cleared = deleted": prune falsey flags/empty fields.
 - **Joins**: wikilinks (`lazyCampaign.campaign: "[[Name]]"`) — Obsidian rename-updates them. Machine identity uses stable base36 ids (`s-8f3k2a`); never key logic off display text.
 - **Secrets**: sessions are the sole source of truth; campaign-wide views are derived folds. Carry-forward is pure (`src/sessions/carryover.ts`), re-runnable, strictly additive; deletes of carried secrets are `archived: true` tombstones, never row removals.

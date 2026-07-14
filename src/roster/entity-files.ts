@@ -22,7 +22,9 @@ async function ensureFolder(app: App, path: string): Promise<void> {
 	}
 }
 
-async function createEntityNote(
+/** Exported for the 5e monster builder (src/dnd5e/monster-files.ts) — same
+ * fixed-subfolder + collision-disambiguation policy for `type: monster`. */
+export async function createEntityNote(
 	app: App,
 	campaign: CampaignModel,
 	subfolder: string,

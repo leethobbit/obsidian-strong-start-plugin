@@ -4,12 +4,13 @@ import { readCampaignFm } from "./campaign-schema";
 import { readSessionFm } from "../sessions/session-schema";
 import { readLocationFm, readNpcFm, readPcFm, readQuestFm } from "../roster/entity-schema";
 import { readSessionZeroFm } from "../checklist/session-zero-schema";
+import { readMonsterFm, type MonsterNoteModel } from "../dnd5e/monster-schema";
 import type { CampaignModel } from "./types";
 import type { SessionModel } from "../sessions/types";
 import type { SessionZeroModel } from "../checklist/types";
 import type { LocationNoteModel, NpcNoteModel, PcModel, QuestNoteModel } from "../roster/types";
 
-type ManagedType = "campaign" | "session" | "session-zero" | "pc" | "npc" | "location" | "quest" | "table";
+type ManagedType = "campaign" | "session" | "session-zero" | "pc" | "npc" | "location" | "quest" | "monster" | "table";
 
 interface IndexedNote {
 	path: string;
@@ -231,6 +232,22 @@ export class CampaignStore extends Component {
 		return models.sort((a, b) =>
 			a.status === b.status ? a.name.localeCompare(b.name) : a.status === "open" ? -1 : 1
 		);
+	}
+
+	/** Monster notes (`type: monster`) belonging to `campaignPath` — the Home /
+	 * World panel's monster group and the prep Monsters step (M18, 5e module).
+	 * Sorted by CR ascending, then name. */
+	monstersOf(campaignPath: string): MonsterNoteModel[] {
+		const models: MonsterNoteModel[] = [];
+		for (const note of this.index.values()) {
+			if (note.type !== "monster") continue;
+			const fm = readMonsterFm(note.fm);
+			if (!fm) continue;
+			const dest = this.resolveWikilink(fm.campaign, note.path);
+			if (!dest || dest.path !== campaignPath) continue;
+			models.push({ ...fm, path: note.path, name: note.file.basename });
+		}
+		return models.sort((a, b) => (a.cr === b.cr ? a.name.localeCompare(b.name) : a.cr - b.cr));
 	}
 
 	/** The campaign's session-zero note (`type: session-zero`), if one exists —

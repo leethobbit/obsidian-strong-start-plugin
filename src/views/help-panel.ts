@@ -5,7 +5,12 @@
 
 import { Notice } from "obsidian";
 import { STEPS } from "../sessions/steps";
-import { ATTRIBUTION_TEXT, ATTRIBUTION_URL } from "../content/attribution";
+import {
+	ATTRIBUTION_TEXT,
+	ATTRIBUTION_URL,
+	MONSTER_BUILDER_ATTRIBUTION_TEXT,
+	MONSTER_BUILDER_ATTRIBUTION_URL,
+} from "../content/attribution";
 import { featureEnabled } from "../features";
 import { WelcomeModal } from "../help/welcome-modal";
 import type { LazyCampaignView } from "./lazy-view";
@@ -117,6 +122,12 @@ export class HelpPanel {
 		card.createEl("a", {
 			text: "Read the source document",
 			href: ATTRIBUTION_URL,
+			attr: { target: "_blank", rel: "noopener" },
+		});
+		card.createEl("p", { text: MONSTER_BUILDER_ATTRIBUTION_TEXT });
+		card.createEl("a", {
+			text: "Read the monster builder document",
+			href: MONSTER_BUILDER_ATTRIBUTION_URL,
 			attr: { target: "_blank", rel: "noopener" },
 		});
 

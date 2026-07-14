@@ -24,7 +24,7 @@ export const FEATURES: readonly FeatureDescriptor[] = [
 		id: "dnd5e",
 		label: "5e module",
 		description:
-			"5e-specific affordances (encounter benchmark, improvised DCs/damage/stats, monster difficulty dials) in prep and run mode.",
+			"5e-specific affordances (encounter benchmark, improvised DCs/damage, the monster builder and its reference tables, difficulty dials) in prep and run mode.",
 	},
 	{
 		id: "solo5e",

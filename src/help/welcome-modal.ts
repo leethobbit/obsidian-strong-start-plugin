@@ -6,7 +6,12 @@
 
 import { Modal, setIcon, type App } from "obsidian";
 import { DESTINATIONS, type NavMode } from "../views/nav-model";
-import { ATTRIBUTION_TEXT, ATTRIBUTION_URL } from "../content/attribution";
+import {
+	ATTRIBUTION_TEXT,
+	ATTRIBUTION_URL,
+	MONSTER_BUILDER_ATTRIBUTION_TEXT,
+	MONSTER_BUILDER_ATTRIBUTION_URL,
+} from "../content/attribution";
 import type LazyCampaignPlugin from "../../main";
 
 const WELCOME_HINT_ID = "welcome";
@@ -81,6 +86,13 @@ export class WelcomeModal extends Modal {
 		attribution.createEl("a", {
 			text: "Read the source document",
 			href: ATTRIBUTION_URL,
+			attr: { target: "_blank", rel: "noopener" },
+		});
+		attribution.createEl("br");
+		attribution.createSpan({ text: `${MONSTER_BUILDER_ATTRIBUTION_TEXT} ` });
+		attribution.createEl("a", {
+			text: "Read the monster builder document",
+			href: MONSTER_BUILDER_ATTRIBUTION_URL,
 			attr: { target: "_blank", rel: "noopener" },
 		});
 	}
