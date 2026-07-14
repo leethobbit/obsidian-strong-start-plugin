@@ -744,9 +744,17 @@
 	margin-top: 0;
 }
 
-.strong-start-tables-row {
+/* Row selectors are scoped under the list because Obsidian's own
+   `button:not(.clickable-icon)` (0-1-1) outranks a lone class (0-1-0) — unscoped,
+   the rows render as the app's centered nowrap pills and long names clip. */
+.strong-start-tables-list .strong-start-tables-row {
+	flex: 0 0 auto;
+	justify-content: flex-start; /* the app's button rule is a centering flexbox */
+	height: auto;
 	padding: var(--size-4-1) var(--size-4-2);
+	overflow-wrap: anywhere;
 	text-align: left;
+	white-space: normal;
 	color: var(--text-normal);
 	background: transparent;
 	border: none;
@@ -755,11 +763,11 @@
 	cursor: var(--cursor-link);
 }
 
-.strong-start-tables-row:hover {
+.strong-start-tables-list .strong-start-tables-row:hover {
 	background-color: var(--background-modifier-hover);
 }
 
-.strong-start-tables-row.is-active {
+.strong-start-tables-list .strong-start-tables-row.is-active {
 	background-color: var(--background-modifier-active-hover);
 }
 
@@ -815,7 +823,7 @@
 
 /* ---- Tables panel: shadowed core rows ("hidden — replaced by your table") --- */
 
-.strong-start-tables-row-shadowed {
+.strong-start-tables-list .strong-start-tables-row-shadowed {
 	display: flex;
 	flex-wrap: wrap;
 	color: var(--text-faint);
@@ -878,12 +886,16 @@
 	background-color: var(--background-modifier-active-hover);
 }
 
-.strong-start-tables-row-name {
+/* Scoped for the same specificity reason as .strong-start-tables-row above. */
+.strong-start-tables-user-row .strong-start-tables-row-name {
 	flex: 1 1 auto;
-	overflow: hidden;
+	justify-content: flex-start; /* the app's button rule is a centering flexbox */
+	height: auto;
+	min-width: 0;
+	padding: 0;
+	overflow-wrap: anywhere;
 	text-align: left;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	white-space: normal;
 	color: var(--text-normal);
 	background: transparent;
 	border: none;

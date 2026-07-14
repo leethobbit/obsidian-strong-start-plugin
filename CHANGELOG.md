@@ -12,6 +12,10 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 - Revealed secrets can be re-hidden after the undo window passes: run-mode cards carry a quiet eye-off button, and the Secrets ledger's revealed rows gain Hide and Retire actions. Re-hiding returns the secret to in-play (it carries forward again) and keeps any reveal note.
 - Funding link (GitHub Sponsors) in the plugin manifest and the repo sidebar.
 
+### Fixed
+
+- Tables Roll view: the table list no longer jumps back to the top when you pick a table (and the result pane holds its place on Reroll), and long table names wrap instead of clipping — Obsidian's own button styling had been overriding the list's flat rows, rendering them as centered single-line pills.
+
 ### Changed
 
 - Run mode UI pass: Scenes and Secrets sit side by side as equal-width columns (stacking again on narrow panes), every collapsible section header (run sections, glance sidebar, World groups, 5e drawer) is a couple of sizes larger, and a scene's detail chevron is overlaid on the scene bar itself — full pill height, no chrome of its own — instead of a detached button beside it.

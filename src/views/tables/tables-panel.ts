@@ -37,7 +37,9 @@ interface StackEntry {
  * every `render()` (no focus-sensitive inputs live here, unlike the prep
  * board) but keeps `selectedTableId`/`stack`/`generatorsPanel` as instance
  * fields so their state survives that rebuild — session-only, never
- * persisted.
+ * persisted. Scroll positions survive the rebuild the same way: the list's
+ * scrollTop always, the detail pane's only while the selected table is
+ * unchanged (a new selection should start at the top).
  */
 export class TablesPanel {
 	private subtab: TablesSubtab = "roll";
@@ -48,6 +50,12 @@ export class TablesPanel {
 	 * shadowing indicator). Reset by any other row's click handler. */
 	private peekingShadowedCore = false;
 	private stack: StackEntry[] = [];
+	private listScrollTop = 0;
+	private detailScrollTop = 0;
+	/** Selection the last-rendered detail pane showed — detail scrollTop is
+	 * only restored while this matches, so switching tables starts at the top
+	 * but rolling/rerolling stays put. */
+	private lastDetailKey: string | null = null;
 	private readonly generatorsPanel: GeneratorsPanel;
 
 	constructor(
@@ -58,6 +66,7 @@ export class TablesPanel {
 	}
 
 	render(): void {
+		this.captureScroll();
 		this.containerEl.empty();
 
 		const shell = this.containerEl.createDiv({ cls: "strong-start-tables-shell" });
@@ -92,7 +101,25 @@ export class TablesPanel {
 			this.renderDetail(detailEl, registry);
 		}
 
+		listEl.scrollTop = this.listScrollTop;
+		detailEl.scrollTop = this.detailScrollTop;
+		this.lastDetailKey = this.detailKey();
+
 		this.renderFooter(shell);
+	}
+
+	private detailKey(): string {
+		return `${this.selectedTableId ?? ""}|${this.peekingShadowedCore}`;
+	}
+
+	/** Read the outgoing DOM's scroll positions before `render()` tears it
+	 * down. Instance fields (not locals) so the positions also survive a
+	 * round-trip through the Generators subtab, where neither pane exists. */
+	private captureScroll(): void {
+		const list = this.containerEl.querySelector(".strong-start-tables-list");
+		if (list) this.listScrollTop = list.scrollTop;
+		const detail = this.containerEl.querySelector(".strong-start-tables-detail");
+		if (detail) this.detailScrollTop = this.lastDetailKey === this.detailKey() ? detail.scrollTop : 0;
 	}
 
 	private renderSubtabRow(shell: HTMLElement): void {
