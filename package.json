@@ -1,6 +1,6 @@
 {
   "name": "strong-start",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Create, manage, and run TTRPG campaigns with Sly Flourish's eight steps of lazy RPG prep.",
   "main": "main.js",
   "type": "module",

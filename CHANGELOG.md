@@ -7,6 +7,8 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-14
+
 ### Added
 
 - Revealed secrets can be re-hidden after the undo window passes: run-mode cards carry a quiet eye-off button, and the Secrets ledger's revealed rows gain Hide and Retire actions. Re-hiding returns the secret to in-play (it carries forward again) and keeps any reveal note.
