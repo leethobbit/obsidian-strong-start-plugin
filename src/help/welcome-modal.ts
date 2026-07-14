@@ -41,18 +41,18 @@ export class WelcomeModal extends Modal {
 
 	onOpen(): void {
 		this.contentEl.empty();
-		this.contentEl.addClass("lazy-campaign-welcome-modal");
+		this.contentEl.addClass("strong-start-welcome-modal");
 
 		this.contentEl.createEl("h2", { text: "Prep less. Run better." });
 		this.contentEl.createEl("p", {
-			cls: "lazy-campaign-welcome-tagline",
+			cls: "strong-start-welcome-tagline",
 			text: "Eight steps, about thirty minutes — that's the whole job.",
 		});
 
 		this.renderGrid(this.contentEl);
 		this.renderAttribution(this.contentEl);
 
-		const buttons = this.contentEl.createDiv({ cls: "lazy-campaign-welcome-buttons" });
+		const buttons = this.contentEl.createDiv({ cls: "strong-start-welcome-buttons" });
 		const cta = buttons.createEl("button", { cls: "mod-cta", text: "Get started" });
 		cta.addEventListener("click", () => {
 			this.close();
@@ -66,22 +66,22 @@ export class WelcomeModal extends Modal {
 	}
 
 	private renderGrid(container: HTMLElement): void {
-		const grid = container.createDiv({ cls: "lazy-campaign-welcome-grid" });
+		const grid = container.createDiv({ cls: "strong-start-welcome-grid" });
 		for (const dest of DESTINATIONS) {
 			if (dest.group === "footer") continue;
-			const card = grid.createDiv({ cls: "lazy-campaign-welcome-card" });
-			const iconEl = card.createDiv({ cls: "lazy-campaign-welcome-card-icon" });
+			const card = grid.createDiv({ cls: "strong-start-welcome-card" });
+			const iconEl = card.createDiv({ cls: "strong-start-welcome-card-icon" });
 			setIcon(iconEl, dest.icon);
-			card.createDiv({ cls: "lazy-campaign-welcome-card-label", text: dest.label });
+			card.createDiv({ cls: "strong-start-welcome-card-label", text: dest.label });
 			card.createDiv({
-				cls: "lazy-campaign-welcome-card-desc",
+				cls: "strong-start-welcome-card-desc",
 				text: DESTINATION_DESCRIPTIONS[dest.mode] ?? "",
 			});
 		}
 	}
 
 	private renderAttribution(container: HTMLElement): void {
-		const attribution = container.createDiv({ cls: "lazy-campaign-welcome-attribution" });
+		const attribution = container.createDiv({ cls: "strong-start-welcome-attribution" });
 		attribution.createSpan({ text: `${ATTRIBUTION_TEXT} ` });
 		attribution.createEl("a", {
 			text: "Read the source document",

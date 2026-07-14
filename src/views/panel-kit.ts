@@ -2,7 +2,7 @@ import { setIcon, type Component } from "obsidian";
 
 /** A single muted line for a quiet empty state. */
 export function renderEmptyState(el: HTMLElement, text: string): void {
-	el.createDiv({ cls: "lazy-campaign-empty-state", text });
+	el.createDiv({ cls: "strong-start-empty-state", text });
 }
 
 export interface EmptyStateActionOptions {
@@ -21,11 +21,11 @@ export interface EmptyStateActionOptions {
  * bare `addEventListener`.
  */
 export function renderEmptyStateAction(el: HTMLElement, owner: Component, options: EmptyStateActionOptions): void {
-	const box = el.createDiv({ cls: "lazy-campaign-empty-state-action" });
-	box.createEl("p", { cls: "lazy-campaign-empty-state-title", text: options.title });
-	box.createEl("p", { cls: "lazy-campaign-empty-state-body", text: options.body });
+	const box = el.createDiv({ cls: "strong-start-empty-state-action" });
+	box.createEl("p", { cls: "strong-start-empty-state-title", text: options.title });
+	box.createEl("p", { cls: "strong-start-empty-state-body", text: options.body });
 
-	const buttons = box.createDiv({ cls: "lazy-campaign-empty-state-buttons" });
+	const buttons = box.createDiv({ cls: "strong-start-empty-state-buttons" });
 	const cta = buttons.createEl("button", { cls: "mod-cta", text: options.ctaText });
 	owner.registerDomEvent(cta, "click", () => options.onCta());
 
@@ -86,16 +86,16 @@ export interface StepperOptions {
  * local-redraw pattern).
  */
 export function renderStepper(container: HTMLElement, owner: DomEventOwner, options: StepperOptions): HTMLElement {
-	const wrap = container.createDiv({ cls: "lazy-campaign-stepper" });
+	const wrap = container.createDiv({ cls: "strong-start-stepper" });
 
 	const minusBtn = wrap.createEl("button", {
-		cls: "lazy-campaign-stepper-btn",
+		cls: "strong-start-stepper-btn",
 		text: "−",
 		attr: { type: "button", "aria-label": `Decrease ${options.label}` },
 	});
-	const valueEl = wrap.createSpan({ cls: "lazy-campaign-stepper-value", text: String(options.value) });
+	const valueEl = wrap.createSpan({ cls: "strong-start-stepper-value", text: String(options.value) });
 	const plusBtn = wrap.createEl("button", {
-		cls: "lazy-campaign-stepper-btn",
+		cls: "strong-start-stepper-btn",
 		text: "+",
 		attr: { type: "button", "aria-label": `Increase ${options.label}` },
 	});
@@ -127,16 +127,16 @@ export function renderCollapsibleSection(
 	buildBody: (bodyEl: HTMLElement) => void
 ): void {
 	const collapsed = state.isCollapsed(key);
-	const section = container.createDiv({ cls: "lazy-campaign-collapsible" });
+	const section = container.createDiv({ cls: "strong-start-collapsible" });
 	const header = section.createEl("button", {
-		cls: "lazy-campaign-collapsible-header",
+		cls: "strong-start-collapsible-header",
 		attr: { type: "button", "aria-expanded": collapsed ? "false" : "true" },
 	});
-	const chevron = header.createSpan({ cls: "lazy-campaign-collapsible-chevron" });
+	const chevron = header.createSpan({ cls: "strong-start-collapsible-chevron" });
 	setIcon(chevron, collapsed ? "chevron-right" : "chevron-down");
-	header.createSpan({ cls: "lazy-campaign-collapsible-label", text: label });
+	header.createSpan({ cls: "strong-start-collapsible-label", text: label });
 
-	const body = section.createDiv({ cls: "lazy-campaign-collapsible-body" });
+	const body = section.createDiv({ cls: "strong-start-collapsible-body" });
 	body.toggleClass("is-hidden", collapsed);
 	buildBody(body);
 

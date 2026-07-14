@@ -27,9 +27,9 @@ export function renderLocationsStep(container: HTMLElement, ctx: StepContext): v
 	// "Roll a monument" rolls the monument generator into a chip; insert only
 	// fills the add-input above (never creates a note) — same pattern as the
 	// NPCs step's "Roll a name" (docs/plan.md M7).
-	const chipMount = container.createDiv({ cls: "lazy-campaign-roll-chip-mount" });
+	const chipMount = container.createDiv({ cls: "strong-start-roll-chip-mount" });
 	const rollBtn = container.createEl("button", {
-		cls: "lazy-campaign-inspire-button",
+		cls: "strong-start-inspire-button",
 		attr: { type: "button" },
 		text: "Roll a monument",
 	});

@@ -12,7 +12,7 @@
 // don't).
 //
 // The measured inset is published on the host element as
-// `--lazy-campaign-keyboard-inset` plus an `is-keyboard-open` class
+// `--strong-start-keyboard-inset` plus an `is-keyboard-open` class
 // (threshold-ed — small viewport wobbles from browser chrome must not flap
 // the UI). CSS does the rest — most importantly hiding the bottom tab bar:
 // with the app container shrunk by Obsidian, the bar (and its navbar lift)
@@ -50,7 +50,7 @@ export class KeyboardWatcher {
 			const resizeInset = Math.max(0, this.baselineHeight - win.innerHeight);
 			const inset = Math.max(Number.isFinite(obsidianInset) ? obsidianInset : 0, visualInset, resizeInset);
 			const open = inset > OPEN_THRESHOLD_PX;
-			host.setCssProps({ "--lazy-campaign-keyboard-inset": `${open ? Math.round(inset) : 0}px` });
+			host.setCssProps({ "--strong-start-keyboard-inset": `${open ? Math.round(inset) : 0}px` });
 			// Class before onChange: alignAboveNavbar must measure the bar in
 			// its post-toggle display state or the lift comes out garbage.
 			host.toggleClass("is-keyboard-open", open);
@@ -73,7 +73,7 @@ export class KeyboardWatcher {
 			vv?.removeEventListener("resize", measure);
 			vv?.removeEventListener("scroll", measure);
 			win.removeEventListener("resize", measure);
-			host.setCssProps({ "--lazy-campaign-keyboard-inset": "0px" });
+			host.setCssProps({ "--strong-start-keyboard-inset": "0px" });
 			host.removeClass("is-keyboard-open");
 		};
 	}

@@ -24,13 +24,13 @@ export function renderHint(
 ): void {
 	if (plugin.hints.dismissed.includes(id)) return;
 
-	const row = container.createDiv({ cls: "lazy-campaign-hint-row" });
-	const icon = row.createSpan({ cls: "lazy-campaign-hint-row-icon" });
+	const row = container.createDiv({ cls: "strong-start-hint-row" });
+	const icon = row.createSpan({ cls: "strong-start-hint-row-icon" });
 	setIcon(icon, "lightbulb");
-	row.createSpan({ cls: "lazy-campaign-hint-row-text", text });
+	row.createSpan({ cls: "strong-start-hint-row-text", text });
 
 	const closeBtn = row.createEl("button", {
-		cls: "lazy-campaign-hint-row-close",
+		cls: "strong-start-hint-row-close",
 		attr: { "aria-label": "Dismiss this tip", type: "button" },
 	});
 	setIcon(closeBtn, "x");

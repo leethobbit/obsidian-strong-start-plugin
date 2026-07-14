@@ -46,11 +46,11 @@ export function renderNpcsStep(container: HTMLElement, ctx: StepContext): void {
 	// full details live on the note via the Tables > Generators subtab's
 	// "Save as note", not duplicated into this step's chip storage).
 	const generateBtn = container.createEl("button", {
-		cls: "lazy-campaign-inspire-button",
+		cls: "strong-start-inspire-button",
 		text: "Generate NPC",
 		attr: { type: "button" },
 	});
-	const previewMount = container.createDiv({ cls: "lazy-campaign-npc-preview-mount" });
+	const previewMount = container.createDiv({ cls: "strong-start-npc-preview-mount" });
 	ctx.registerDomEvent(generateBtn, "click", () => {
 		const registry = ctx.plugin.tables;
 		if (!registry) return;
@@ -65,15 +65,15 @@ function renderPreview(
 	chip: { setInputValue: (value: string) => void }
 ): void {
 	mount.empty();
-	const card = mount.createDiv({ cls: "lazy-campaign-npc-preview" });
-	const list = card.createDiv({ cls: "lazy-campaign-npc-preview-lines" });
+	const card = mount.createDiv({ cls: "strong-start-npc-preview" });
+	const list = card.createDiv({ cls: "strong-start-npc-preview-lines" });
 	for (const line of result.lines) {
-		const row = list.createDiv({ cls: "lazy-campaign-npc-preview-line" });
-		row.createSpan({ cls: "lazy-campaign-npc-preview-label", text: `${line.label}: ` });
+		const row = list.createDiv({ cls: "strong-start-npc-preview-line" });
+		row.createSpan({ cls: "strong-start-npc-preview-label", text: `${line.label}: ` });
 		row.createSpan({ text: line.text });
 	}
 
-	const buttons = card.createDiv({ cls: "lazy-campaign-roll-chip-buttons" });
+	const buttons = card.createDiv({ cls: "strong-start-roll-chip-buttons" });
 	const name = result.lines.find((line) => line.label === "Name")?.text ?? "";
 
 	const useBtn = buttons.createEl("button", { cls: "mod-cta", text: "Use this name" });
@@ -87,7 +87,7 @@ function renderPreview(
 	});
 
 	const dismissBtn = buttons.createEl("button", {
-		cls: "lazy-campaign-icon-button",
+		cls: "strong-start-icon-button",
 		attr: { "aria-label": "Dismiss", type: "button" },
 	});
 	setIcon(dismissBtn, "x");

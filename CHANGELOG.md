@@ -47,6 +47,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Changed
 
+- The plugin is now **Strong Start** (id `strong-start`, previously the working title "Lazy GM's campaign manager" / `lazy-campaign`): manifest, view type, and CSS class prefix all renamed. Notes are untouched — the `lazyCampaign` frontmatter namespace is part of the frozen schema contract and keeps its name. Anyone on a pre-rename build must reinstall under the new plugin folder (`.obsidian/plugins/strong-start/`) and re-enable; settings carry over by copying `data.json` across.
 - The run drawer's "Quick monster stats" section is now "Monster stats by CR", backed by the Monster Builder document's fuller per-CR table (HP ranges, attack counts, per-attack dice) instead of the older resource document's rough formulas — the two documents disagree, and the newer table wins everywhere monsters are built.
 - Run mode's dice popover now composes any pool — dice-count stepper, die-type buttons (d4–d100), and a modifier stepper replace the fixed presets; the toast shows the per-die breakdown, and the popover stays open for rerolls. Natural-20/1 garnish now keys off the natural die, so 1d20+5 rolling a 20 still earns it (multi-die pools never do).
 - Scene checklists understand per-scene detail: indented lines under a scene bullet in `## Scenes` parse as that scene's detail block and round-trip through prep edits and run-mode toggles. (Previously, indented sub-bullets silently flattened into top-level scenes on the next write.)

@@ -111,7 +111,7 @@ class MonsterBuilderModal extends FormModal {
 
 	protected render(): void {
 		this.setTitle(this.snapshot ? "Edit monster" : "Build a monster");
-		this.contentEl.addClass("lazy-campaign-monster-builder");
+		this.contentEl.addClass("strong-start-monster-builder");
 
 		if (!this.snapshot) this.renderStartFrom();
 
@@ -216,7 +216,7 @@ class MonsterBuilderModal extends FormModal {
 		this.renderPreview();
 		this.renderBodyEditor();
 
-		const footer = this.contentEl.createDiv({ cls: "lazy-campaign-entity-editor-footer" });
+		const footer = this.contentEl.createDiv({ cls: "strong-start-entity-editor-footer" });
 		if (this.snapshot && this.options.existingPath) {
 			const openBtn = footer.createEl("button", { text: "Open note" });
 			openBtn.addEventListener("click", () => void this.openNoteAndClose());
@@ -230,15 +230,15 @@ class MonsterBuilderModal extends FormModal {
 
 	/** Create mode's entry row: the seven general-use presets. */
 	private renderStartFrom(): void {
-		const wrap = this.contentEl.createDiv({ cls: "lazy-campaign-monster-presets" });
+		const wrap = this.contentEl.createDiv({ cls: "strong-start-monster-presets" });
 		wrap.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: "Start from a general-use stat block, or pick a CR below and build from the table.",
 		});
-		const row = wrap.createDiv({ cls: "lazy-campaign-monster-presets-row" });
+		const row = wrap.createDiv({ cls: "strong-start-monster-presets-row" });
 		for (const preset of GENERAL_USE_MONSTERS) {
 			const button = row.createEl("button", {
-				cls: "lazy-campaign-monster-preset",
+				cls: "strong-start-monster-preset",
 				text: `${preset.name} (CR ${crLabel(preset.cr)})`,
 				attr: { title: preset.usage },
 			});
@@ -267,12 +267,12 @@ class MonsterBuilderModal extends FormModal {
 		if (!this.snapshot && levels.length > 0) {
 			const suggested = suggestedCrForParty(levels);
 			if (suggested !== null) {
-				const row = this.contentEl.createDiv({ cls: "lazy-campaign-monster-party-row" });
+				const row = this.contentEl.createDiv({ cls: "strong-start-monster-party-row" });
 				const button = row.createEl("button", {
 					text: `For the party: CR ${crLabel(suggested)}`,
 				});
 				row.createEl("span", {
-					cls: "lazy-campaign-hint",
+					cls: "strong-start-hint",
 					text: "One monster vs one character, hard — from the table's equivalent character level.",
 				});
 				button.addEventListener("click", () => {
@@ -319,12 +319,12 @@ class MonsterBuilderModal extends FormModal {
 	}
 
 	private renderAbilityChips(): void {
-		const row = this.contentEl.createDiv({ cls: "lazy-campaign-monster-abilities" });
-		row.createEl("span", { cls: "lazy-campaign-monster-field-label", text: "Proficient abilities" });
+		const row = this.contentEl.createDiv({ cls: "strong-start-monster-abilities" });
+		row.createEl("span", { cls: "strong-start-monster-field-label", text: "Proficient abilities" });
 		for (const ability of ABILITY_IDS) {
 			const active = this.build.abilities.includes(ability);
 			const chip = row.createEl("button", {
-				cls: active ? "lazy-campaign-monster-chip is-active" : "lazy-campaign-monster-chip",
+				cls: active ? "strong-start-monster-chip is-active" : "strong-start-monster-chip",
 				text: ability.toUpperCase(),
 			});
 			chip.addEventListener("click", () => {
@@ -337,10 +337,10 @@ class MonsterBuilderModal extends FormModal {
 	}
 
 	private renderFeatureList(): void {
-		const wrap = this.contentEl.createDiv({ cls: "lazy-campaign-monster-features" });
-		wrap.createEl("span", { cls: "lazy-campaign-monster-field-label", text: "Features" });
+		const wrap = this.contentEl.createDiv({ cls: "strong-start-monster-features" });
+		wrap.createEl("span", { cls: "strong-start-monster-field-label", text: "Features" });
 		for (const feature of MONSTER_FEATURES) {
-			const row = wrap.createDiv({ cls: "lazy-campaign-monster-feature-row" });
+			const row = wrap.createDiv({ cls: "strong-start-monster-feature-row" });
 			const label = row.createEl("label");
 			const checkbox = label.createEl("input", { type: "checkbox" });
 			checkbox.checked = this.build.features.includes(feature.id);
@@ -356,7 +356,7 @@ class MonsterBuilderModal extends FormModal {
 	}
 
 	private renderPreview(): void {
-		this.previewEl = this.contentEl.createDiv({ cls: "lazy-campaign-monster-preview" });
+		this.previewEl = this.contentEl.createDiv({ cls: "strong-start-monster-preview" });
 		this.updatePreview();
 	}
 
@@ -366,13 +366,13 @@ class MonsterBuilderModal extends FormModal {
 		const derived = deriveMonster(this.build);
 		const { build } = derived;
 		this.previewEl.createEl("div", {
-			cls: "lazy-campaign-monster-preview-title",
+			cls: "strong-start-monster-preview-title",
 			text: this.name.trim() || "Unnamed monster",
 		});
-		if (build.flavor) this.previewEl.createEl("div", { cls: "lazy-campaign-monster-preview-flavor", text: build.flavor });
-		const statLine = this.previewEl.createDiv({ cls: "lazy-campaign-monster-preview-stats" });
+		if (build.flavor) this.previewEl.createEl("div", { cls: "strong-start-monster-preview-flavor", text: build.flavor });
+		const statLine = this.previewEl.createDiv({ cls: "strong-start-monster-preview-stats" });
 		statLine.setText(`AC ${build.ac} · HP ${build.hp} · CR ${crLabel(build.cr)} · save DC ${build.dc}`);
-		const attackLine = this.previewEl.createDiv({ cls: "lazy-campaign-monster-preview-stats" });
+		const attackLine = this.previewEl.createDiv({ cls: "strong-start-monster-preview-stats" });
 		if (derived.effectiveAttacks > 0) {
 			const dice = build.damageDice ? ` (${build.damageDice})` : "";
 			const types = build.damageTypes ? ` ${build.damageTypes}` : "";
@@ -385,22 +385,22 @@ class MonsterBuilderModal extends FormModal {
 		for (const feature of derived.featureLines) {
 			const damage = feature.damage !== undefined ? ` About ${feature.damage} damage.` : "";
 			this.previewEl.createEl("div", {
-				cls: "lazy-campaign-monster-preview-feature",
+				cls: "strong-start-monster-preview-feature",
 				text: `${feature.name}. ${feature.text}${damage}`,
 			});
 		}
 	}
 
 	private renderBodyEditor(): void {
-		const wrap = this.contentEl.createDiv({ cls: "lazy-campaign-table-editor-textarea-wrap" });
+		const wrap = this.contentEl.createDiv({ cls: "strong-start-table-editor-textarea-wrap" });
 		wrap.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: this.snapshot
 				? "The note body. Refresh stat block regenerates only the ## Stat block section from the fields above."
 				: "Optional — leave empty to seed ## Stat block and ## Notes automatically on save.",
 		});
 		this.bodyTextarea = wrap.createEl("textarea", {
-			cls: "lazy-campaign-table-editor-textarea",
+			cls: "strong-start-table-editor-textarea",
 			attr: { rows: "10", placeholder: "Note body (markdown)" },
 		});
 		this.bodyTextarea.value = this.body;

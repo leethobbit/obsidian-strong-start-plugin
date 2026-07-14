@@ -134,19 +134,19 @@ export class HomePanel {
 		this.mounted = true;
 
 		this.containerEl.empty();
-		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-home-shell" });
+		const shell = this.containerEl.createDiv({ cls: "strong-start-home-shell" });
 		this.shellEl = shell;
 		// Reuses the Tables panel's Roll/Generators sub-tab strip styling
 		// verbatim (docs/plan.md: "mirror how tables-panel.ts did its internal
 		// ... strip") rather than duplicating the same CSS under a new name.
-		this.subtabRowEl = shell.createDiv({ cls: "lazy-campaign-tables-subtabs" });
-		const body = shell.createDiv({ cls: "lazy-campaign-home-body" });
+		this.subtabRowEl = shell.createDiv({ cls: "strong-start-tables-subtabs" });
+		const body = shell.createDiv({ cls: "strong-start-home-body" });
 		this.dashboardEl = body.createDiv();
 		this.sessionsEl = body.createDiv();
 		this.worldEl = body.createDiv();
 		this.foundationEl = body.createDiv();
 		this.sessionZeroEl = body.createDiv();
-		this.wizardEl = this.containerEl.createDiv({ cls: "lazy-campaign-home-wizard-mount" });
+		this.wizardEl = this.containerEl.createDiv({ cls: "strong-start-home-wizard-mount" });
 	}
 
 	private renderSubtabRow(): void {
@@ -155,7 +155,7 @@ export class HomePanel {
 		for (const tab of SUBTABS) {
 			if (tab.id === "session-zero" && !featureEnabled(settings, "session-zero")) continue;
 			const btn = this.subtabRowEl.createEl("button", {
-				cls: `lazy-campaign-tables-subtab${this.subtab === tab.id && !this.wizardActive ? " is-active" : ""}`,
+				cls: `strong-start-tables-subtab${this.subtab === tab.id && !this.wizardActive ? " is-active" : ""}`,
 				text: tab.label,
 				attr: { type: "button" },
 			});

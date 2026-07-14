@@ -34,14 +34,14 @@ export class EndSessionModal extends FormModal {
 		const t = this.options.tallies;
 
 		this.contentEl.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: `${t.scenesDone} of ${t.scenesTotal} scenes played · ${t.secretsRevealed} secret${
 				t.secretsRevealed === 1 ? "" : "s"
 			} revealed`,
 		});
 
 		const textarea = this.contentEl.createEl("textarea", {
-			cls: "lazy-campaign-end-session-textarea",
+			cls: "strong-start-end-session-textarea",
 			attr: { rows: "5", placeholder: "What happened? Leave blank to skip the recap." },
 		});
 		// Bare `addEventListener` here mirrors `form-modal.ts`'s documented
@@ -56,14 +56,14 @@ export class EndSessionModal extends FormModal {
 		// optional prompts asked while the table's reactions are still fresh.
 		// Same bare-listener exception as the recap textarea above.
 		const starsInput = this.contentEl.createEl("textarea", {
-			cls: "lazy-campaign-end-session-textarea lazy-campaign-end-session-feedback",
+			cls: "strong-start-end-session-textarea strong-start-end-session-feedback",
 			attr: { rows: "2", placeholder: "Stars — what did the players enjoy? Leave blank to skip." },
 		});
 		starsInput.addEventListener("input", () => {
 			this.stars = starsInput.value;
 		});
 		const wishesInput = this.contentEl.createEl("textarea", {
-			cls: "lazy-campaign-end-session-textarea lazy-campaign-end-session-feedback",
+			cls: "strong-start-end-session-textarea strong-start-end-session-feedback",
 			attr: { rows: "2", placeholder: "Wishes — what do they want more of? Leave blank to skip." },
 		});
 		wishesInput.addEventListener("input", () => {
@@ -72,7 +72,7 @@ export class EndSessionModal extends FormModal {
 
 		if (t.carryCount > 0) {
 			this.contentEl.createEl("p", {
-				cls: "lazy-campaign-hint",
+				cls: "strong-start-hint",
 				text: `${t.carryCount} unrevealed secret${t.carryCount === 1 ? "" : "s"} will carry to session ${
 					this.options.nextSessionNumber
 				}.`,

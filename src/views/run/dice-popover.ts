@@ -38,13 +38,13 @@ function expression(config: DiceConfig): string {
 
 export function mountDicePopover(el: HTMLElement, host: DicePopoverHost, config: DiceConfig): void {
 	el.empty();
-	el.addClass("lazy-campaign-run-dice-popover");
+	el.addClass("strong-start-run-dice-popover");
 
 	let rollBtn: HTMLButtonElement | null = null;
 	const updateRollLabel = (): void => rollBtn?.setText(`Roll ${expression(config)}`);
 
-	const countRow = el.createDiv({ cls: "lazy-campaign-run-dice-config-row" });
-	countRow.createSpan({ cls: "lazy-campaign-run-dice-config-label", text: "Dice" });
+	const countRow = el.createDiv({ cls: "strong-start-run-dice-config-row" });
+	countRow.createSpan({ cls: "strong-start-run-dice-config-label", text: "Dice" });
 	// `renderStepper` reads `options.value` at click time and hands back the
 	// value span — mutate the shared options object and repaint the span
 	// ourselves (the documented local-redraw pattern).
@@ -62,11 +62,11 @@ export function mountDicePopover(el: HTMLElement, host: DicePopoverHost, config:
 	};
 	const countValueEl = renderStepper(countRow, host, countOptions);
 
-	const dieGrid = el.createDiv({ cls: "lazy-campaign-run-dice-die-grid" });
+	const dieGrid = el.createDiv({ cls: "strong-start-run-dice-die-grid" });
 	const dieButtons = new Map<number, HTMLButtonElement>();
 	for (const sides of DIE_SIDES) {
 		const btn = dieGrid.createEl("button", {
-			cls: `lazy-campaign-run-dice-die${config.sides === sides ? " is-selected" : ""}`,
+			cls: `strong-start-run-dice-die${config.sides === sides ? " is-selected" : ""}`,
 			text: `d${sides}`,
 			attr: { type: "button", "aria-label": `${sides}-sided die` },
 		});
@@ -78,8 +78,8 @@ export function mountDicePopover(el: HTMLElement, host: DicePopoverHost, config:
 		});
 	}
 
-	const modRow = el.createDiv({ cls: "lazy-campaign-run-dice-config-row" });
-	modRow.createSpan({ cls: "lazy-campaign-run-dice-config-label", text: "Modifier" });
+	const modRow = el.createDiv({ cls: "strong-start-run-dice-config-row" });
+	modRow.createSpan({ cls: "strong-start-run-dice-config-label", text: "Modifier" });
 	const modOptions: StepperOptions = {
 		value: config.modifier,
 		min: -MODIFIER_RANGE,
@@ -95,14 +95,14 @@ export function mountDicePopover(el: HTMLElement, host: DicePopoverHost, config:
 	const modValueEl = renderStepper(modRow, host, modOptions);
 	modValueEl.setText(signed(config.modifier));
 
-	rollBtn = el.createEl("button", { cls: "mod-cta lazy-campaign-run-dice-roll", attr: { type: "button" } });
+	rollBtn = el.createEl("button", { cls: "mod-cta strong-start-run-dice-roll", attr: { type: "button" } });
 	updateRollLabel();
 	host.registerDomEvent(rollBtn, "click", () => {
 		const result = rollDice(expression(config), host.rng);
 		if (result) host.onRoll(result, { ...config });
 	});
 
-	const advRow = el.createDiv({ cls: "lazy-campaign-run-dice-advrow" });
+	const advRow = el.createDiv({ cls: "strong-start-run-dice-advrow" });
 	const advBtn = advRow.createEl("button", { text: "Advantage", attr: { type: "button" } });
 	host.registerDomEvent(advBtn, "click", () => host.onAdvantage(true));
 	const disBtn = advRow.createEl("button", { text: "Disadvantage", attr: { type: "button" } });

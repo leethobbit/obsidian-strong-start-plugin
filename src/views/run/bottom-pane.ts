@@ -33,29 +33,29 @@ export interface BottomPaneHost {
 const LOG_TIME_RE = /^(\d{1,2}:\d{2})\s+(.*)$/;
 
 export function mountBottomPane(pane: HTMLElement, host: BottomPaneHost, sessionPath: string, bodyText: string): void {
-	pane.addClass("lazy-campaign-run-bottom");
+	pane.addClass("strong-start-run-bottom");
 
 	// ---- Tabs row (visible while open) ----
-	const tabsRow = pane.createDiv({ cls: "lazy-campaign-tables-subtabs lazy-campaign-run-bottom-tabs" });
-	const logTabBtn = tabsRow.createEl("button", { cls: "lazy-campaign-tables-subtab", text: "Log", attr: { type: "button" } });
-	const notesTabBtn = tabsRow.createEl("button", { cls: "lazy-campaign-tables-subtab", text: "Notes", attr: { type: "button" } });
+	const tabsRow = pane.createDiv({ cls: "strong-start-tables-subtabs strong-start-run-bottom-tabs" });
+	const logTabBtn = tabsRow.createEl("button", { cls: "strong-start-tables-subtab", text: "Log", attr: { type: "button" } });
+	const notesTabBtn = tabsRow.createEl("button", { cls: "strong-start-tables-subtab", text: "Notes", attr: { type: "button" } });
 	const collapseBtn = tabsRow.createEl("button", {
-		cls: "lazy-campaign-run-icon-button lazy-campaign-run-bottom-collapse",
+		cls: "strong-start-run-icon-button strong-start-run-bottom-collapse",
 		attr: { "aria-label": "Collapse log and notes", type: "button" },
 	});
 	setIcon(collapseBtn, "chevron-down");
 
 	// ---- Body: log history / notes textarea ----
-	const body = pane.createDiv({ cls: "lazy-campaign-run-bottom-body" });
-	const history = body.createDiv({ cls: "lazy-campaign-run-log-history" });
+	const body = pane.createDiv({ cls: "strong-start-run-bottom-body" });
+	const history = body.createDiv({ cls: "strong-start-run-log-history" });
 	let emptyRow: HTMLElement | null = null;
 	const appendHistoryRow = (text: string): void => {
 		emptyRow?.remove();
 		emptyRow = null;
-		const row = history.createDiv({ cls: "lazy-campaign-run-log-row" });
+		const row = history.createDiv({ cls: "strong-start-run-log-row" });
 		const match = LOG_TIME_RE.exec(text);
 		if (match) {
-			row.createSpan({ cls: "lazy-campaign-run-log-time", text: match[1] });
+			row.createSpan({ cls: "strong-start-run-log-time", text: match[1] });
 			row.createSpan({ text: match[2] });
 		} else {
 			row.setText(text);
@@ -63,7 +63,7 @@ export function mountBottomPane(pane: HTMLElement, host: BottomPaneHost, session
 	};
 	const logRows = parseBulletSection(sectionContent(bodyText, "Log")).rows;
 	if (logRows.length === 0) {
-		emptyRow = history.createDiv({ cls: "lazy-campaign-run-log-row lazy-campaign-empty-state", text: "Nothing logged yet." });
+		emptyRow = history.createDiv({ cls: "strong-start-run-log-row strong-start-empty-state", text: "Nothing logged yet." });
 	} else {
 		for (const row of logRows) appendHistoryRow(row);
 	}
@@ -72,7 +72,7 @@ export function mountBottomPane(pane: HTMLElement, host: BottomPaneHost, session
 	};
 
 	const notesArea = body.createEl("textarea", {
-		cls: "lazy-campaign-run-notes-input",
+		cls: "strong-start-run-notes-input",
 		attr: { rows: "6", placeholder: "Session notes…", "data-key": "run-notes" },
 	});
 	notesArea.value = sectionContent(bodyText, "Notes");
@@ -98,10 +98,10 @@ export function mountBottomPane(pane: HTMLElement, host: BottomPaneHost, session
 	host.registerDomEvent(notesArea, "blur", () => debouncedCommit.run());
 
 	// ---- Input row (log input + expand chevron) ----
-	const inputRow = pane.createDiv({ cls: "lazy-campaign-run-bottom-inputrow" });
+	const inputRow = pane.createDiv({ cls: "strong-start-run-bottom-inputrow" });
 	const input = inputRow.createEl("input", {
 		type: "text",
-		cls: "lazy-campaign-run-log-input",
+		cls: "strong-start-run-log-input",
 		attr: { placeholder: "Log a note…", "data-key": "run-log-input" },
 	});
 	host.registerDomEvent(input, "keydown", (evt) => {
@@ -118,7 +118,7 @@ export function mountBottomPane(pane: HTMLElement, host: BottomPaneHost, session
 		void host.appendLog(sessionPath, text).then(() => input.focus());
 	});
 	const expandBtn = inputRow.createEl("button", {
-		cls: "lazy-campaign-run-icon-button lazy-campaign-run-bottom-expand",
+		cls: "strong-start-run-icon-button strong-start-run-bottom-expand",
 		attr: { "aria-label": "Show log and notes", type: "button" },
 	});
 	setIcon(expandBtn, "chevron-up");

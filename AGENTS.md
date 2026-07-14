@@ -1,12 +1,12 @@
-# Lazy GM's campaign manager — Agent Guide
+# Strong Start — Agent Guide
 
 ## What this project is
 
-TTRPG campaign manager built on the **Eight Steps of Lazy RPG Prep** (Lazy GM's Resource Document, CC-BY 4.0): guided session prep, secrets & clues that carry forward between sessions, rollable random tables (built-in + user-authored), a distraction-free run mode, and a settings-toggled 5e module. Plugin id `lazy-campaign`, desktop + mobile (`isDesktopOnly: false`). Markdown is the datastore — every entity is a real vault note under one `lazyCampaign` frontmatter namespace; the single host view is a lens, never a lock-in.
+**Strong Start** — TTRPG campaign manager built on the **Eight Steps of Lazy RPG Prep** (Lazy GM's Resource Document, CC-BY 4.0): guided session prep, secrets & clues that carry forward between sessions, rollable random tables (built-in + user-authored), a distraction-free run mode, and a settings-toggled 5e module. Plugin id `strong-start` (renamed from the working title `lazy-campaign` on 2026-07-14; the frozen `lazyCampaign` frontmatter namespace deliberately keeps the old name — see SCHEMA.md), desktop + mobile (`isDesktopOnly: false`). Markdown is the datastore — every entity is a real vault note under one `lazyCampaign` frontmatter namespace; the single host view is a lens, never a lock-in.
 
 Full design plan (data model, UX, milestones): `docs/plan.md`. Frontmatter contract: `SCHEMA.md` (draft until 1.0, then frozen/additive-only).
 
-**Status (2026-07-12): M0–M17 shipped and verified (M17 = full in-plugin editing: entity editor modal, Home World tab, section editors — see `docs/plan.md`). SCHEMA.md is FROZEN at contract 1.0 (additive-only). Remaining before store submission (all user-gated): the naming decision (shortlist in `docs/plan.md` M14 — every candidate is collision-free in the community store as of 2026-07-12), a real-device mobile pass, the BRAT beta round, and the release/submission runbook itself. A drafted 5e-drawer-deepening milestone is sketched in `docs/plan.md`'s M16 note. M18 (2026-07-14) added the 5e Monster Builder: `type: monster` notes, builder modal, general-use presets, and boss/location reference tables — all gated on `dnd5e`.**
+**Status (2026-07-12): M0–M17 shipped and verified (M17 = full in-plugin editing: entity editor modal, Home World tab, section editors — see `docs/plan.md`). SCHEMA.md is FROZEN at contract 1.0 (additive-only). Naming DECIDED 2026-07-14: **Strong Start** (id `strong-start`). Remaining before store submission (all user-gated): a real-device mobile pass, the BRAT beta round, and the release/submission runbook itself. A drafted 5e-drawer-deepening milestone is sketched in `docs/plan.md`'s M16 note. M18 (2026-07-14) added the 5e Monster Builder: `type: monster` notes, builder modal, general-use presets, and boss/location reference tables — all gated on `dnd5e`.**
 
 **Boundary**: `obsidian-draft-schemes-plugin` (sibling repo) is Draw Steel-specific bestiary/lorekeeper. This plugin stays system-agnostic prep-flow (+ optional 5e improv module). Quick CUSTOM monster stat blocks built from the Lazy GM's 5e Monster Builder RD (M18, `type: monster`, gated on `dnd5e`) live here — that's improv tooling. Full bestiaries, published-monster import/browsing, and rich statblock rendering still belong in the sibling repo, not here.
 
@@ -26,7 +26,7 @@ Obsidian plugin conventions (toolchain, Vault API rules, deferred views, mobile,
 | Lint (store-review mirror — run before every release) | `npm run lint` |
 | Tests (pure logic only) | `npm test` |
 | Reload plugin in vault | use the `obsidian-cli` skill, not a manual restart |
-| Deploy target | `lazy-dev-vault/` in this repo (git-ignored; named uniquely so Obsidian's vault switcher/CLI can target it) — override with `LAZY_CAMPAIGN_VAULT`. Never a real user vault. |
+| Deploy target | `lazy-dev-vault/` in this repo (git-ignored; named uniquely so Obsidian's vault switcher/CLI can target it) — override with `STRONG_START_VAULT`. Never a real user vault. |
 
 ## Architecture rules
 
@@ -52,7 +52,7 @@ Obsidian plugin conventions (toolchain, Vault API rules, deferred views, mobile,
 | `src/views/` | Host view, nav model, panels (home/, prep/, run, secrets, tables), phone shell |
 | `src/lib/sections.ts` | Managed H2 body sections: parse / replace-one / heal |
 | `src/settings/` | Settings tab + typed settings model |
-| `styles.css` | All plugin CSS (`.lazy-campaign-` prefix, Obsidian CSS variables) |
+| `styles.css` | All plugin CSS (`.strong-start-` prefix, Obsidian CSS variables) |
 
 ## Common operations
 

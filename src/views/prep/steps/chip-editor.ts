@@ -64,12 +64,12 @@ export interface ChipEditorHandle {
 export function renderChipEditor(container: HTMLElement, ctx: StepContext, options: ChipEditorOptions): ChipEditorHandle {
 	let links = [...ctx.session[options.fmKey]];
 
-	const chipRow = container.createDiv({ cls: "lazy-campaign-chip-row" });
+	const chipRow = container.createDiv({ cls: "strong-start-chip-row" });
 
-	const inputRow = container.createDiv({ cls: "lazy-campaign-chip-input-row" });
+	const inputRow = container.createDiv({ cls: "strong-start-chip-input-row" });
 	const input = inputRow.createEl("input", {
 		type: "text",
-		cls: "lazy-campaign-chip-input",
+		cls: "strong-start-chip-input",
 		attr: { placeholder: options.placeholder, "data-key": `${options.stepId}-add` },
 	});
 
@@ -103,16 +103,16 @@ export function renderChipEditor(container: HTMLElement, ctx: StepContext, optio
 	function renderChips(): void {
 		chipRow.empty();
 		if (links.length === 0) {
-			chipRow.createSpan({ cls: "lazy-campaign-empty-state", text: "None yet." });
+			chipRow.createSpan({ cls: "strong-start-empty-state", text: "None yet." });
 			return;
 		}
 
 		links.forEach((raw, index) => {
 			const chip = chipRow.createDiv({
-				cls: "lazy-campaign-chip",
+				cls: "strong-start-chip",
 				attr: { "data-key": `${options.stepId}-chip-${index}` },
 			});
-			const label = chip.createSpan({ cls: "lazy-campaign-chip-label", text: displayText(raw) });
+			const label = chip.createSpan({ cls: "strong-start-chip-label", text: displayText(raw) });
 
 			if (isWikilink(raw)) {
 				label.addClass("is-linked");
@@ -126,7 +126,7 @@ export function renderChipEditor(container: HTMLElement, ctx: StepContext, optio
 					const dest = ctx.app.metadataCache.getFirstLinkpathDest(displayText(raw), ctx.session.path);
 					if (dest) {
 						const editBtn = chip.createEl("button", {
-							cls: "lazy-campaign-icon-button lazy-campaign-chip-edit",
+							cls: "strong-start-icon-button strong-start-chip-edit",
 							attr: { "aria-label": `Edit ${displayText(raw)}`, type: "button" },
 						});
 						setIcon(editBtn, "pencil");
@@ -134,12 +134,12 @@ export function renderChipEditor(container: HTMLElement, ctx: StepContext, optio
 					}
 				}
 			} else if (options.createNote) {
-				const createBtn = chip.createEl("button", { text: "Create note", cls: "lazy-campaign-chip-create" });
+				const createBtn = chip.createEl("button", { text: "Create note", cls: "strong-start-chip-create" });
 				ctx.registerDomEvent(createBtn, "click", () => void handleCreate(raw));
 			}
 
 			const removeBtn = chip.createEl("button", {
-				cls: "lazy-campaign-icon-button",
+				cls: "strong-start-icon-button",
 				attr: { "aria-label": "Remove", type: "button" },
 			});
 			setIcon(removeBtn, "x");

@@ -1,4 +1,4 @@
-# Lazy GM's campaign manager
+# Strong Start
 
 Create and run TTRPG campaigns in Obsidian with the eight steps of lazy RPG prep, secrets that carry forward between sessions, and rollable random tables.
 
@@ -47,7 +47,7 @@ Everything the plugin creates is a plain markdown note in your vault — campaig
 Not yet in the community plugin store. Until then:
 
 - **BRAT**: add this repository in [BRAT](https://github.com/TfTHacker/obsidian42-brat) as a beta plugin.
-- **Manual**: copy `main.js`, `manifest.json`, and `styles.css` from a release into `<vault>/.obsidian/plugins/lazy-campaign/`, then enable it in Community plugins.
+- **Manual**: copy `main.js`, `manifest.json`, and `styles.css` from a release into `<vault>/.obsidian/plugins/strong-start/`, then enable it in Community plugins.
 
 ## Data & privacy
 

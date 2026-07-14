@@ -216,11 +216,11 @@ class EntityEditorModal extends FormModal {
 			});
 		}
 
-		const bodyWrap = this.contentEl.createDiv({ cls: "lazy-campaign-table-editor-textarea-wrap" });
+		const bodyWrap = this.contentEl.createDiv({ cls: "strong-start-table-editor-textarea-wrap" });
 		const hint = BODY_HINTS[kind];
-		if (hint) bodyWrap.createEl("p", { cls: "lazy-campaign-hint", text: hint });
+		if (hint) bodyWrap.createEl("p", { cls: "strong-start-hint", text: hint });
 		const textarea = bodyWrap.createEl("textarea", {
-			cls: "lazy-campaign-table-editor-textarea",
+			cls: "strong-start-table-editor-textarea",
 			attr: { rows: "12", placeholder: "Note body (markdown)" },
 		});
 		textarea.value = this.body;
@@ -228,7 +228,7 @@ class EntityEditorModal extends FormModal {
 			this.body = textarea.value;
 		});
 
-		const buttonRow = this.contentEl.createDiv({ cls: "lazy-campaign-entity-editor-footer" });
+		const buttonRow = this.contentEl.createDiv({ cls: "strong-start-entity-editor-footer" });
 		if (this.snapshot && this.options.existingPath) {
 			const openBtn = buttonRow.createEl("button", { text: "Open note" });
 			openBtn.addEventListener("click", () => void this.openNoteAndClose());

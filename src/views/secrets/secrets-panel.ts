@@ -56,7 +56,7 @@ export class SecretsPanel {
 		const sessions = plugin.store?.sessionsOf(campaign.path) ?? [];
 		const derived = openSecrets(sessions);
 
-		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-secrets-shell" });
+		const shell = this.containerEl.createDiv({ cls: "strong-start-secrets-shell" });
 		renderHint(
 			shell,
 			this.view,
@@ -68,8 +68,8 @@ export class SecretsPanel {
 		// Created in DOM order (filters row, then list) before either is
 		// populated, so `renderFilters` can close over `listEl` to refresh just
 		// the list on every keystroke without touching the filter input itself.
-		const filtersRow = shell.createDiv({ cls: "lazy-campaign-secrets-filters" });
-		const listEl = shell.createDiv({ cls: "lazy-campaign-secrets-list" });
+		const filtersRow = shell.createDiv({ cls: "strong-start-secrets-filters" });
+		const listEl = shell.createDiv({ cls: "strong-start-secrets-list" });
 		this.renderFilters(filtersRow, derived, listEl);
 		this.renderList(listEl, derived);
 	}
@@ -79,16 +79,16 @@ export class SecretsPanel {
 		const revealed = derived.filter((d) => d.state === "revealed").length;
 		const retired = derived.filter((d) => d.state === "retired").length;
 		shell.createDiv({
-			cls: "lazy-campaign-secrets-stat-line",
+			cls: "strong-start-secrets-stat-line",
 			text: `${derived.length} secret${derived.length === 1 ? "" : "s"} · ${inPlay} in play · ${revealed} revealed · ${retired} retired`,
 		});
 	}
 
 	private renderFilters(row: HTMLElement, derived: DerivedSecret[], listEl: HTMLElement): void {
-		const chipsEl = row.createDiv({ cls: "lazy-campaign-secrets-chips" });
+		const chipsEl = row.createDiv({ cls: "strong-start-secrets-chips" });
 		for (const chip of FILTER_CHIPS) {
 			const btn = chipsEl.createEl("button", {
-				cls: `lazy-campaign-secrets-chip${this.filterState === chip.value ? " is-active" : ""}`,
+				cls: `strong-start-secrets-chip${this.filterState === chip.value ? " is-active" : ""}`,
 				text: chip.label,
 				attr: { type: "button" },
 			});
@@ -100,7 +100,7 @@ export class SecretsPanel {
 
 		const textInput = row.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-secrets-filter-text",
+			cls: "strong-start-secrets-filter-text",
 			attr: { placeholder: "Filter…", "data-key": "secrets-filter-text" },
 		});
 		textInput.value = this.filterText;
@@ -132,8 +132,8 @@ export class SecretsPanel {
 	}
 
 	private renderGroup(listEl: HTMLElement, heading: string, rows: DerivedSecret[]): void {
-		const groupEl = listEl.createDiv({ cls: "lazy-campaign-secrets-group" });
-		groupEl.createEl("h4", { cls: "lazy-campaign-secrets-group-heading", text: `${heading} (${rows.length})` });
+		const groupEl = listEl.createDiv({ cls: "strong-start-secrets-group" });
+		groupEl.createEl("h4", { cls: "strong-start-secrets-group-heading", text: `${heading} (${rows.length})` });
 
 		const sorted = [...rows].sort((a, b) => b.sessionsCarried - a.sessionsCarried || a.originSession - b.originSession);
 		for (const secret of sorted) {
@@ -143,25 +143,25 @@ export class SecretsPanel {
 
 	private renderRow(groupEl: HTMLElement, secret: DerivedSecret): void {
 		const row = groupEl.createDiv({
-			cls: `lazy-campaign-secrets-row${secret.state === "in-play" ? ` ${agedClass(secret)}` : ""}${
+			cls: `strong-start-secrets-row${secret.state === "in-play" ? ` ${agedClass(secret)}` : ""}${
 				secret.state === "retired" ? " is-retired" : ""
 			}`,
 		});
 
-		const main = row.createDiv({ cls: "lazy-campaign-secrets-row-main" });
-		main.createDiv({ cls: "lazy-campaign-secrets-row-text", text: secret.text });
+		const main = row.createDiv({ cls: "strong-start-secrets-row-main" });
+		main.createDiv({ cls: "strong-start-secrets-row-text", text: secret.text });
 
-		const meta = main.createDiv({ cls: "lazy-campaign-secrets-row-meta" });
+		const meta = main.createDiv({ cls: "strong-start-secrets-row-meta" });
 		meta.createSpan({ text: `Session ${secret.originSession}` });
 		if (secret.sessionsCarried > 1) {
-			meta.createSpan({ cls: "lazy-campaign-secrets-badge", text: `carried × ${secret.sessionsCarried}` });
+			meta.createSpan({ cls: "strong-start-secrets-badge", text: `carried × ${secret.sessionsCarried}` });
 		}
 
 		if (secret.state === "revealed" && secret.note) {
-			main.createDiv({ cls: "lazy-campaign-secrets-row-note", text: secret.note });
+			main.createDiv({ cls: "strong-start-secrets-row-note", text: secret.note });
 		}
 
-		const actions = row.createDiv({ cls: "lazy-campaign-secrets-row-actions" });
+		const actions = row.createDiv({ cls: "strong-start-secrets-row-actions" });
 
 		if (secret.state === "in-play") {
 			const revealBtn = actions.createEl("button", { text: "Reveal" });
@@ -177,7 +177,7 @@ export class SecretsPanel {
 		}
 
 		const openBtn = actions.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Open session", type: "button" },
 		});
 		setIcon(openBtn, "external-link");

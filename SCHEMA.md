@@ -1,8 +1,8 @@
-# Lazy GM's campaign manager — data schema
+# Strong Start — data schema
 
 **Status: FROZEN — contract 1.0 (2026-07-12, M14).** From here the schema is **additive-only** until a 2.0: new note types and new optional fields may be added, but no existing field may change meaning, type, or default. Every addition still lands in the same commit as its codec change.
 
-All plugin state on a note lives under **one top-level frontmatter key: `lazyCampaign`** (a nested object). Notes are discovered by scanning `app.metadataCache` for `frontmatter.lazyCampaign?.type` — never by folder location. Folders are tidy defaults; a note moved anywhere in the vault keeps working.
+All plugin state on a note lives under **one top-level frontmatter key: `lazyCampaign`** (a nested object). The key predates the plugin's rename to Strong Start (2026-07-14) and is deliberately KEPT — it is part of the frozen 1.0 contract, every existing vault carries it, and renaming it would be a 2.0 break for zero user-visible gain. Do not "modernize" it. Notes are discovered by scanning `app.metadataCache` for `frontmatter.lazyCampaign?.type` — never by folder location. Folders are tidy defaults; a note moved anywhere in the vault keeps working.
 
 General rules:
 

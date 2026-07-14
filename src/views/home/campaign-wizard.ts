@@ -73,10 +73,10 @@ export class CampaignWizardPanel {
 		this.containerEl = container;
 		container.empty();
 
-		const shell = container.createDiv({ cls: "lazy-campaign-wizard-shell" });
+		const shell = container.createDiv({ cls: "strong-start-wizard-shell" });
 		this.renderDots(shell);
 
-		const content = shell.createDiv({ cls: "lazy-campaign-wizard-content" });
+		const content = shell.createDiv({ cls: "strong-start-wizard-content" });
 		switch (this.step) {
 			case 0:
 				this.renderStepNamePitch(content);
@@ -121,22 +121,22 @@ export class CampaignWizardPanel {
 	// ---- Progress dots + nav ------------------------------------------------
 
 	private renderDots(shell: HTMLElement): void {
-		const dots = shell.createDiv({ cls: "lazy-campaign-progress-dots lazy-campaign-wizard-dots" });
+		const dots = shell.createDiv({ cls: "strong-start-progress-dots strong-start-wizard-dots" });
 		STEP_LABELS.forEach((label, index) => {
 			dots.createSpan({
-				cls: `lazy-campaign-progress-dot${index < this.step ? " is-done" : ""}${index === this.step ? " is-active" : ""}`,
+				cls: `strong-start-progress-dot${index < this.step ? " is-done" : ""}${index === this.step ? " is-active" : ""}`,
 				attr: { "aria-label": label },
 			});
 		});
 	}
 
 	private renderNav(shell: HTMLElement): void {
-		const nav = shell.createDiv({ cls: "lazy-campaign-wizard-nav" });
+		const nav = shell.createDiv({ cls: "strong-start-wizard-nav" });
 
 		const cancelBtn = nav.createEl("button", { text: "Cancel" });
 		this.view.registerDomEvent(cancelBtn, "click", () => this.options.onCancel());
 
-		const right = nav.createDiv({ cls: "lazy-campaign-wizard-nav-right" });
+		const right = nav.createDiv({ cls: "strong-start-wizard-nav-right" });
 
 		if (this.step > 0) {
 			const backBtn = right.createEl("button", { text: "Back" });
@@ -176,15 +176,15 @@ export class CampaignWizardPanel {
 		});
 		nameInput.setAttribute("data-key", "wizard-name");
 		if (this.nameError) {
-			container.createEl("p", { cls: "lazy-campaign-wizard-error", text: this.nameError });
+			container.createEl("p", { cls: "strong-start-wizard-error", text: this.nameError });
 		}
 
 		container.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: "Describe the central theme of your campaign in a single sentence.",
 		});
 		const pitchTextarea = container.createEl("textarea", {
-			cls: "lazy-campaign-wizard-textarea",
+			cls: "strong-start-wizard-textarea",
 			attr: { rows: "3", "data-key": "wizard-pitch", placeholder: "Prevent the coming of the black moon…" },
 		});
 		pitchTextarea.value = this.pitch;
@@ -205,14 +205,14 @@ export class CampaignWizardPanel {
 			},
 		});
 
-		const quick = container.createEl("p", { cls: "lazy-campaign-wizard-quick-create" });
+		const quick = container.createEl("p", { cls: "strong-start-wizard-quick-create" });
 		const quickLink = quick.createEl("a", { text: "In a hurry? Quick create", attr: { href: "#" } });
 		this.view.registerDomEvent(quickLink, "click", (evt) => {
 			evt.preventDefault();
 			new CreateCampaignModal(this.view.app, this.view.plugin, () => this.options.onCreated()).open();
 		});
 
-		const starter = container.createEl("p", { cls: "lazy-campaign-wizard-quick-create" });
+		const starter = container.createEl("p", { cls: "strong-start-wizard-quick-create" });
 		const starterLink = starter.createEl("a", {
 			text: "First campaign? Start with Whitesparrow, a ready-to-run village adventure",
 			attr: { href: "#" },
@@ -232,18 +232,18 @@ export class CampaignWizardPanel {
 	private renderStepTruths(container: HTMLElement): void {
 		container.createEl("h3", { text: "Six truths" });
 		container.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: "What makes this world yours? Three is plenty to start.",
 		});
 
-		const list = container.createDiv({ cls: "lazy-campaign-wizard-truths" });
+		const list = container.createDiv({ cls: "strong-start-wizard-truths" });
 		this.truths.forEach((truth, index) => {
-			const row = list.createDiv({ cls: "lazy-campaign-wizard-truth-row" });
-			row.createSpan({ cls: "lazy-campaign-wizard-truth-number", text: String(index + 1) });
+			const row = list.createDiv({ cls: "strong-start-wizard-truth-row" });
+			row.createSpan({ cls: "strong-start-wizard-truth-number", text: String(index + 1) });
 
 			const input = row.createEl("input", {
 				type: "text",
-				cls: "lazy-campaign-wizard-truth-input",
+				cls: "strong-start-wizard-truth-input",
 				attr: { "data-key": `wizard-truth-${index}`, placeholder: "A truth about this world…" },
 			});
 			input.value = truth;
@@ -251,9 +251,9 @@ export class CampaignWizardPanel {
 				this.truths[index] = input.value;
 			});
 
-			const chipMount = row.createDiv({ cls: "lazy-campaign-roll-chip-mount" });
+			const chipMount = row.createDiv({ cls: "strong-start-roll-chip-mount" });
 			const diceBtn = row.createEl("button", {
-				cls: "lazy-campaign-icon-button",
+				cls: "strong-start-icon-button",
 				attr: { "aria-label": "Roll for inspiration", type: "button" },
 			});
 			setIcon(diceBtn, "dices");
@@ -276,7 +276,7 @@ export class CampaignWizardPanel {
 
 	private renderStepFronts(container: HTMLElement): void {
 		container.createEl("h3", { text: "Fronts" });
-		container.createEl("p", { cls: "lazy-campaign-hint", text: "One good villain beats three vague ones." });
+		container.createEl("p", { cls: "strong-start-hint", text: "One good villain beats three vague ones." });
 
 		const list = container.createDiv();
 		this.fronts.forEach((front, index) => this.renderFrontDraftCard(list, front, index));
@@ -291,12 +291,12 @@ export class CampaignWizardPanel {
 	}
 
 	private renderFrontDraftCard(container: HTMLElement, front: WizardFrontDraft, index: number): void {
-		const card = container.createDiv({ cls: "lazy-campaign-front-card" });
+		const card = container.createDiv({ cls: "strong-start-front-card" });
 
-		const nameRow = card.createDiv({ cls: "lazy-campaign-wizard-field-row" });
+		const nameRow = card.createDiv({ cls: "strong-start-wizard-field-row" });
 		const nameInput = nameRow.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-front-name-input",
+			cls: "strong-start-front-name-input",
 			attr: { "data-key": `wizard-front-${index}-name`, placeholder: "Front name" },
 		});
 		nameInput.value = front.name;
@@ -308,10 +308,10 @@ export class CampaignWizardPanel {
 			nameInput.value = text;
 		});
 
-		const goalRow = card.createDiv({ cls: "lazy-campaign-wizard-field-row" });
+		const goalRow = card.createDiv({ cls: "strong-start-wizard-field-row" });
 		const goalInput = goalRow.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-front-goal-input",
+			cls: "strong-start-front-goal-input",
 			attr: { "data-key": `wizard-front-${index}-goal`, placeholder: "Goal…" },
 		});
 		goalInput.value = front.goal;
@@ -323,11 +323,11 @@ export class CampaignWizardPanel {
 			goalInput.value = text;
 		});
 
-		const portentsEl = card.createDiv({ cls: "lazy-campaign-front-portents" });
+		const portentsEl = card.createDiv({ cls: "strong-start-front-portents" });
 		front.portents.forEach((portent, portentIndex) => {
 			const input = portentsEl.createEl("input", {
 				type: "text",
-				cls: "lazy-campaign-front-portent-input",
+				cls: "strong-start-front-portent-input",
 				attr: { "data-key": `wizard-front-${index}-portent-${portentIndex}`, placeholder: `Grim portent ${portentIndex + 1}` },
 			});
 			input.value = portent;
@@ -338,7 +338,7 @@ export class CampaignWizardPanel {
 
 		const doomInput = card.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-front-doom-input",
+			cls: "strong-start-front-doom-input",
 			attr: { "data-key": `wizard-front-${index}-doom`, placeholder: "Doom — what happens if this front wins?" },
 		});
 		doomInput.value = front.doom;
@@ -346,7 +346,7 @@ export class CampaignWizardPanel {
 			front.doom = doomInput.value;
 		});
 
-		const actions = card.createDiv({ cls: "lazy-campaign-front-actions" });
+		const actions = card.createDiv({ cls: "strong-start-front-actions" });
 		const removeBtn = actions.createEl("button", { text: "Remove front" });
 		this.view.registerDomEvent(removeBtn, "click", () => {
 			this.fronts = this.fronts.filter((_, i) => i !== index);
@@ -355,9 +355,9 @@ export class CampaignWizardPanel {
 	}
 
 	private renderFieldDice(row: HTMLElement, sourceLabel: string, tableId: string, onInsert: (text: string) => void): void {
-		const chipMount = row.createDiv({ cls: "lazy-campaign-roll-chip-mount" });
+		const chipMount = row.createDiv({ cls: "strong-start-roll-chip-mount" });
 		const diceBtn = row.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Roll for inspiration", type: "button" },
 		});
 		setIcon(diceBtn, "dices");
@@ -376,7 +376,7 @@ export class CampaignWizardPanel {
 
 	private renderStepParty(container: HTMLElement): void {
 		container.createEl("h3", { text: "The party" });
-		container.createEl("p", { cls: "lazy-campaign-hint", text: "Skip this if session zero hasn't happened yet." });
+		container.createEl("p", { cls: "strong-start-hint", text: "Skip this if session zero hasn't happened yet." });
 
 		this.party.forEach((row, index) => this.renderPartyRow(container, row, index));
 
@@ -388,11 +388,11 @@ export class CampaignWizardPanel {
 	}
 
 	private renderPartyRow(container: HTMLElement, row: WizardPartyRow, index: number): void {
-		const card = container.createDiv({ cls: "lazy-campaign-wizard-party-row" });
+		const card = container.createDiv({ cls: "strong-start-wizard-party-row" });
 
 		const nameInput = card.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-wizard-party-input",
+			cls: "strong-start-wizard-party-input",
 			attr: { "data-key": `wizard-party-${index}-name`, placeholder: "Character name" },
 		});
 		nameInput.value = row.name;
@@ -402,7 +402,7 @@ export class CampaignWizardPanel {
 
 		const playerInput = card.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-wizard-party-input",
+			cls: "strong-start-wizard-party-input",
 			attr: { "data-key": `wizard-party-${index}-player`, placeholder: "Player" },
 		});
 		playerInput.value = row.player;
@@ -412,7 +412,7 @@ export class CampaignWizardPanel {
 
 		const lineInput = card.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-wizard-party-input",
+			cls: "strong-start-wizard-party-input",
 			attr: { "data-key": `wizard-party-${index}-line`, placeholder: "One-liner" },
 		});
 		lineInput.value = row.oneLiner;
@@ -421,7 +421,7 @@ export class CampaignWizardPanel {
 		});
 
 		const removeBtn = card.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Remove character", type: "button" },
 		});
 		setIcon(removeBtn, "x");
@@ -435,11 +435,11 @@ export class CampaignWizardPanel {
 
 	private renderStepDone(container: HTMLElement): void {
 		container.createEl("h3", { text: "Ready when you are" });
-		const summary = container.createDiv({ cls: "lazy-campaign-wizard-summary" });
+		const summary = container.createDiv({ cls: "strong-start-wizard-summary" });
 
 		const name = this.name.trim();
 		summary.createEl("p", {
-			cls: name.length === 0 ? "lazy-campaign-wizard-error" : undefined,
+			cls: name.length === 0 ? "strong-start-wizard-error" : undefined,
 			text: name.length > 0 ? name : "No name yet — give it one on the first step before creating.",
 		});
 
@@ -464,7 +464,7 @@ export class CampaignWizardPanel {
 		}
 
 		if (pitch.length === 0 && truths.length === 0 && fronts.length === 0 && party.length === 0) {
-			summary.createEl("p", { cls: "lazy-campaign-hint", text: "Just a name — you can fill in the rest later on the foundation tab." });
+			summary.createEl("p", { cls: "strong-start-hint", text: "Just a name — you can fill in the rest later on the foundation tab." });
 		}
 	}
 

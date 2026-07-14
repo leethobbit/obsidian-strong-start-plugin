@@ -148,11 +148,11 @@ export class SessionZeroPanel {
 		container.empty();
 
 		const fm = this.fm ?? emptyFm(campaign);
-		const shell = container.createDiv({ cls: "lazy-campaign-session-zero-shell" });
+		const shell = container.createDiv({ cls: "strong-start-session-zero-shell" });
 
 		const total = SESSION_ZERO_CHECKLIST.length;
 		const done = fm.done.filter((id) => SESSION_ZERO_CHECKLIST.some((item) => item.id === id)).length;
-		shell.createDiv({ cls: "lazy-campaign-session-zero-progress", text: `${done} of ${total} done` });
+		shell.createDiv({ cls: "strong-start-session-zero-progress", text: `${done} of ${total} done` });
 
 		this.renderPitchSection(shell, campaign, fm);
 		this.renderSafetySection(shell, campaign, fm);
@@ -180,7 +180,7 @@ export class SessionZeroPanel {
 	private renderPitchSection(shell: HTMLElement, campaign: CampaignModel, fm: SessionZeroFm): void {
 		renderCollapsibleSection(shell, this.view, this.sectionState, "pitch", "Pitch & expectations", (body) => {
 			const pitch = sectionContent(this.pitchBody, PITCH_HEADING);
-			const pitchEl = body.createDiv({ cls: "lazy-campaign-session-zero-pitch-prose" });
+			const pitchEl = body.createDiv({ cls: "strong-start-session-zero-pitch-prose" });
 			if (pitch.length === 0) {
 				renderEmptyState(pitchEl, "No pitch yet.");
 			} else {
@@ -227,11 +227,11 @@ export class SessionZeroPanel {
 		}
 	): void {
 		const content = sectionContent(this.zeroBody, options.heading);
-		const mount = body.createDiv({ cls: "lazy-campaign-session-zero-section" });
+		const mount = body.createDiv({ cls: "strong-start-session-zero-section" });
 
 		if (options.isEditing()) {
 			const textarea = mount.createEl("textarea", {
-				cls: "lazy-campaign-strong-start-textarea",
+				cls: "strong-start-strong-start-textarea",
 				attr: { rows: "3", "data-key": `session-zero-${options.heading.toLowerCase()}-textarea` },
 			});
 			textarea.value = content;
@@ -251,7 +251,7 @@ export class SessionZeroPanel {
 		}
 
 		const pencil = mount.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": `Edit ${options.heading.toLowerCase()}`, type: "button" },
 		});
 		setIcon(pencil, "pencil");
@@ -264,7 +264,7 @@ export class SessionZeroPanel {
 			renderEmptyState(mount, options.emptyText);
 			return;
 		}
-		const proseEl = mount.createDiv({ cls: "lazy-campaign-session-zero-section-prose" });
+		const proseEl = mount.createDiv({ cls: "strong-start-session-zero-section-prose" });
 		const component = this.view.addChild(new Component());
 		this.mdComponents.push(component);
 		void MarkdownRenderer.render(this.view.app, content, proseEl, this.zeroPath ?? campaign.path, component);
@@ -296,7 +296,7 @@ export class SessionZeroPanel {
 		renderCollapsibleSection(shell, this.view, this.sectionState, "safety", "Safety tools", (body) => {
 			this.renderChecklistGroup(body, campaign, fm, "safety");
 
-			const copyEl = body.createDiv({ cls: "lazy-campaign-session-zero-safety-copy" });
+			const copyEl = body.createDiv({ cls: "strong-start-session-zero-safety-copy" });
 			copyEl.createEl("h4", { text: "Sensitive topics" });
 			copyEl.createEl("p", { text: SAFETY_SENSITIVE_TOPICS_COPY });
 			copyEl.createEl("h4", { text: "Lines & veils" });
@@ -310,7 +310,7 @@ export class SessionZeroPanel {
 			body.createEl("h4", { text: "Veils" });
 			this.renderChipList(body, "veil", fm.veils, (next) => void this.commitZero(campaign, { ...this.currentFm(campaign), veils: next }));
 
-			body.createEl("p", { cls: "lazy-campaign-hint", text: SAFETY_ANONYMOUS_REMINDER });
+			body.createEl("p", { cls: "strong-start-hint", text: SAFETY_ANONYMOUS_REMINDER });
 		});
 	}
 
@@ -324,7 +324,7 @@ export class SessionZeroPanel {
 			if (this.roster.length === 0) {
 				renderEmptyState(body, "No characters yet.");
 			} else {
-				const list = body.createEl("ul", { cls: "lazy-campaign-roster-list" });
+				const list = body.createEl("ul", { cls: "strong-start-roster-list" });
 				for (const pc of this.roster) {
 					const suffix = pc.player ? ` — ${pc.player}` : "";
 					const item = list.createEl("li");
@@ -368,12 +368,12 @@ export class SessionZeroPanel {
 	// ---- Checklist rows -----------------------------------------------------
 
 	private renderChecklistGroup(container: HTMLElement, campaign: CampaignModel, fm: SessionZeroFm, group: SessionZeroGroup): void {
-		const list = container.createDiv({ cls: "lazy-campaign-session-zero-items" });
+		const list = container.createDiv({ cls: "strong-start-session-zero-items" });
 		for (const item of checklistItemsInGroup(group)) {
 			const isDone = fm.done.includes(item.id);
-			const row = list.createDiv({ cls: `lazy-campaign-session-zero-item${isDone ? " is-done" : ""}` });
+			const row = list.createDiv({ cls: `strong-start-session-zero-item${isDone ? " is-done" : ""}` });
 			const checkbox = row.createEl("button", {
-				cls: `lazy-campaign-session-zero-check${isDone ? " is-done" : ""}`,
+				cls: `strong-start-session-zero-check${isDone ? " is-done" : ""}`,
 				attr: {
 					type: "button",
 					"aria-pressed": isDone ? "true" : "false",
@@ -382,9 +382,9 @@ export class SessionZeroPanel {
 			});
 			setIcon(checkbox, isDone ? "check-circle" : "circle");
 
-			const textEl = row.createDiv({ cls: "lazy-campaign-session-zero-item-text" });
-			textEl.createDiv({ cls: "lazy-campaign-session-zero-item-label", text: item.label });
-			textEl.createDiv({ cls: "lazy-campaign-session-zero-item-detail", text: item.detail });
+			const textEl = row.createDiv({ cls: "strong-start-session-zero-item-text" });
+			textEl.createDiv({ cls: "strong-start-session-zero-item-label", text: item.label });
+			textEl.createDiv({ cls: "strong-start-session-zero-item-detail", text: item.detail });
 
 			this.view.registerDomEvent(row, "click", () => void this.toggleDone(campaign, item.id));
 		}
@@ -405,28 +405,28 @@ export class SessionZeroPanel {
 		items: readonly string[],
 		onChange: (next: string[]) => void
 	): void {
-		const chipRow = container.createDiv({ cls: "lazy-campaign-chip-row" });
+		const chipRow = container.createDiv({ cls: "strong-start-chip-row" });
 		if (items.length === 0) {
-			chipRow.createSpan({ cls: "lazy-campaign-empty-state", text: "None yet." });
+			chipRow.createSpan({ cls: "strong-start-empty-state", text: "None yet." });
 		}
 		items.forEach((text, index) => {
 			const chip = chipRow.createDiv({
-				cls: "lazy-campaign-chip",
+				cls: "strong-start-chip",
 				attr: { "data-key": `session-zero-${kind}-chip-${index}` },
 			});
-			chip.createSpan({ cls: "lazy-campaign-chip-label", text });
+			chip.createSpan({ cls: "strong-start-chip-label", text });
 			const removeBtn = chip.createEl("button", {
-				cls: "lazy-campaign-icon-button",
+				cls: "strong-start-icon-button",
 				attr: { "aria-label": "Remove", type: "button" },
 			});
 			setIcon(removeBtn, "x");
 			this.view.registerDomEvent(removeBtn, "click", () => onChange(items.filter((_, i) => i !== index)));
 		});
 
-		const inputRow = container.createDiv({ cls: "lazy-campaign-chip-input-row" });
+		const inputRow = container.createDiv({ cls: "strong-start-chip-input-row" });
 		const input = inputRow.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-chip-input",
+			cls: "strong-start-chip-input",
 			attr: {
 				placeholder: kind === "line" ? "Add a hard line…" : "Add a veil…",
 				"data-key": `session-zero-${kind}-add`,

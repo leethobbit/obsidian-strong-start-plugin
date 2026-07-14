@@ -71,14 +71,14 @@ export class DashboardPanel {
 	private renderSecretsCard(container: HTMLElement, sessions: SessionModel[]): void {
 		const inPlay = openSecrets(sessions).filter((d) => d.state === "in-play");
 
-		const card = container.createDiv({ cls: "lazy-campaign-card" });
-		const heading = card.createEl("h3", { cls: "lazy-campaign-secrets-card-heading", text: "Secrets in play" });
+		const card = container.createDiv({ cls: "strong-start-card" });
+		const heading = card.createEl("h3", { cls: "strong-start-secrets-card-heading", text: "Secrets in play" });
 
 		const staleCount = inPlay.filter((d) => d.sessionsCarried >= STALE_THRESHOLD).length;
 		if (staleCount > 0) {
 			const stale = inPlay.reduce((worst, d) => (d.sessionsCarried > worst.sessionsCarried ? d : worst));
 			const staleIcon = heading.createSpan({
-				cls: "lazy-campaign-secrets-card-stale",
+				cls: "strong-start-secrets-card-stale",
 				attr: { title: `Carried ${stale.sessionsCarried} sessions — retire it or plant it somewhere obvious.` },
 			});
 			setIcon(staleIcon, "hourglass");
@@ -88,13 +88,13 @@ export class DashboardPanel {
 			renderEmptyState(card, "No secrets in play.");
 		} else {
 			card.createEl("p", { text: `${inPlay.length} in play` });
-			const list = card.createEl("ul", { cls: "lazy-campaign-secrets-card-list" });
+			const list = card.createEl("ul", { cls: "strong-start-secrets-card-list" });
 			for (const secret of topSecrets(inPlay)) {
-				list.createEl("li", { cls: "lazy-campaign-secrets-card-item", text: secret.text });
+				list.createEl("li", { cls: "strong-start-secrets-card-item", text: secret.text });
 			}
 		}
 
-		const link = card.createEl("a", { cls: "lazy-campaign-secrets-card-link", text: "All secrets →", attr: { href: "#" } });
+		const link = card.createEl("a", { cls: "strong-start-secrets-card-link", text: "All secrets →", attr: { href: "#" } });
 		this.view.registerDomEvent(link, "click", (evt) => {
 			evt.preventDefault();
 			this.view.setMode("secrets");
@@ -102,7 +102,7 @@ export class DashboardPanel {
 	}
 
 	private renderFrontsCard(container: HTMLElement, campaign: CampaignModel, requestRerender: () => void): void {
-		const card = container.createDiv({ cls: "lazy-campaign-card" });
+		const card = container.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Fronts" });
 
 		if (this.frontsBodyPath !== campaign.path) {
@@ -130,20 +130,20 @@ export class DashboardPanel {
 			return;
 		}
 
-		const list = card.createDiv({ cls: "lazy-campaign-fronts-card-list" });
+		const list = card.createDiv({ cls: "strong-start-fronts-card-list" });
 		fronts.forEach((front, frontIndex) => {
-			const row = list.createDiv({ cls: "lazy-campaign-fronts-card-row" });
-			row.createSpan({ cls: "lazy-campaign-fronts-card-name", text: front.name });
+			const row = list.createDiv({ cls: "strong-start-fronts-card-row" });
+			row.createSpan({ cls: "strong-start-fronts-card-name", text: front.name });
 
 			if (front.portents.length === 0) {
-				row.createSpan({ cls: "lazy-campaign-hint", text: "No grim portents yet" });
+				row.createSpan({ cls: "strong-start-hint", text: "No grim portents yet" });
 				return;
 			}
 
-			const pips = row.createDiv({ cls: "lazy-campaign-fronts-card-pips" });
+			const pips = row.createDiv({ cls: "strong-start-fronts-card-pips" });
 			front.portents.forEach((portent, portentIndex) => {
 				const pip = pips.createEl("button", {
-					cls: `lazy-campaign-fronts-pip${portent.done ? " is-done" : ""}`,
+					cls: `strong-start-fronts-pip${portent.done ? " is-done" : ""}`,
 					attr: { type: "button", "aria-label": portent.text, title: portent.text },
 				});
 				this.view.registerDomEvent(pip, "click", () => this.toggleFront(campaign, frontIndex, portentIndex, requestRerender));
@@ -174,10 +174,10 @@ export class DashboardPanel {
 	}
 
 	private renderNextSessionCard(container: HTMLElement, campaign: CampaignModel, latest: SessionModel | undefined): void {
-		const card = container.createDiv({ cls: "lazy-campaign-card" });
+		const card = container.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: campaign.name });
 
-		const actions = card.createDiv({ cls: "lazy-campaign-card-action" });
+		const actions = card.createDiv({ cls: "strong-start-card-action" });
 
 		if (!latest) {
 			card.createEl("p", { text: "No sessions yet." });
@@ -221,7 +221,7 @@ export class DashboardPanel {
 		const done = zero.done.filter((id) => SESSION_ZERO_CHECKLIST.some((item) => item.id === id)).length;
 		if (done >= total) return;
 
-		const line = container.createDiv({ cls: "lazy-campaign-session-zero-nudge" });
+		const line = container.createDiv({ cls: "strong-start-session-zero-nudge" });
 		const link = line.createEl("a", { text: `Session zero: ${done} of ${total} →`, attr: { href: "#" } });
 		this.view.registerDomEvent(link, "click", (evt) => {
 			evt.preventDefault();
@@ -230,18 +230,18 @@ export class DashboardPanel {
 	}
 
 	private renderProgressDots(card: HTMLElement, session: SessionModel): void {
-		const dots = card.createDiv({ cls: "lazy-campaign-progress-dots" });
+		const dots = card.createDiv({ cls: "strong-start-progress-dots" });
 		for (const step of STEPS) {
 			const done = session.stepsDone.includes(step.id);
 			dots.createSpan({
-				cls: `lazy-campaign-progress-dot${done ? " is-done" : ""}`,
+				cls: `strong-start-progress-dot${done ? " is-done" : ""}`,
 				attr: { "aria-label": step.shortLabel },
 			});
 		}
 	}
 
 	private renderRecentSessions(container: HTMLElement, sessions: SessionModel[]): void {
-		const card = container.createDiv({ cls: "lazy-campaign-card" });
+		const card = container.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Recent sessions" });
 
 		if (sessions.length === 0) {
@@ -249,12 +249,12 @@ export class DashboardPanel {
 			return;
 		}
 
-		const list = card.createEl("ul", { cls: "lazy-campaign-session-list" });
+		const list = card.createEl("ul", { cls: "strong-start-session-list" });
 		for (const session of sessions.slice(0, RECENT_SESSIONS_LIMIT)) {
 			const item = list.createEl("li");
 			const label = session.status === "played" ? "Played" : "In prep";
 			const link = item.createEl("a", {
-				cls: "lazy-campaign-session-link",
+				cls: "strong-start-session-link",
 				text: `Session ${session.session} — ${label}`,
 				attr: { href: "#" },
 			});

@@ -40,7 +40,7 @@ export function renderMonstersStep(container: HTMLElement, ctx: StepContext): vo
 	const pcs = ctx.plugin.store?.pcsOf(ctx.campaign.path) ?? [];
 	renderBenchmarkCard(container, { owner: ctx, pcs });
 
-	const buildRow = container.createDiv({ cls: "lazy-campaign-monster-build-row" });
+	const buildRow = container.createDiv({ cls: "strong-start-monster-build-row" });
 	const buildBtn = buildRow.createEl("button", { text: "Build a monster" });
 	ctx.registerDomEvent(buildBtn, "click", () => {
 		void openMonsterBuilder(ctx.app, {
@@ -57,7 +57,7 @@ export function renderMonstersStep(container: HTMLElement, ctx: StepContext): vo
 	const monsters = ctx.plugin.store?.monstersOf(ctx.campaign.path) ?? [];
 	if (monsters.length > 0) {
 		buildRow.createEl("span", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: `${monsters.length} built: ${monsters.map((monster) => `${monster.name} (CR ${crLabel(monster.cr)})`).join(", ")}`,
 		});
 	}

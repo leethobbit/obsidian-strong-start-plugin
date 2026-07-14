@@ -125,9 +125,9 @@ export class GlancePane {
 			return;
 		}
 
-		const list = body.createEl("ul", { cls: "lazy-campaign-run-glance-list" });
+		const list = body.createEl("ul", { cls: "strong-start-run-glance-list" });
 		for (const raw of items) {
-			const item = list.createEl("li", { cls: "lazy-campaign-run-glance-item" });
+			const item = list.createEl("li", { cls: "strong-start-run-glance-item" });
 
 			if (isWikilink(raw)) {
 				const name = displayText(raw);
@@ -135,7 +135,7 @@ export class GlancePane {
 				if (dest) {
 					this.renderGlanceLink(item, name, dest.path);
 					const role = roleForFile(this.view.app, dest);
-					if (role) item.createSpan({ cls: "lazy-campaign-run-glance-role", text: ` — ${role}` });
+					if (role) item.createSpan({ cls: "strong-start-run-glance-role", text: ` — ${role}` });
 				} else {
 					item.createSpan({ text: name });
 				}
@@ -153,9 +153,9 @@ export class GlancePane {
 			renderEmptyState(body, "None yet.");
 			return;
 		}
-		const list = body.createEl("ul", { cls: "lazy-campaign-run-glance-list" });
+		const list = body.createEl("ul", { cls: "strong-start-run-glance-list" });
 		for (const row of rows) {
-			const item = list.createEl("li", { cls: "lazy-campaign-run-glance-item" });
+			const item = list.createEl("li", { cls: "strong-start-run-glance-item" });
 			for (const token of tokenizeWikilinks(row)) {
 				const dest =
 					token.kind === "link" && token.target
@@ -168,7 +168,7 @@ export class GlancePane {
 	}
 
 	private renderGlanceLink(item: HTMLElement, name: string, path: string): void {
-		const link = item.createEl("a", { cls: "lazy-campaign-run-glance-link", text: name, attr: { href: "#" } });
+		const link = item.createEl("a", { cls: "strong-start-run-glance-link", text: name, attr: { href: "#" } });
 		this.view.registerDomEvent(link, "click", (evt) => {
 			evt.preventDefault();
 			this.openDetail(path);
@@ -190,20 +190,20 @@ export class GlancePane {
 		const lazy = asLazy(app.metadataCache.getFileCache(file)?.frontmatter);
 		const type = typeof lazy?.type === "string" ? lazy.type : null;
 
-		const header = container.createDiv({ cls: "lazy-campaign-run-entity-header" });
+		const header = container.createDiv({ cls: "strong-start-run-entity-header" });
 		const backBtn = header.createEl("button", {
-			cls: "lazy-campaign-run-icon-button",
+			cls: "strong-start-run-icon-button",
 			attr: { "aria-label": "Back to session lists", type: "button" },
 		});
 		setIcon(backBtn, "arrow-left");
 		this.view.registerDomEvent(backBtn, "click", () => this.backToLists());
 
-		header.createDiv({ cls: "lazy-campaign-run-entity-title", text: file.basename });
+		header.createDiv({ cls: "strong-start-run-entity-title", text: file.basename });
 
 		const campaign = this.campaign;
 		if (campaign && type && EDITABLE_KINDS.has(type)) {
 			const editBtn = header.createEl("button", {
-				cls: "lazy-campaign-run-icon-button",
+				cls: "strong-start-run-icon-button",
 				attr: { "aria-label": `Edit ${file.basename}`, type: "button" },
 			});
 			setIcon(editBtn, "pencil");
@@ -213,7 +213,7 @@ export class GlancePane {
 		}
 
 		const openBtn = header.createEl("button", {
-			cls: "lazy-campaign-run-icon-button",
+			cls: "strong-start-run-icon-button",
 			attr: { "aria-label": "Open note", type: "button" },
 		});
 		setIcon(openBtn, "file-text");
@@ -239,10 +239,10 @@ export class GlancePane {
 		}
 
 		if (fields.length > 0) {
-			const grid = container.createDiv({ cls: "lazy-campaign-run-entity-fields" });
+			const grid = container.createDiv({ cls: "strong-start-run-entity-fields" });
 			for (const field of fields) {
-				grid.createDiv({ cls: "lazy-campaign-run-entity-field-label", text: field.label });
-				grid.createDiv({ cls: "lazy-campaign-run-entity-field-value", text: field.value });
+				grid.createDiv({ cls: "strong-start-run-entity-field-label", text: field.label });
+				grid.createDiv({ cls: "strong-start-run-entity-field-value", text: field.value });
 			}
 		}
 
@@ -252,7 +252,7 @@ export class GlancePane {
 			return;
 		}
 		if (trimmed.length > 0) {
-			const bodyEl = container.createDiv({ cls: "lazy-campaign-run-entity-body" });
+			const bodyEl = container.createDiv({ cls: "strong-start-run-entity-body" });
 			const component = this.view.addChild(new Component());
 			this.mdBucket.push(component);
 			await MarkdownRenderer.render(app, trimmed, bodyEl, path, component);

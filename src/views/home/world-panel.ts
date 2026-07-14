@@ -55,7 +55,7 @@ export class WorldPanel {
 
 		const store = plugin.store;
 		if (!store) return;
-		const shell = containerEl.createDiv({ cls: "lazy-campaign-world-shell" });
+		const shell = containerEl.createDiv({ cls: "strong-start-world-shell" });
 
 		const pcs = store.pcsOf(campaign.path);
 		this.renderGroup(shell, campaign, "pc", `Party (${pcs.length})`, "New character",
@@ -121,13 +121,13 @@ export class WorldPanel {
 			if (rows.length === 0) {
 				renderEmptyState(body, emptyText);
 			} else {
-				const list = body.createDiv({ cls: "lazy-campaign-world-list" });
+				const list = body.createDiv({ cls: "strong-start-world-list" });
 				for (const row of rows) {
 					this.renderRow(list, campaign, kind, row, quests?.find((q) => q.path === row.path));
 				}
 			}
 
-			const newBtn = body.createEl("button", { cls: "lazy-campaign-world-new", text: newLabel });
+			const newBtn = body.createEl("button", { cls: "strong-start-world-new", text: newLabel });
 			this.view.registerDomEvent(newBtn, "click", () => this.openEditor(campaign, kind));
 		});
 	}
@@ -148,12 +148,12 @@ export class WorldPanel {
 	}
 
 	private renderRow(list: HTMLElement, campaign: CampaignModel, kind: WorldKind, row: WorldRow, quest?: QuestNoteModel): void {
-		const rowEl = list.createDiv({ cls: "lazy-campaign-world-row" });
+		const rowEl = list.createDiv({ cls: "strong-start-world-row" });
 
 		// Quests get a one-tap done toggle where other kinds show nothing.
 		if (quest) {
 			const toggle = rowEl.createEl("button", {
-				cls: `lazy-campaign-world-quest-toggle${quest.status === "done" ? " is-done" : ""}`,
+				cls: `strong-start-world-quest-toggle${quest.status === "done" ? " is-done" : ""}`,
 				attr: { type: "button", "aria-label": quest.status === "done" ? "Reopen quest" : "Mark quest done" },
 			});
 			setIcon(toggle, quest.status === "done" ? "check-circle" : "circle");
@@ -163,18 +163,18 @@ export class WorldPanel {
 			});
 		}
 
-		const title = rowEl.createDiv({ cls: "lazy-campaign-world-row-title" });
-		title.createSpan({ cls: "lazy-campaign-world-row-name", text: row.name });
-		if (row.meta.length > 0) title.createSpan({ cls: "lazy-campaign-world-row-meta", text: ` — ${row.meta}` });
+		const title = rowEl.createDiv({ cls: "strong-start-world-row-title" });
+		title.createSpan({ cls: "strong-start-world-row-name", text: row.name });
+		if (row.meta.length > 0) title.createSpan({ cls: "strong-start-world-row-meta", text: ` — ${row.meta}` });
 		if (quest?.status === "done") rowEl.addClass("is-quest-done");
 
 		const editBtn = rowEl.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": `Edit ${row.name}`, type: "button" },
 		});
 		setIcon(editBtn, "pencil");
 		const openBtn = rowEl.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": `Open ${row.name} note`, type: "button" },
 		});
 		setIcon(openBtn, "file-text");

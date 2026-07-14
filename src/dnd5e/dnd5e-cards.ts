@@ -56,10 +56,10 @@ export function renderBenchmarkCard(container: HTMLElement, options: BenchmarkCa
 		leveledPcs.length > 0 ? Math.round(leveledPcs.reduce((sum, pc) => sum + (levelOf(pc) ?? 0), 0) / leveledPcs.length) : 3;
 	let usingManual = leveledPcs.length === 0;
 
-	const card = container.createDiv({ cls: "lazy-campaign-dnd5e-benchmark-card" });
-	const summaryEl = card.createDiv({ cls: "lazy-campaign-dnd5e-benchmark-summary" });
-	const readoutEl = card.createDiv({ cls: "lazy-campaign-dnd5e-benchmark-readout" });
-	const manualRow = card.createDiv({ cls: "lazy-campaign-dnd5e-benchmark-manual" });
+	const card = container.createDiv({ cls: "strong-start-dnd5e-benchmark-card" });
+	const summaryEl = card.createDiv({ cls: "strong-start-dnd5e-benchmark-summary" });
+	const readoutEl = card.createDiv({ cls: "strong-start-dnd5e-benchmark-readout" });
+	const manualRow = card.createDiv({ cls: "strong-start-dnd5e-benchmark-manual" });
 
 	function effectivePartyLevels(): number[] {
 		if (!usingManual && leveledPcs.length > 0) {
@@ -100,7 +100,7 @@ export function renderBenchmarkCard(container: HTMLElement, options: BenchmarkCa
 		if (leveledPcs.length > 0) {
 			manualRow.createEl("h4", { text: "Manual override" });
 			const hint = manualRow.createEl("p", {
-				cls: "lazy-campaign-hint",
+				cls: "strong-start-hint",
 				text: "For a quick what-if — switches away from the party's own levels as soon as you touch a stepper.",
 			});
 			if (usingManual) {
@@ -115,7 +115,7 @@ export function renderBenchmarkCard(container: HTMLElement, options: BenchmarkCa
 			manualRow.createEl("h4", { text: "Manual party" });
 		}
 
-		const sizeRow = manualRow.createDiv({ cls: "lazy-campaign-dnd5e-benchmark-manual-row" });
+		const sizeRow = manualRow.createDiv({ cls: "strong-start-dnd5e-benchmark-manual-row" });
 		sizeRow.createSpan({ text: "Party size" });
 		renderStepper(sizeRow, options.owner, {
 			value: manualSize,
@@ -129,7 +129,7 @@ export function renderBenchmarkCard(container: HTMLElement, options: BenchmarkCa
 			},
 		});
 
-		const levelRow = manualRow.createDiv({ cls: "lazy-campaign-dnd5e-benchmark-manual-row" });
+		const levelRow = manualRow.createDiv({ cls: "strong-start-dnd5e-benchmark-manual-row" });
 		levelRow.createSpan({ text: "Level" });
 		renderStepper(levelRow, options.owner, {
 			value: manualLevel,
@@ -158,18 +158,18 @@ export function renderBenchmarkCard(container: HTMLElement, options: BenchmarkCa
  * bookend hints either side, since neither is a DC number to compare against. */
 export function renderImprovisedDcSection(container: HTMLElement): void {
 	const trivial = IMPROVISED_DC_BANDS.find((b) => b.dc === null);
-	if (trivial) container.createEl("p", { cls: "lazy-campaign-hint", text: trivial.description });
+	if (trivial) container.createEl("p", { cls: "strong-start-hint", text: trivial.description });
 
-	const row = container.createDiv({ cls: "lazy-campaign-dnd5e-dc-row" });
+	const row = container.createDiv({ cls: "strong-start-dnd5e-dc-row" });
 	for (const band of IMPROVISED_DC_BANDS) {
 		if (band.dc === null) continue;
-		const cell = row.createDiv({ cls: "lazy-campaign-dnd5e-dc-band" });
-		cell.createDiv({ cls: "lazy-campaign-dnd5e-dc-value", text: `DC ${band.dc}` });
-		cell.createDiv({ cls: "lazy-campaign-dnd5e-dc-name", text: band.name });
+		const cell = row.createDiv({ cls: "strong-start-dnd5e-dc-band" });
+		cell.createDiv({ cls: "strong-start-dnd5e-dc-value", text: `DC ${band.dc}` });
+		cell.createDiv({ cls: "strong-start-dnd5e-dc-name", text: band.name });
 	}
 
 	container.createEl("p", {
-		cls: "lazy-campaign-hint",
+		cls: "strong-start-hint",
 		text: "Reserve DCs above 20 for superhuman challenges.",
 	});
 }
@@ -177,7 +177,7 @@ export function renderImprovisedDcSection(container: HTMLElement): void {
 /** Improvised damage (doc: "Improvised Damage") — single-target and
  * multi-target average damage across the CR 1-20 range, as a small table. */
 export function renderImprovisedDamageTable(container: HTMLElement): void {
-	const table = container.createEl("table", { cls: "lazy-campaign-dnd5e-table" });
+	const table = container.createEl("table", { cls: "strong-start-dnd5e-table" });
 	const head = table.createEl("thead").createEl("tr");
 	head.createEl("th", { text: "CR" });
 	head.createEl("th", { text: "Single-target" });
@@ -200,12 +200,12 @@ export function renderImprovisedDamageTable(container: HTMLElement): void {
  * slice by default with an "All CRs" toggle.
  */
 export function renderMonsterStatsByCrTable(container: HTMLElement, owner: DomEventOwner): void {
-	const wrap = container.createDiv({ cls: "lazy-campaign-dnd5e-table-scroll" });
+	const wrap = container.createDiv({ cls: "strong-start-dnd5e-table-scroll" });
 	let expanded = false;
 
 	const renderTable = (): void => {
 		wrap.empty();
-		const table = wrap.createEl("table", { cls: "lazy-campaign-dnd5e-table" });
+		const table = wrap.createEl("table", { cls: "strong-start-dnd5e-table" });
 		const head = table.createEl("thead").createEl("tr");
 		for (const label of ["CR", "AC/DC", "HP", "Attack", "Attacks", "Damage"]) head.createEl("th", { text: label });
 
@@ -222,7 +222,7 @@ export function renderMonsterStatsByCrTable(container: HTMLElement, owner: DomEv
 		}
 
 		const toggle = wrap.createEl("a", {
-			cls: "lazy-campaign-dnd5e-table-toggle",
+			cls: "strong-start-dnd5e-table-toggle",
 			text: expanded ? "Fewer CRs" : "All CRs",
 			attr: { href: "#" },
 		});
@@ -240,10 +240,10 @@ export function renderMonsterStatsByCrTable(container: HTMLElement, owner: DomEv
  * text filter over boss names and environments. */
 export function renderBossMinionTable(container: HTMLElement, owner: DomEventOwner): void {
 	const filterInput = container.createEl("input", {
-		cls: "lazy-campaign-dnd5e-table-filter",
+		cls: "strong-start-dnd5e-table-filter",
 		attr: { type: "search", placeholder: "Filter by boss or environment…" },
 	});
-	const wrap = container.createDiv({ cls: "lazy-campaign-dnd5e-table-scroll" });
+	const wrap = container.createDiv({ cls: "strong-start-dnd5e-table-scroll" });
 
 	const renderRows = (): void => {
 		wrap.empty();
@@ -258,7 +258,7 @@ export function renderBossMinionTable(container: HTMLElement, owner: DomEventOwn
 			renderEmptyState(wrap, "No bosses match that filter.");
 			return;
 		}
-		const table = wrap.createEl("table", { cls: "lazy-campaign-dnd5e-table" });
+		const table = wrap.createEl("table", { cls: "strong-start-dnd5e-table" });
 		const head = table.createEl("thead").createEl("tr");
 		for (const label of ["CR", "Boss", "Environments", "Minions"]) head.createEl("th", { text: label });
 		const body = table.createEl("tbody");
@@ -278,16 +278,16 @@ export function renderBossMinionTable(container: HTMLElement, owner: DomEventOwn
 /** Monsters by adventure location (Monster Builder RD) — one location at a
  * time behind a select, each row a level band + example encounter. */
 export function renderLocationMonstersSection(container: HTMLElement, owner: DomEventOwner): void {
-	const select = container.createEl("select", { cls: "dropdown lazy-campaign-dnd5e-location-select" });
+	const select = container.createEl("select", { cls: "dropdown strong-start-dnd5e-location-select" });
 	for (const table of MONSTERS_BY_LOCATION) {
 		select.createEl("option", { text: table.name, attr: { value: table.id } });
 	}
-	const wrap = container.createDiv({ cls: "lazy-campaign-dnd5e-table-scroll" });
+	const wrap = container.createDiv({ cls: "strong-start-dnd5e-table-scroll" });
 
 	const renderRows = (): void => {
 		wrap.empty();
 		const location = MONSTERS_BY_LOCATION.find((table) => table.id === select.value) ?? MONSTERS_BY_LOCATION[0];
-		const table = wrap.createEl("table", { cls: "lazy-campaign-dnd5e-table" });
+		const table = wrap.createEl("table", { cls: "strong-start-dnd5e-table" });
 		const head = table.createEl("thead").createEl("tr");
 		for (const label of ["Levels", "Example encounter"]) head.createEl("th", { text: label });
 		const body = table.createEl("tbody");
@@ -305,11 +305,11 @@ export function renderLocationMonstersSection(container: HTMLElement, owner: Dom
 /** Monster difficulty dials (doc: "Monster Difficulty Dials") — a plain
  * name + one-line description list. */
 export function renderDifficultyDialsList(container: HTMLElement): void {
-	const list = container.createDiv({ cls: "lazy-campaign-dnd5e-dials-list" });
+	const list = container.createDiv({ cls: "strong-start-dnd5e-dials-list" });
 	for (const dial of MONSTER_DIFFICULTY_DIALS) {
-		const item = list.createDiv({ cls: "lazy-campaign-dnd5e-dial" });
-		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: dial.name });
-		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: dial.description });
+		const item = list.createDiv({ cls: "strong-start-dnd5e-dial" });
+		item.createDiv({ cls: "strong-start-dnd5e-dial-name", text: dial.name });
+		item.createDiv({ cls: "strong-start-dnd5e-dial-desc", text: dial.description });
 	}
 }
 
@@ -318,20 +318,20 @@ export function renderDifficultyDialsList(container: HTMLElement): void {
  * Reference prose, not tables (the doc section is procedure-shaped), reusing
  * the dials' name+description list styling. */
 export function renderWildernessTravelSection(container: HTMLElement): void {
-	container.createEl("p", { cls: "lazy-campaign-hint", text: TRAVEL_DEFAULT_DC });
+	container.createEl("p", { cls: "strong-start-hint", text: TRAVEL_DEFAULT_DC });
 
-	const roles = container.createDiv({ cls: "lazy-campaign-dnd5e-dials-list" });
+	const roles = container.createDiv({ cls: "strong-start-dnd5e-dials-list" });
 	for (const role of TRAVEL_ROLES) {
-		const item = roles.createDiv({ cls: "lazy-campaign-dnd5e-dial" });
-		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: `${role.name} — ${role.skills}` });
-		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: role.summary });
+		const item = roles.createDiv({ cls: "strong-start-dnd5e-dial" });
+		item.createDiv({ cls: "strong-start-dnd5e-dial-name", text: `${role.name} — ${role.skills}` });
+		item.createDiv({ cls: "strong-start-dnd5e-dial-desc", text: role.summary });
 	}
 
-	const extras = container.createDiv({ cls: "lazy-campaign-dnd5e-dials-list" });
+	const extras = container.createDiv({ cls: "strong-start-dnd5e-dials-list" });
 	for (const rule of [...TRAVEL_EXTRA_RULES, ...TRAVEL_FRAMEWORK]) {
-		const item = extras.createDiv({ cls: "lazy-campaign-dnd5e-dial" });
-		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: rule.name });
-		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: rule.text });
+		const item = extras.createDiv({ cls: "strong-start-dnd5e-dial" });
+		item.createDiv({ cls: "strong-start-dnd5e-dial-name", text: rule.name });
+		item.createDiv({ cls: "strong-start-dnd5e-dial-desc", text: rule.text });
 	}
 }
 
@@ -340,14 +340,14 @@ export function renderWildernessTravelSection(container: HTMLElement): void {
  * purpose: the source conditions these rules on player permission and
  * session-zero review. */
 export function renderStressEffectsSection(container: HTMLElement): void {
-	const list = container.createDiv({ cls: "lazy-campaign-dnd5e-dials-list" });
+	const list = container.createDiv({ cls: "strong-start-dnd5e-dials-list" });
 	for (const rule of STRESS_PROCEDURE) {
-		const item = list.createDiv({ cls: "lazy-campaign-dnd5e-dial" });
-		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-name", text: rule.name });
-		item.createDiv({ cls: "lazy-campaign-dnd5e-dial-desc", text: rule.text });
+		const item = list.createDiv({ cls: "strong-start-dnd5e-dial" });
+		item.createDiv({ cls: "strong-start-dnd5e-dial-name", text: rule.name });
+		item.createDiv({ cls: "strong-start-dnd5e-dial-desc", text: rule.text });
 	}
 	container.createEl("p", {
-		cls: "lazy-campaign-hint",
+		cls: "strong-start-hint",
 		text: "Roll triggering situations and effects from the stress tables in the tables panel.",
 	});
 }

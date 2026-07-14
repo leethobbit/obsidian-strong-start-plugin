@@ -250,10 +250,10 @@ export class RunPanel {
 		this.scenesMalformed = scenesParsed.malformed;
 		this.sceneRows = scenesParsed.rows.map((row) => ({ ...row }));
 
-		const shell = this.containerEl.createDiv({ cls: `lazy-campaign-run-shell is-text-${this.textSize}` });
+		const shell = this.containerEl.createDiv({ cls: `strong-start-run-shell is-text-${this.textSize}` });
 		this.shellEl = shell;
 
-		const topBar = shell.createDiv({ cls: "lazy-campaign-run-topbar" });
+		const topBar = shell.createDiv({ cls: "strong-start-run-topbar" });
 		this.renderTopBar(topBar, session, campaign);
 
 		// One dismissible line, then never again — run mode stays distraction-
@@ -266,13 +266,13 @@ export class RunPanel {
 			"Secrets stay face-down while players can see your screen — tap one to peek, then mark it revealed."
 		);
 
-		const board = shell.createDiv({ cls: "lazy-campaign-run-board" });
-		const mainCol = board.createDiv({ cls: "lazy-campaign-run-main" });
-		const glanceCol = board.createDiv({ cls: "lazy-campaign-run-glance" });
+		const board = shell.createDiv({ cls: "strong-start-run-board" });
+		const mainCol = board.createDiv({ cls: "strong-start-run-main" });
+		const glanceCol = board.createDiv({ cls: "strong-start-run-glance" });
 
-		const strongStartSection = mainCol.createDiv({ cls: "lazy-campaign-run-section lazy-campaign-run-strong-start" });
-		strongStartSection.createDiv({ cls: "lazy-campaign-run-section-label", text: "Strong start" });
-		const strongStartBody = strongStartSection.createDiv({ cls: "lazy-campaign-run-strong-start-body" });
+		const strongStartSection = mainCol.createDiv({ cls: "strong-start-run-section strong-start-run-strong-start" });
+		strongStartSection.createDiv({ cls: "strong-start-run-section-label", text: "Strong start" });
+		const strongStartBody = strongStartSection.createDiv({ cls: "strong-start-run-strong-start-body" });
 		void this.renderStrongStart(strongStartBody, session);
 
 		// Scenes and Secrets are collapsible (run-screen redesign: they were
@@ -281,14 +281,14 @@ export class RunPanel {
 		// re-renders keep pointing at live elements.
 		const state = this.sectionStateFor(session.path);
 
-		const scenesSection = mainCol.createDiv({ cls: "lazy-campaign-run-section" });
+		const scenesSection = mainCol.createDiv({ cls: "strong-start-run-section" });
 		renderCollapsibleSection(scenesSection, this.view, state, "scenes", "Scenes", (body) => {
-			this.scenesListEl = body.createDiv({ cls: "lazy-campaign-run-scene-list" });
+			this.scenesListEl = body.createDiv({ cls: "strong-start-run-scene-list" });
 			this.renderScenes();
 		});
 
 		const secretCount = session.secrets.filter((s) => !s.archived).length;
-		const secretsSection = mainCol.createDiv({ cls: "lazy-campaign-run-section" });
+		const secretsSection = mainCol.createDiv({ cls: "strong-start-run-section" });
 		renderCollapsibleSection(
 			secretsSection,
 			this.view,
@@ -296,7 +296,7 @@ export class RunPanel {
 			"secrets",
 			secretCount > 0 ? `Secrets (${secretCount})` : "Secrets",
 			(body) => {
-				this.secretsListEl = body.createDiv({ cls: "lazy-campaign-run-secret-list" });
+				this.secretsListEl = body.createDiv({ cls: "strong-start-run-secret-list" });
 				this.renderSecrets();
 			}
 		);
@@ -333,25 +333,25 @@ export class RunPanel {
 		// Two spans, not one string: the campaign half is CSS-hidden on phones
 		// (the header directly above already names the campaign), so the top
 		// bar keeps a readable "Session N" instead of truncating to nothing.
-		const sessionLabel = container.createDiv({ cls: "lazy-campaign-run-session-label" });
+		const sessionLabel = container.createDiv({ cls: "strong-start-run-session-label" });
 		sessionLabel.createSpan({ text: `Session ${session.session}` });
 		sessionLabel.createSpan({
-			cls: "lazy-campaign-run-session-campaign",
+			cls: "strong-start-run-session-campaign",
 			text: ` · ${campaign.name}`,
 		});
 
-		this.timerEl = container.createDiv({ cls: "lazy-campaign-run-timer" });
+		this.timerEl = container.createDiv({ cls: "strong-start-run-timer" });
 
-		const diceAnchor = container.createDiv({ cls: "lazy-campaign-run-popover-anchor" });
+		const diceAnchor = container.createDiv({ cls: "strong-start-run-popover-anchor" });
 		const diceBtn = diceAnchor.createEl("button", {
-			cls: "lazy-campaign-run-icon-button",
+			cls: "strong-start-run-icon-button",
 			attr: { "aria-label": "Roll d20", type: "button" },
 		});
 		setIcon(diceBtn, "dices");
 		this.view.registerDomEvent(diceBtn, "click", () => this.rollD20Toast());
 
 		const chevronBtn = diceAnchor.createEl("button", {
-			cls: "lazy-campaign-run-icon-button lazy-campaign-run-chevron",
+			cls: "strong-start-run-icon-button strong-start-run-chevron",
 			attr: { "aria-label": "More roll options", type: "button" },
 		});
 		setIcon(chevronBtn, "chevron-down");
@@ -360,7 +360,7 @@ export class RunPanel {
 		);
 
 		const safetyBtn = container.createEl("button", {
-			cls: "lazy-campaign-run-icon-button",
+			cls: "strong-start-run-icon-button",
 			attr: { "aria-label": "Safety tools", type: "button" },
 		});
 		setIcon(safetyBtn, "shield");
@@ -369,7 +369,7 @@ export class RunPanel {
 		// 5e module (docs/plan.md M10) — zero UI when the feature is off.
 		if (featureEnabled(this.view.plugin.settings, "dnd5e")) {
 			const dnd5eBtn = container.createEl("button", {
-				cls: "lazy-campaign-run-icon-button",
+				cls: "strong-start-run-icon-button",
 				attr: { "aria-label": "5e reference", type: "button" },
 			});
 			setIcon(dnd5eBtn, "swords");
@@ -383,7 +383,7 @@ export class RunPanel {
 		}
 
 		const endBtn = container.createEl("button", {
-			cls: "mod-warning lazy-campaign-run-end-button",
+			cls: "mod-warning strong-start-run-end-button",
 			text: "End session",
 		});
 		// Read `this.session` at click time — the top bar isn't rebuilt on the
@@ -393,9 +393,9 @@ export class RunPanel {
 			if (this.session) this.openEndSessionModal(this.session);
 		});
 
-		const overflowAnchor = container.createDiv({ cls: "lazy-campaign-run-popover-anchor" });
+		const overflowAnchor = container.createDiv({ cls: "strong-start-run-popover-anchor" });
 		const overflowBtn = overflowAnchor.createEl("button", {
-			cls: "lazy-campaign-run-icon-button",
+			cls: "strong-start-run-icon-button",
 			attr: { "aria-label": "More options", type: "button" },
 		});
 		setIcon(overflowBtn, "ellipsis");
@@ -418,7 +418,7 @@ export class RunPanel {
 			return;
 		}
 		this.closePopover();
-		const popoverEl = anchorEl.createDiv({ cls: "lazy-campaign-run-popover" });
+		const popoverEl = anchorEl.createDiv({ cls: "strong-start-run-popover" });
 		build(popoverEl);
 		this.activePopover = { anchorEl, popoverEl };
 	}
@@ -482,15 +482,15 @@ export class RunPanel {
 
 	private buildOverflowPopover(el: HTMLElement): void {
 		el.empty();
-		const row = el.createDiv({ cls: "lazy-campaign-run-textsize-row" });
+		const row = el.createDiv({ cls: "strong-start-run-textsize-row" });
 		row.createSpan({ text: "Text size" });
 		const minusBtn = row.createEl("button", {
-			cls: "lazy-campaign-run-icon-button",
+			cls: "strong-start-run-icon-button",
 			text: "A−",
 			attr: { "aria-label": "Smaller text", type: "button" },
 		});
 		const plusBtn = row.createEl("button", {
-			cls: "lazy-campaign-run-icon-button",
+			cls: "strong-start-run-icon-button",
 			text: "A+",
 			attr: { "aria-label": "Larger text", type: "button" },
 		});
@@ -530,11 +530,11 @@ export class RunPanel {
 
 	private showDiceToast(display: string, options?: { nat20?: boolean; nat1?: boolean; detail?: string }): void {
 		if (!this.shellEl) return;
-		const toast = this.shellEl.createDiv({ cls: "lazy-campaign-run-dice-toast" });
+		const toast = this.shellEl.createDiv({ cls: "strong-start-run-dice-toast" });
 		if (options?.nat20) toast.addClass("is-nat20");
 		if (options?.nat1) toast.addClass("is-nat1");
-		toast.createDiv({ cls: "lazy-campaign-run-dice-toast-total", text: display });
-		if (options?.detail) toast.createDiv({ cls: "lazy-campaign-run-dice-toast-detail", text: options.detail });
+		toast.createDiv({ cls: "strong-start-run-dice-toast-total", text: display });
+		if (options?.detail) toast.createDiv({ cls: "strong-start-run-dice-toast-detail", text: options.detail });
 
 		// setTimeout handles get their own clearTimeout teardown —
 		// registerInterval's contract is for setInterval handles.
@@ -571,7 +571,7 @@ export class RunPanel {
 		container.empty();
 
 		if (this.scenesMalformed) {
-			const banner = container.createDiv({ cls: "lazy-campaign-malformed-banner" });
+			const banner = container.createDiv({ cls: "strong-start-malformed-banner" });
 			banner.createSpan({ text: "Scenes were edited outside the board — open the note to fix formatting." });
 			const openBtn = banner.createEl("button", { text: "Open note" });
 			this.view.registerDomEvent(openBtn, "click", () => void this.openInNewLeaf(this.session?.path));
@@ -590,14 +590,14 @@ export class RunPanel {
 			// A row wrapper, not one big <button> — the detail chevron is its
 			// own button, and nesting buttons is invalid HTML that breaks tap
 			// handling on mobile.
-			const wrap = container.createDiv({ cls: `lazy-campaign-run-scene-row${row.done ? " is-done" : ""}` });
+			const wrap = container.createDiv({ cls: `strong-start-run-scene-row${row.done ? " is-done" : ""}` });
 			const toggle = wrap.createEl("button", {
-				cls: "lazy-campaign-run-scene-toggle",
+				cls: "strong-start-run-scene-toggle",
 				attr: { type: "button", "aria-pressed": row.done ? "true" : "false" },
 			});
-			const icon = toggle.createSpan({ cls: "lazy-campaign-run-scene-check" });
+			const icon = toggle.createSpan({ cls: "strong-start-run-scene-check" });
 			setIcon(icon, row.done ? "check-circle" : "circle");
-			toggle.createSpan({ cls: "lazy-campaign-run-scene-text", text: row.text });
+			toggle.createSpan({ cls: "strong-start-run-scene-text", text: row.text });
 			this.view.registerDomEvent(toggle, "click", () => void this.toggleScene(index));
 
 			const detail = row.detail;
@@ -605,7 +605,7 @@ export class RunPanel {
 
 			const expanded = this.expandedScenes.has(row.text);
 			const expandBtn = wrap.createEl("button", {
-				cls: "lazy-campaign-run-scene-expand",
+				cls: "strong-start-run-scene-expand",
 				attr: {
 					type: "button",
 					"aria-label": expanded ? "Hide scene detail" : "Show scene detail",
@@ -619,7 +619,7 @@ export class RunPanel {
 			});
 
 			if (expanded) {
-				const detailEl = container.createDiv({ cls: "lazy-campaign-run-scene-detail" });
+				const detailEl = container.createDiv({ cls: "strong-start-run-scene-detail" });
 				const component = this.view.addChild(new Component());
 				this.sceneMdBucket.push(component);
 				void MarkdownRenderer.render(this.view.app, detail, detailEl, this.session?.path ?? "", component);
@@ -673,22 +673,22 @@ export class RunPanel {
 		const peeked = this.peekedSecretId === secret.id;
 
 		const card = container.createDiv({
-			cls: `lazy-campaign-run-secret-card${revealed ? " is-revealed" : peeked ? " is-peeked" : " is-hidden"}${
+			cls: `strong-start-run-secret-card${revealed ? " is-revealed" : peeked ? " is-peeked" : " is-hidden"}${
 				this.flipSecretId === secret.id ? " is-flipping" : ""
 			}`,
 			attr: { "data-key": `run-secret-${secret.id}` },
 		});
 
-		const icon = card.createSpan({ cls: "lazy-campaign-run-secret-icon" });
+		const icon = card.createSpan({ cls: "strong-start-run-secret-icon" });
 		setIcon(icon, revealed ? "unlock" : "lock");
 
 		if (revealed || peeked) {
-			card.createDiv({ cls: "lazy-campaign-run-secret-text", text: secret.text });
+			card.createDiv({ cls: "strong-start-run-secret-text", text: secret.text });
 		} else {
 			// One bar, one line — hidden secrets are a compact masked row now
 			// (run-screen redesign), not a three-bar card.
-			const mask = card.createDiv({ cls: "lazy-campaign-run-secret-mask" });
-			mask.createSpan({ cls: "lazy-campaign-run-secret-mask-bar" });
+			const mask = card.createDiv({ cls: "strong-start-run-secret-mask" });
+			mask.createSpan({ cls: "strong-start-run-secret-mask-bar" });
 		}
 
 		if (!revealed) {
@@ -699,7 +699,7 @@ export class RunPanel {
 		}
 
 		if (!revealed && peeked) {
-			const markBtn = card.createEl("button", { cls: "mod-cta lazy-campaign-run-secret-mark", text: "Mark revealed" });
+			const markBtn = card.createEl("button", { cls: "mod-cta strong-start-run-secret-mark", text: "Mark revealed" });
 			this.view.registerDomEvent(markBtn, "click", (evt) => {
 				evt.stopPropagation();
 				void this.markRevealed(secret.id);
@@ -707,7 +707,7 @@ export class RunPanel {
 		}
 
 		if (revealed && this.undoVisibleForId === secret.id) {
-			const undoBtn = card.createEl("button", { cls: "lazy-campaign-run-secret-undo", text: "Undo" });
+			const undoBtn = card.createEl("button", { cls: "strong-start-run-secret-undo", text: "Undo" });
 			this.view.registerDomEvent(undoBtn, "click", (evt) => {
 				evt.stopPropagation();
 				void this.undoReveal(secret.id);
@@ -809,24 +809,24 @@ export class RunPanel {
 			return;
 		}
 
-		const drawer = shell.createDiv({ cls: "lazy-campaign-run-dnd5e-drawer" });
+		const drawer = shell.createDiv({ cls: "strong-start-run-dnd5e-drawer" });
 		this.dnd5eDrawerEl = drawer;
 		drawer.toggleClass("is-open", this.dnd5eOpen);
 		drawer.setAttribute("aria-hidden", this.dnd5eOpen ? "false" : "true");
 
-		const header = drawer.createDiv({ cls: "lazy-campaign-run-dnd5e-drawer-header" });
+		const header = drawer.createDiv({ cls: "strong-start-run-dnd5e-drawer-header" });
 		header.createEl("h3", { text: "5e reference" });
 		const closeBtn = header.createEl("button", {
-			cls: "lazy-campaign-run-icon-button",
+			cls: "strong-start-run-icon-button",
 			attr: { "aria-label": "Close 5e reference", type: "button" },
 		});
 		setIcon(closeBtn, "x");
 		this.view.registerDomEvent(closeBtn, "click", () => this.setDnd5eOpen(false));
 
-		const body = drawer.createDiv({ cls: "lazy-campaign-run-dnd5e-drawer-body" });
+		const body = drawer.createDiv({ cls: "strong-start-run-dnd5e-drawer-body" });
 		const pcs = this.view.plugin.store?.pcsOf(campaign.path) ?? [];
 
-		const buildRow = body.createDiv({ cls: "lazy-campaign-run-dnd5e-build-row" });
+		const buildRow = body.createDiv({ cls: "strong-start-run-dnd5e-build-row" });
 		const buildBtn = buildRow.createEl("button", { text: "Build a monster" });
 		this.view.registerDomEvent(buildBtn, "click", () => {
 			void openMonsterBuilder(this.view.plugin.app, {
@@ -878,8 +878,8 @@ export class RunPanel {
 
 		const zero = this.view.plugin.store?.sessionZeroOf(campaign.path) ?? null;
 
-		const overlay = shell.createDiv({ cls: "lazy-campaign-run-overlay" });
-		const card = overlay.createDiv({ cls: "lazy-campaign-run-safety-card" });
+		const overlay = shell.createDiv({ cls: "strong-start-run-overlay" });
+		const card = overlay.createDiv({ cls: "strong-start-run-safety-card" });
 		card.createEl("h2", { text: "Safety tools" });
 		card.createEl("p", { text: "Anyone can tap the X. The scene changes, no questions asked." });
 
@@ -896,7 +896,7 @@ export class RunPanel {
 			}
 		} else {
 			card.createEl("p", {
-				cls: "lazy-campaign-hint",
+				cls: "strong-start-hint",
 				text: "No lines or veils recorded yet — add them during session zero.",
 			});
 		}

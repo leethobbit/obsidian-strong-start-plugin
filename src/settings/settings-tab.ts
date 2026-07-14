@@ -72,7 +72,7 @@ export class LazyCampaignPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl).setName("About").setHeading();
 
-		const aboutEl = containerEl.createDiv({ cls: "lazy-campaign-settings-about" });
+		const aboutEl = containerEl.createDiv({ cls: "strong-start-settings-about" });
 		aboutEl.createEl("p", { text: ATTRIBUTION_TEXT });
 		aboutEl.createEl("a", {
 			// Document title, not a sentence — keep the source's own capitalization.

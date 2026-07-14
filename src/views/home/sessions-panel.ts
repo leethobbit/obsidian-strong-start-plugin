@@ -37,7 +37,7 @@ export class SessionsPanel {
 		}
 
 		const sessions = plugin.store?.sessionsOf(campaign.path) ?? [];
-		const card = containerEl.createDiv({ cls: "lazy-campaign-card" });
+		const card = containerEl.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Sessions" });
 
 		if (sessions.length === 0) {
@@ -45,37 +45,37 @@ export class SessionsPanel {
 			return;
 		}
 
-		const list = card.createDiv({ cls: "lazy-campaign-session-list" });
+		const list = card.createDiv({ cls: "strong-start-session-list" });
 		for (const session of sessions) this.renderRow(list, session);
 	}
 
 	private renderRow(list: HTMLElement, session: SessionModel): void {
-		const row = list.createDiv({ cls: "lazy-campaign-session-row" });
+		const row = list.createDiv({ cls: "strong-start-session-row" });
 
-		const title = row.createDiv({ cls: "lazy-campaign-session-row-title" });
-		title.createSpan({ cls: "lazy-campaign-session-row-number", text: `Session ${session.session}` });
+		const title = row.createDiv({ cls: "strong-start-session-row-title" });
+		title.createSpan({ cls: "strong-start-session-row-number", text: `Session ${session.session}` });
 		// The filename is free text — show it only when the GM actually gave
 		// the session a title beyond the default "Session N".
 		const basename = baseNameOf(session.path);
 		if (basename !== `Session ${session.session}`) {
-			title.createSpan({ cls: "lazy-campaign-session-row-name", text: ` — ${basename}` });
+			title.createSpan({ cls: "strong-start-session-row-name", text: ` — ${basename}` });
 		}
 
-		const meta = row.createDiv({ cls: "lazy-campaign-session-row-meta" });
+		const meta = row.createDiv({ cls: "strong-start-session-row-meta" });
 		if (session.date) meta.createSpan({ text: session.date });
 		meta.createSpan({
-			cls: `lazy-campaign-session-status is-${session.status}`,
+			cls: `strong-start-session-status is-${session.status}`,
 			text: session.status === "played" ? "Played" : "Prep",
 		});
 		if (session.status === "played") {
 			meta.createSpan({
-				cls: "lazy-campaign-session-recap",
+				cls: "strong-start-session-recap",
 				text: this.hasRecap(session.path) ? "Recap ✓" : "No recap",
 			});
 		}
 
 		const menuBtn = row.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Session actions", type: "button" },
 		});
 		setIcon(menuBtn, "ellipsis");
@@ -166,7 +166,7 @@ class EditSessionDateModal extends FormModal {
 	protected render(): void {
 		this.setTitle("Edit session date");
 		this.contentEl.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: `Session ${this.session.session} stays session ${this.session.session} — only the date changes.`,
 		});
 
@@ -232,7 +232,7 @@ class RenameSessionModal extends FormModal {
 	protected render(): void {
 		this.setTitle("Rename session note");
 		this.contentEl.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: `The title is yours — session ${this.session.session} stays session ${this.session.session} either way.`,
 		});
 

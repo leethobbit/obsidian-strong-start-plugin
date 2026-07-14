@@ -29,7 +29,7 @@ const SECRETS_TABLE_IDS = [
  */
 export function renderSecretsStep(container: HTMLElement, ctx: StepContext): void {
 	container.createEl("h3", { text: "Define secrets and clues" });
-	const progressEl = container.createEl("p", { cls: "lazy-campaign-progress-text" });
+	const progressEl = container.createEl("p", { cls: "strong-start-progress-text" });
 
 	let secrets = [...ctx.session.secrets];
 
@@ -43,13 +43,13 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 	// own rows, never this map).
 	const derivedById = new Map(openSecrets(ctx.sessions).map((d) => [d.id, d] as const));
 
-	const carriedHeaderRow = container.createDiv({ cls: "lazy-campaign-secret-section-header" });
+	const carriedHeaderRow = container.createDiv({ cls: "strong-start-secret-section-header" });
 	carriedHeaderRow.createEl("h4", {
-		cls: "lazy-campaign-secret-section-heading",
+		cls: "strong-start-secret-section-heading",
 		text: "Carried over — unrevealed from earlier",
 	});
 	const syncBtn = carriedHeaderRow.createEl("button", {
-		cls: "lazy-campaign-secret-sync-button",
+		cls: "strong-start-secret-sync-button",
 		attr: { type: "button", "aria-label": "Sync carried secrets" },
 	});
 	const syncIcon = syncBtn.createSpan();
@@ -57,15 +57,15 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 	syncBtn.createSpan({ text: " Sync carried" });
 	ctx.registerDomEvent(syncBtn, "click", () => handleSync());
 
-	const carriedListEl = container.createDiv({ cls: "lazy-campaign-secret-rows lazy-campaign-secret-carried-strip" });
+	const carriedListEl = container.createDiv({ cls: "strong-start-secret-rows strong-start-secret-carried-strip" });
 
-	container.createEl("h4", { cls: "lazy-campaign-secret-section-heading", text: "New this session" });
-	const listEl = container.createDiv({ cls: "lazy-campaign-secret-rows" });
+	container.createEl("h4", { cls: "strong-start-secret-section-heading", text: "New this session" });
+	const listEl = container.createDiv({ cls: "strong-start-secret-rows" });
 
-	const addRow = container.createDiv({ cls: "lazy-campaign-secret-add-row" });
+	const addRow = container.createDiv({ cls: "strong-start-secret-add-row" });
 	const addInput = addRow.createEl("input", {
 		type: "text",
-		cls: "lazy-campaign-secret-add-input",
+		cls: "strong-start-secret-add-input",
 		attr: { placeholder: "Add a secret…", "data-key": "secrets-add" },
 	});
 	ctx.registerDomEvent(addInput, "keydown", (evt) => {
@@ -94,9 +94,9 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 	});
 
 	let showRetired = false;
-	const retiredToggleRow = container.createDiv({ cls: "lazy-campaign-secret-retired-toggle-row" });
+	const retiredToggleRow = container.createDiv({ cls: "strong-start-secret-retired-toggle-row" });
 	const retiredToggleBtn = retiredToggleRow.createEl("button", {
-		cls: "lazy-campaign-secret-retired-toggle",
+		cls: "strong-start-secret-retired-toggle",
 		text: "Show retired",
 		attr: { type: "button" },
 	});
@@ -105,7 +105,7 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 		retiredToggleBtn.setText(showRetired ? "Hide retired" : "Show retired");
 		renderRetired();
 	});
-	const retiredListEl = container.createDiv({ cls: "lazy-campaign-secret-rows lazy-campaign-secret-retired-list" });
+	const retiredListEl = container.createDiv({ cls: "strong-start-secret-rows strong-start-secret-retired-list" });
 
 	function isCarried(id: string): boolean {
 		const derived = derivedById.get(id);
@@ -160,19 +160,19 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 	): void {
 		const derived = derivedById.get(secret.id);
 		const row = mountEl.createDiv({
-			cls: `lazy-campaign-secret-row${options.extraCls ? ` ${options.extraCls}` : ""}`,
+			cls: `strong-start-secret-row${options.extraCls ? ` ${options.extraCls}` : ""}`,
 			attr: { "data-key": `secret-row-${secret.id}` },
 		});
 
 		if (options.showOrigin) {
-			const hourglass = row.createSpan({ cls: "lazy-campaign-secret-hourglass" });
+			const hourglass = row.createSpan({ cls: "strong-start-secret-hourglass" });
 			setIcon(hourglass, "hourglass");
-			if (derived) row.createSpan({ cls: "lazy-campaign-secret-origin-tag", text: `s.${derived.originSession}` });
+			if (derived) row.createSpan({ cls: "strong-start-secret-origin-tag", text: `s.${derived.originSession}` });
 		}
 
 		const input = row.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-secret-input",
+			cls: "strong-start-secret-input",
 			attr: { "data-key": `secret-input-${secret.id}` },
 		});
 		input.value = secret.text;
@@ -183,7 +183,7 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 			commit();
 		});
 
-		const deleteBtn = row.createEl("button", { cls: "lazy-campaign-secret-action-button", text: options.deleteLabel });
+		const deleteBtn = row.createEl("button", { cls: "strong-start-secret-action-button", text: options.deleteLabel });
 		ctx.registerDomEvent(deleteBtn, "click", options.onDelete);
 	}
 
@@ -191,7 +191,7 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 		carriedListEl.empty();
 		const rows = secrets.filter((s) => !s.archived && isCarried(s.id));
 		if (rows.length === 0) {
-			carriedListEl.createDiv({ cls: "lazy-campaign-empty-state", text: "Nothing carried over yet." });
+			carriedListEl.createDiv({ cls: "strong-start-empty-state", text: "Nothing carried over yet." });
 			return;
 		}
 		for (const secret of rows) {
@@ -208,7 +208,7 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 		listEl.empty();
 		const rows = secrets.filter((s) => !s.archived && !isCarried(s.id));
 		if (rows.length === 0) {
-			listEl.createDiv({ cls: "lazy-campaign-empty-state", text: "No secrets yet." });
+			listEl.createDiv({ cls: "strong-start-empty-state", text: "No secrets yet." });
 			return;
 		}
 		for (const secret of rows) {
@@ -225,16 +225,16 @@ export function renderSecretsStep(container: HTMLElement, ctx: StepContext): voi
 		if (!showRetired) return;
 		const rows = secrets.filter((s) => s.archived);
 		if (rows.length === 0) {
-			retiredListEl.createDiv({ cls: "lazy-campaign-empty-state", text: "Nothing retired." });
+			retiredListEl.createDiv({ cls: "strong-start-empty-state", text: "Nothing retired." });
 			return;
 		}
 		for (const secret of rows) {
 			const row = retiredListEl.createDiv({
-				cls: "lazy-campaign-secret-row is-retired",
+				cls: "strong-start-secret-row is-retired",
 				attr: { "data-key": `secret-row-${secret.id}` },
 			});
-			row.createSpan({ cls: "lazy-campaign-secret-input lazy-campaign-secret-retired-text", text: secret.text });
-			const restoreBtn = row.createEl("button", { cls: "lazy-campaign-secret-action-button", text: "Restore" });
+			row.createSpan({ cls: "strong-start-secret-input strong-start-secret-retired-text", text: secret.text });
+			const restoreBtn = row.createEl("button", { cls: "strong-start-secret-action-button", text: "Restore" });
 			ctx.registerDomEvent(restoreBtn, "click", () => handleRestore(secret));
 		}
 	}

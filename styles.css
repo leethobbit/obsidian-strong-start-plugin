@@ -1,4 +1,4 @@
-/* All plugin CSS lives here, prefixed .lazy-campaign- so it never collides.
+/* All plugin CSS lives here, prefixed .strong-start- so it never collides.
    Use Obsidian CSS variables (var(--text-normal), var(--background-secondary),
    var(--interactive-accent), ...) — never hardcoded colors or inline styles,
    so themes and snippets can restyle the plugin. */
@@ -6,20 +6,20 @@
 /* Icons inside any plugin element must never flex-squeeze: Obsidian's default
    button padding plus a fixed button width can otherwise collapse the icon
    SVG to zero width (it renders "blank" while the tooltip still works). */
-[class*="lazy-campaign"] .svg-icon {
+[class*="strong-start"] .svg-icon {
 	flex-shrink: 0;
 }
 
 /* ---- View shell -------------------------------------------------------- */
 
-.lazy-campaign-view {
+.strong-start-view {
 	display: flex;
 	flex-direction: row;
 	height: 100%;
 	color: var(--text-normal);
 }
 
-.lazy-campaign-main {
+.strong-start-main {
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 auto;
@@ -31,7 +31,7 @@
    Phone bottom-bar collapse is a later milestone (M1 just ensures nothing
    breaks at narrow widths — the rail stays a rail). */
 
-.lazy-campaign-rail {
+.strong-start-rail {
 	display: flex;
 	flex-direction: column;
 	flex: 0 0 auto;
@@ -41,7 +41,7 @@
 	border-right: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-rail-group {
+.strong-start-rail-group {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
@@ -51,11 +51,11 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-rail-group:last-of-type {
+.strong-start-rail-group:last-of-type {
 	border-bottom: none;
 }
 
-.lazy-campaign-rail-footer {
+.strong-start-rail-footer {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
@@ -64,7 +64,7 @@
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-rail-button {
+.strong-start-rail-button {
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
@@ -82,37 +82,37 @@
 	text-align: left;
 }
 
-.lazy-campaign-rail-icon {
+.strong-start-rail-icon {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex: 0 0 auto;
 }
 
-.lazy-campaign-rail-label {
+.strong-start-rail-label {
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	font-size: var(--font-ui-small);
 }
 
-.lazy-campaign-rail-button:hover {
+.strong-start-rail-button:hover {
 	color: var(--text-normal);
 	background-color: var(--background-modifier-hover);
 }
 
-.lazy-campaign-rail-button.is-active {
+.strong-start-rail-button.is-active {
 	color: var(--text-on-accent);
 	background-color: var(--interactive-accent);
 }
 
-.lazy-campaign-rail-button.is-active:hover {
+.strong-start-rail-button.is-active:hover {
 	background-color: var(--interactive-accent-hover);
 }
 
 /* ---- Header (persistent, outside the swapped body) ---------------------- */
 
-.lazy-campaign-header {
+.strong-start-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -122,11 +122,11 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-header-selector select {
+.strong-start-header-selector select {
 	font-weight: var(--font-medium);
 }
 
-.lazy-campaign-header-menu {
+.strong-start-header-menu {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -138,19 +138,19 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-header-menu:hover {
+.strong-start-header-menu:hover {
 	color: var(--text-normal);
 }
 
 /* ---- Body / panels ------------------------------------------------------ */
 
-.lazy-campaign-body {
+.strong-start-body {
 	flex: 1 1 auto;
 	overflow-y: auto;
 	padding: var(--size-4-4);
 }
 
-.lazy-campaign-panel {
+.strong-start-panel {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-4);
@@ -159,38 +159,38 @@
 
 /* ---- Dashboard cards ------------------------------------------------------ */
 
-.lazy-campaign-card {
+.strong-start-card {
 	padding: var(--size-4-4);
 	background-color: var(--background-secondary);
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-card h3 {
+.strong-start-card h3 {
 	margin-top: 0;
 }
 
-.lazy-campaign-card-action {
+.strong-start-card-action {
 	display: flex;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-session-list {
+.strong-start-session-list {
 	margin: 0;
 	padding-left: var(--size-4-4);
 }
 
-.lazy-campaign-session-link {
+.strong-start-session-link {
 	cursor: var(--cursor-link);
 }
 
 /* ---- Empty states --------------------------------------------------------- */
 
-.lazy-campaign-empty-state {
+.strong-start-empty-state {
 	color: var(--text-muted);
 	font-style: italic;
 }
 
-.lazy-campaign-empty-state-action {
+.strong-start-empty-state-action {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -203,86 +203,86 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-empty-state-title {
+.strong-start-empty-state-title {
 	margin: 0;
 	font-size: var(--font-ui-large);
 	font-weight: var(--font-semibold);
 }
 
-.lazy-campaign-empty-state-body {
+.strong-start-empty-state-body {
 	margin: 0;
 	color: var(--text-muted);
 }
 
-.lazy-campaign-empty-state-buttons {
+.strong-start-empty-state-buttons {
 	display: flex;
 	gap: var(--size-4-2);
 }
 
 /* ---- Dashboard progress dots ----------------------------------------------- */
 
-.lazy-campaign-progress-dots {
+.strong-start-progress-dots {
 	display: flex;
 	gap: var(--size-4-1);
 	margin: var(--size-4-2) 0;
 }
 
-.lazy-campaign-progress-dot {
+.strong-start-progress-dot {
 	width: var(--size-4-2);
 	height: var(--size-4-2);
 	background-color: var(--background-modifier-border);
 	border-radius: var(--radius-full);
 }
 
-.lazy-campaign-progress-dot.is-done {
+.strong-start-progress-dot.is-done {
 	background-color: var(--interactive-accent);
 }
 
 /* ---- Dashboard: Secrets in play card ---------------------------------------- */
 
-.lazy-campaign-secrets-card-heading {
+.strong-start-secrets-card-heading {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
 	margin-top: 0;
 }
 
-.lazy-campaign-secrets-card-stale {
+.strong-start-secrets-card-stale {
 	display: flex;
 	align-items: center;
 	color: var(--text-warning, var(--color-orange));
 }
 
-.lazy-campaign-secrets-card-list {
+.strong-start-secrets-card-list {
 	margin: 0 0 var(--size-4-2);
 	padding-left: var(--size-4-4);
 }
 
-.lazy-campaign-secrets-card-item {
+.strong-start-secrets-card-item {
 	color: var(--text-muted);
 }
 
-.lazy-campaign-secrets-card-link {
+.strong-start-secrets-card-link {
 	cursor: var(--cursor-link);
 }
 
 /* ---- Prep board ------------------------------------------------------------ */
 
-.lazy-campaign-prep-shell {
+.strong-start-prep-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-4);
 	height: 100%;
 }
 
-.lazy-campaign-prep-toolbar {
+.strong-start-prep-toolbar {
 	display: flex;
 	align-items: center;
 	flex: 0 0 auto;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-prep-progress {
+.strong-start-prep-progress {
 	margin-left: auto;
 	color: var(--text-muted);
 }
@@ -290,18 +290,18 @@
 /* container-type lives on the SHELL (the board's parent) — an @container rule
    can only restyle elements INSIDE the container, so putting it on the board
    itself silently skipped the board's own narrow-layout direction switch. */
-.lazy-campaign-prep-shell {
+.strong-start-prep-shell {
 	container-type: inline-size;
 }
 
-.lazy-campaign-prep-board {
+.strong-start-prep-board {
 	display: flex;
 	flex: 1 1 auto;
 	gap: var(--size-4-4);
 	min-height: 0;
 }
 
-.lazy-campaign-prep-master {
+.strong-start-prep-master {
 	display: flex;
 	flex: 0 0 auto;
 	flex-direction: column;
@@ -310,14 +310,14 @@
 	border-right: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-prep-workspace {
+.strong-start-prep-workspace {
 	flex: 1 1 auto;
 	min-width: 0;
 	overflow-y: auto;
 	padding-left: var(--size-4-4);
 }
 
-.lazy-campaign-step-row {
+.strong-start-step-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -326,15 +326,15 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-step-row:hover {
+.strong-start-step-row:hover {
 	background-color: var(--background-modifier-hover);
 }
 
-.lazy-campaign-step-row.is-active {
+.strong-start-step-row.is-active {
 	background-color: var(--background-modifier-active-hover);
 }
 
-.lazy-campaign-step-circle {
+.strong-start-step-circle {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -348,27 +348,27 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-step-circle.is-done {
+.strong-start-step-circle.is-done {
 	color: var(--text-success);
 }
 
-.lazy-campaign-step-circle.is-auto {
+.strong-start-step-circle.is-auto {
 	color: var(--text-accent);
 }
 
-.lazy-campaign-step-number {
+.strong-start-step-number {
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-step-label {
+.strong-start-step-label {
 	flex: 1 1 auto;
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
 
-.lazy-campaign-step-summary {
+.strong-start-step-summary {
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
@@ -377,11 +377,11 @@
  * (the full phone shell is a later milestone — this just keeps M2 from
  * breaking narrow). */
 @container (max-width: 700px) {
-	.lazy-campaign-prep-board {
+	.strong-start-prep-board {
 		flex-direction: column;
 	}
 
-	.lazy-campaign-prep-master {
+	.strong-start-prep-master {
 		flex-direction: row;
 		width: 100%;
 		overflow-x: auto;
@@ -390,30 +390,30 @@
 		border-bottom: 1px solid var(--background-modifier-border);
 	}
 
-	.lazy-campaign-step-row {
+	.strong-start-step-row {
 		flex: 0 0 auto;
 	}
 
-	.lazy-campaign-step-label {
+	.strong-start-step-label {
 		white-space: nowrap;
 	}
 
-	.lazy-campaign-prep-workspace {
+	.strong-start-prep-workspace {
 		padding-left: 0;
 	}
 }
 
-.lazy-campaign-hint {
+.strong-start-hint {
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-strong-start-textarea {
+.strong-start-strong-start-textarea {
 	width: 100%;
 	resize: vertical;
 }
 
-.lazy-campaign-malformed-banner {
+.strong-start-malformed-banner {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -424,39 +424,39 @@
 
 /* ---- List rows (Scenes/Rewards) --------------------------------------------- */
 
-.lazy-campaign-list-rows {
+.strong-start-list-rows {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-list-row {
+.strong-start-list-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-list-row-input {
+.strong-start-list-row-input {
 	flex: 1 1 auto;
 }
 
-.lazy-campaign-list-row-detail-toggle.has-detail {
+.strong-start-list-row-detail-toggle.has-detail {
 	color: var(--text-accent);
 }
 
-.lazy-campaign-list-row-detail {
+.strong-start-list-row-detail {
 	width: calc(100% - var(--size-4-6));
 	margin: var(--size-2-2) 0 var(--size-4-2) var(--size-4-6);
 	resize: vertical;
 }
 
-.lazy-campaign-list-row-controls {
+.strong-start-list-row-controls {
 	display: flex;
 	flex: 0 0 auto;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-icon-button {
+.strong-start-icon-button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -470,17 +470,17 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-icon-button:hover {
+.strong-start-icon-button:hover {
 	color: var(--text-normal);
 }
 
 /* ---- Secrets step ----------------------------------------------------------- */
 
-.lazy-campaign-progress-text {
+.strong-start-progress-text {
 	color: var(--text-muted);
 }
 
-.lazy-campaign-secret-section-header {
+.strong-start-secret-section-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -488,14 +488,14 @@
 	margin-top: var(--size-4-3);
 }
 
-.lazy-campaign-secret-section-heading {
+.strong-start-secret-section-heading {
 	margin: 0;
 	color: var(--text-muted);
 	font-size: var(--font-ui-small);
 }
 
-.lazy-campaign-secret-sync-button,
-.lazy-campaign-secret-retired-toggle {
+.strong-start-secret-sync-button,
+.strong-start-secret-retired-toggle {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
@@ -507,19 +507,19 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-secret-sync-button:hover,
-.lazy-campaign-secret-retired-toggle:hover {
+.strong-start-secret-sync-button:hover,
+.strong-start-secret-retired-toggle:hover {
 	color: var(--text-normal);
 }
 
-.lazy-campaign-secret-rows {
+.strong-start-secret-rows {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 	margin-bottom: var(--size-4-2);
 }
 
-.lazy-campaign-secret-row {
+.strong-start-secret-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -527,29 +527,29 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-secret-row.is-retired {
+.strong-start-secret-row.is-retired {
 	opacity: 0.6;
 }
 
-.lazy-campaign-secret-input,
-.lazy-campaign-secret-add-input,
-.lazy-campaign-secret-retired-text {
+.strong-start-secret-input,
+.strong-start-secret-add-input,
+.strong-start-secret-retired-text {
 	flex: 1 1 auto;
 }
 
-.lazy-campaign-secret-hourglass {
+.strong-start-secret-hourglass {
 	display: flex;
 	flex: 0 0 auto;
 	color: var(--text-muted);
 }
 
-.lazy-campaign-secret-origin-tag {
+.strong-start-secret-origin-tag {
 	flex: 0 0 auto;
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-secret-action-button {
+.strong-start-secret-action-button {
 	flex: 0 0 auto;
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
@@ -558,37 +558,37 @@
 /* Aged tint on carried secrets — subtle warm wash that deepens with how many
  * sessions a secret has ridden along unrevealed (docs/plan.md delight detail:
  * "aged-secret warm tint + hourglass"). `carried-N` = N sessions past origin. */
-.lazy-campaign-secret-row.is-carried-1 {
+.strong-start-secret-row.is-carried-1 {
 	background-color: color-mix(in srgb, var(--color-orange) 6%, transparent);
 }
 
-.lazy-campaign-secret-row.is-carried-2 {
+.strong-start-secret-row.is-carried-2 {
 	background-color: color-mix(in srgb, var(--color-orange) 12%, transparent);
 }
 
-.lazy-campaign-secret-row.is-carried-3-plus {
+.strong-start-secret-row.is-carried-3-plus {
 	background-color: color-mix(in srgb, var(--color-orange) 20%, transparent);
 	border-left: 2px solid var(--color-orange);
 }
 
-.lazy-campaign-secret-retired-toggle-row {
+.strong-start-secret-retired-toggle-row {
 	margin-top: var(--size-4-3);
 }
 
-.lazy-campaign-secret-retired-list.is-hidden {
+.strong-start-secret-retired-list.is-hidden {
 	display: none;
 }
 
 /* ---- Chip editor (Locations/NPCs/Monsters) ---------------------------------- */
 
-.lazy-campaign-chip-row {
+.strong-start-chip-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--size-4-2);
 	margin-bottom: var(--size-4-2);
 }
 
-.lazy-campaign-chip {
+.strong-start-chip {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
@@ -597,33 +597,33 @@
 	border-radius: var(--radius-l);
 }
 
-.lazy-campaign-chip-label.is-linked {
+.strong-start-chip-label.is-linked {
 	color: var(--link-color);
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-chip-create {
+.strong-start-chip-create {
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-chip-input-row {
+.strong-start-chip-input-row {
 	display: flex;
 }
 
-.lazy-campaign-chip-input {
+.strong-start-chip-input {
 	width: 100%;
 }
 
 /* ---- Roster (Characters step) ----------------------------------------------- */
 
-.lazy-campaign-roster-list {
+.strong-start-roster-list {
 	margin: 0 0 var(--size-4-2);
 	padding-left: var(--size-4-4);
 }
 
 /* ---- Form modal (create campaign, etc.) ----------------------------------- */
 
-.lazy-campaign-form-modal-buttons {
+.strong-start-form-modal-buttons {
 	display: flex;
 	justify-content: flex-end;
 	gap: var(--size-4-2);
@@ -632,27 +632,27 @@
 
 /* ---- Inspire control + roll chip (uniform inspiration-roll pattern) -------- */
 
-.lazy-campaign-inspire {
+.strong-start-inspire {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
 	margin-top: var(--size-4-3);
 }
 
-.lazy-campaign-inspire-header {
+.strong-start-inspire-header {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-inspire-pills {
+.strong-start-inspire-pills {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-inspire-pill {
+.strong-start-inspire-pill {
 	padding: var(--size-4-1) var(--size-4-2);
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
@@ -663,18 +663,18 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-inspire-pill.is-active {
+.strong-start-inspire-pill.is-active {
 	color: var(--text-on-accent);
 	background-color: var(--interactive-accent);
 }
 
-.lazy-campaign-inspire-button {
+.strong-start-inspire-button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
-.lazy-campaign-roll-chip {
+.strong-start-roll-chip {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
@@ -685,17 +685,17 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-roll-chip-text {
+.strong-start-roll-chip-text {
 	color: var(--text-normal);
 	white-space: pre-wrap;
 }
 
-.lazy-campaign-roll-chip-source {
+.strong-start-roll-chip-source {
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-roll-chip-buttons {
+.strong-start-roll-chip-buttons {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -704,7 +704,7 @@
 
 /* ---- Tables panel ------------------------------------------------------------ */
 
-.lazy-campaign-tables-shell {
+.strong-start-tables-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-3);
@@ -713,18 +713,18 @@
 
 /* Same shell-owns-the-container rule as the prep board: an @container query
    cannot restyle the container element itself. */
-.lazy-campaign-tables-shell {
+.strong-start-tables-shell {
 	container-type: inline-size;
 }
 
-.lazy-campaign-tables-board {
+.strong-start-tables-board {
 	display: flex;
 	flex: 1 1 auto;
 	gap: var(--size-4-4);
 	min-height: 0;
 }
 
-.lazy-campaign-tables-list {
+.strong-start-tables-list {
 	display: flex;
 	flex: 0 0 auto;
 	flex-direction: column;
@@ -733,18 +733,18 @@
 	border-right: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-tables-category {
+.strong-start-tables-category {
 	margin: var(--size-4-3) 0 var(--size-4-1);
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
 	text-transform: uppercase;
 }
 
-.lazy-campaign-tables-category:first-child {
+.strong-start-tables-category:first-child {
 	margin-top: 0;
 }
 
-.lazy-campaign-tables-row {
+.strong-start-tables-row {
 	padding: var(--size-4-1) var(--size-4-2);
 	text-align: left;
 	color: var(--text-normal);
@@ -755,59 +755,59 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-tables-row:hover {
+.strong-start-tables-row:hover {
 	background-color: var(--background-modifier-hover);
 }
 
-.lazy-campaign-tables-row.is-active {
+.strong-start-tables-row.is-active {
 	background-color: var(--background-modifier-active-hover);
 }
 
-.lazy-campaign-tables-detail {
+.strong-start-tables-detail {
 	flex: 1 1 auto;
 	min-width: 0;
 	overflow-y: auto;
 	padding-left: var(--size-4-4);
 }
 
-.lazy-campaign-tables-roll-button {
+.strong-start-tables-roll-button {
 	margin: var(--size-4-2) 0 var(--size-4-3);
 }
 
-.lazy-campaign-tables-result-stack {
+.strong-start-tables-result-stack {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-tables-result-card {
+.strong-start-tables-result-card {
 	padding: var(--size-4-2) var(--size-4-3);
 	background-color: var(--background-secondary);
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-tables-result-text {
+.strong-start-tables-result-text {
 	white-space: pre-wrap;
 }
 
-.lazy-campaign-tables-result-buttons {
+.strong-start-tables-result-buttons {
 	display: flex;
 	gap: var(--size-4-2);
 	margin-top: var(--size-4-1);
 }
 
-.lazy-campaign-tables-trace {
+.strong-start-tables-trace {
 	margin-top: var(--size-4-1);
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-tables-trace ul {
+.strong-start-tables-trace ul {
 	margin: var(--size-4-1) 0 0;
 	padding-left: var(--size-4-4);
 }
 
-.lazy-campaign-tables-footer {
+.strong-start-tables-footer {
 	flex: 0 0 auto;
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
@@ -815,19 +815,19 @@
 
 /* ---- Tables panel: shadowed core rows ("hidden — replaced by your table") --- */
 
-.lazy-campaign-tables-row-shadowed {
+.strong-start-tables-row-shadowed {
 	display: flex;
 	flex-wrap: wrap;
 	color: var(--text-faint);
 }
 
-.lazy-campaign-tables-shadowed-label {
+.strong-start-tables-shadowed-label {
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
 	font-style: italic;
 }
 
-.lazy-campaign-tables-shadow-banner {
+.strong-start-tables-shadow-banner {
 	padding: var(--size-4-2) var(--size-4-3);
 	margin-bottom: var(--size-4-2);
 	color: var(--text-muted);
@@ -837,7 +837,7 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-tables-peek-list {
+.strong-start-tables-peek-list {
 	margin: 0;
 	padding-left: var(--size-4-4);
 	color: var(--text-muted);
@@ -845,7 +845,7 @@
 
 /* ---- Tables panel: My tables (M5 custom tables) ----------------------------- */
 
-.lazy-campaign-tables-mytables-header {
+.strong-start-tables-mytables-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -853,16 +853,16 @@
 	margin: var(--size-4-3) 0 var(--size-4-1);
 }
 
-.lazy-campaign-tables-mytables-header .lazy-campaign-tables-category {
+.strong-start-tables-mytables-header .strong-start-tables-category {
 	margin: 0;
 }
 
-.lazy-campaign-tables-new-button {
+.strong-start-tables-new-button {
 	padding: var(--size-4-1) var(--size-4-2);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-tables-user-row {
+.strong-start-tables-user-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
@@ -870,15 +870,15 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-tables-user-row:hover {
+.strong-start-tables-user-row:hover {
 	background-color: var(--background-modifier-hover);
 }
 
-.lazy-campaign-tables-user-row.is-active {
+.strong-start-tables-user-row.is-active {
 	background-color: var(--background-modifier-active-hover);
 }
 
-.lazy-campaign-tables-row-name {
+.strong-start-tables-row-name {
 	flex: 1 1 auto;
 	overflow: hidden;
 	text-align: left;
@@ -891,7 +891,7 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-tables-badge {
+.strong-start-tables-badge {
 	flex: 0 0 auto;
 	padding: 0 var(--size-4-1);
 	color: var(--text-muted);
@@ -900,7 +900,7 @@
 	border-radius: var(--radius-s);
 }
 
-.lazy-campaign-tables-user-row-actions {
+.strong-start-tables-user-row-actions {
 	display: flex;
 	flex: 0 0 auto;
 	gap: var(--size-4-1);
@@ -908,20 +908,20 @@
 
 /* ---- Table editor modal (create/edit a custom table, M5) -------------------- */
 
-.lazy-campaign-table-editor-textarea-wrap {
+.strong-start-table-editor-textarea-wrap {
 	margin-top: var(--size-4-2);
 }
 
-.lazy-campaign-table-editor-textarea {
+.strong-start-table-editor-textarea {
 	width: 100%;
 	resize: vertical;
 }
 
-.lazy-campaign-table-editor-footer {
+.strong-start-table-editor-footer {
 	margin-top: var(--size-4-1);
 }
 
-.lazy-campaign-table-editor-preview-row {
+.strong-start-table-editor-preview-row {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -929,30 +929,30 @@
 	margin-top: var(--size-4-3);
 }
 
-.lazy-campaign-table-editor-preview-result {
+.strong-start-table-editor-preview-result {
 	color: var(--text-normal);
 }
 
 /* Two-pane collapses to a single column in a narrow phone-emulation panel. */
 @container (max-width: 700px) {
-	.lazy-campaign-tables-board {
+	.strong-start-tables-board {
 		flex-direction: column;
 	}
 
-	.lazy-campaign-tables-list {
+	.strong-start-tables-list {
 		width: 100%;
 		border-right: none;
 		border-bottom: 1px solid var(--background-modifier-border);
 	}
 
-	.lazy-campaign-tables-detail {
+	.strong-start-tables-detail {
 		padding-left: 0;
 	}
 }
 
 /* ---- Tables panel: Roll / Generators sub-tabs (M7) -------------------------- */
 
-.lazy-campaign-tables-subtabs {
+.strong-start-tables-subtabs {
 	display: flex;
 	flex: 0 0 auto;
 	gap: var(--size-4-2);
@@ -960,7 +960,7 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-tables-subtab {
+.strong-start-tables-subtab {
 	padding: var(--size-4-1) var(--size-4-2);
 	color: var(--text-muted);
 	background: transparent;
@@ -971,14 +971,14 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-tables-subtab.is-active {
+.strong-start-tables-subtab.is-active {
 	color: var(--text-normal);
 	border-bottom-color: var(--interactive-accent);
 }
 
 /* ---- Generators sub-tab (M7) ------------------------------------------------ */
 
-.lazy-campaign-generators-shell {
+.strong-start-generators-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-3);
@@ -986,13 +986,13 @@
 	overflow-y: auto;
 }
 
-.lazy-campaign-generators-grid {
+.strong-start-generators-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
 	gap: var(--size-4-3);
 }
 
-.lazy-campaign-generator-card {
+.strong-start-generator-card {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
@@ -1001,44 +1001,44 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-generator-card-header {
+.strong-start-generator-card-header {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-generator-card-icon {
+.strong-start-generator-card-icon {
 	display: flex;
 	color: var(--text-muted);
 }
 
-.lazy-campaign-generator-card-label {
+.strong-start-generator-card-label {
 	flex: 1 1 auto;
 	font-weight: var(--font-weight-medium);
 }
 
-.lazy-campaign-generator-card-result h4 {
+.strong-start-generator-card-result h4 {
 	margin: 0 0 var(--size-4-2);
 }
 
-.lazy-campaign-generator-lines {
+.strong-start-generator-lines {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-generator-line {
+.strong-start-generator-line {
 	display: flex;
 	align-items: baseline;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-generator-line-label {
+.strong-start-generator-line-label {
 	flex: 0 0 auto;
 	color: var(--text-muted);
 }
 
-.lazy-campaign-generator-line-text {
+.strong-start-generator-line-text {
 	flex: 1 1 auto;
 	/* `min-width: 0` is the fix — without it a flex item's default min-width
 	   (auto) keeps it at its max-content (single-line) width, so a long
@@ -1048,7 +1048,7 @@
 	overflow-wrap: break-word;
 }
 
-.lazy-campaign-generator-actions {
+.strong-start-generator-actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--size-4-2);
@@ -1057,7 +1057,7 @@
 
 /* ---- NPCs step: "Generate NPC" preview card (M7) ---------------------------- */
 
-.lazy-campaign-npc-preview {
+.strong-start-npc-preview {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
@@ -1069,47 +1069,47 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-npc-preview-lines {
+.strong-start-npc-preview-lines {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-npc-preview-line {
+.strong-start-npc-preview-line {
 	display: flex;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-npc-preview-label {
+.strong-start-npc-preview-label {
 	color: var(--text-muted);
 }
 
 /* ---- Secrets ledger ---------------------------------------------------------- */
 
-.lazy-campaign-secrets-shell {
+.strong-start-secrets-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-3);
 }
 
-.lazy-campaign-secrets-stat-line {
+.strong-start-secrets-stat-line {
 	color: var(--text-muted);
 }
 
-.lazy-campaign-secrets-filters {
+.strong-start-secrets-filters {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-secrets-chips {
+.strong-start-secrets-chips {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-secrets-chip {
+.strong-start-secrets-chip {
 	padding: var(--size-4-1) var(--size-4-2);
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
@@ -1120,31 +1120,31 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-secrets-chip.is-active {
+.strong-start-secrets-chip.is-active {
 	color: var(--text-on-accent);
 	background-color: var(--interactive-accent);
 }
 
-.lazy-campaign-secrets-filter-text {
+.strong-start-secrets-filter-text {
 	flex: 1 1 auto;
 	min-width: 10rem;
 	margin-left: auto;
 }
 
-.lazy-campaign-secrets-list {
+.strong-start-secrets-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-4);
 }
 
-.lazy-campaign-secrets-group-heading {
+.strong-start-secrets-group-heading {
 	margin: 0 0 var(--size-4-1);
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
 	text-transform: uppercase;
 }
 
-.lazy-campaign-secrets-row {
+.strong-start-secrets-row {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
@@ -1155,36 +1155,36 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-secrets-row.is-retired {
+.strong-start-secrets-row.is-retired {
 	opacity: 0.6;
 }
 
 /* Same aged-tint scale as the prep board's carried strip. */
-.lazy-campaign-secrets-row.is-carried-1 {
+.strong-start-secrets-row.is-carried-1 {
 	background-color: color-mix(in srgb, var(--color-orange) 6%, var(--background-secondary));
 }
 
-.lazy-campaign-secrets-row.is-carried-2 {
+.strong-start-secrets-row.is-carried-2 {
 	background-color: color-mix(in srgb, var(--color-orange) 12%, var(--background-secondary));
 }
 
-.lazy-campaign-secrets-row.is-carried-3-plus {
+.strong-start-secrets-row.is-carried-3-plus {
 	background-color: color-mix(in srgb, var(--color-orange) 20%, var(--background-secondary));
 	border-left: 2px solid var(--color-orange);
 }
 
-.lazy-campaign-secrets-row-main {
+.strong-start-secrets-row-main {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 	min-width: 0;
 }
 
-.lazy-campaign-secrets-row-text {
+.strong-start-secrets-row-text {
 	color: var(--text-normal);
 }
 
-.lazy-campaign-secrets-row-meta {
+.strong-start-secrets-row-meta {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -1192,19 +1192,19 @@
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-secrets-badge {
+.strong-start-secrets-badge {
 	padding: 0 var(--size-4-1);
 	background-color: var(--background-modifier-border);
 	border-radius: var(--radius-s);
 }
 
-.lazy-campaign-secrets-row-note {
+.strong-start-secrets-row-note {
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 	font-style: italic;
 }
 
-.lazy-campaign-secrets-row-actions {
+.strong-start-secrets-row-actions {
 	display: flex;
 	flex: 0 0 auto;
 	align-items: center;
@@ -1213,7 +1213,7 @@
 
 /* ---- Collapsible sections (panel-kit.ts SectionState) ----------------------- */
 
-.lazy-campaign-collapsible-header {
+.strong-start-collapsible-header {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
@@ -1229,12 +1229,12 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-collapsible-chevron {
+.strong-start-collapsible-chevron {
 	display: flex;
 	align-items: center;
 }
 
-.lazy-campaign-collapsible-body.is-hidden {
+.strong-start-collapsible-body.is-hidden {
 	display: none;
 }
 
@@ -1242,7 +1242,7 @@
    docs/plan.md: read-optimized, big type, one-tap-or-nothing, cannot be
    accidentally edited — the log bar is the only writing surface. */
 
-.lazy-campaign-run-shell {
+.strong-start-run-shell {
 	--lazy-run-font: 18px;
 	position: relative;
 	display: flex;
@@ -1252,19 +1252,19 @@
 	line-height: 1.6;
 }
 
-.lazy-campaign-run-shell.is-text-sm {
+.strong-start-run-shell.is-text-sm {
 	--lazy-run-font: 16px;
 }
 
-.lazy-campaign-run-shell.is-text-md {
+.strong-start-run-shell.is-text-md {
 	--lazy-run-font: 18px;
 }
 
-.lazy-campaign-run-shell.is-text-lg {
+.strong-start-run-shell.is-text-lg {
 	--lazy-run-font: 22px;
 }
 
-.lazy-campaign-run-topbar {
+.strong-start-run-topbar {
 	display: flex;
 	flex: 0 0 auto;
 	align-items: center;
@@ -1273,21 +1273,21 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-run-session-label {
+.strong-start-run-session-label {
 	font-weight: var(--font-semibold);
 	white-space: nowrap;
 }
 
-.lazy-campaign-run-timer {
+.strong-start-run-timer {
 	color: var(--text-muted);
 	font-variant-numeric: tabular-nums;
 }
 
-.lazy-campaign-run-end-button {
+.strong-start-run-end-button {
 	margin-left: auto;
 }
 
-.lazy-campaign-run-icon-button {
+.strong-start-run-icon-button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1300,17 +1300,17 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-run-icon-button:hover {
+.strong-start-run-icon-button:hover {
 	color: var(--text-normal);
 }
 
-.lazy-campaign-run-popover-anchor {
+.strong-start-run-popover-anchor {
 	position: relative;
 	display: flex;
 	align-items: center;
 }
 
-.lazy-campaign-run-popover {
+.strong-start-run-popover {
 	position: absolute;
 	top: 100%;
 	right: 0;
@@ -1324,14 +1324,14 @@
 	box-shadow: var(--shadow-s);
 }
 
-.lazy-campaign-run-dice-popover {
+.strong-start-run-dice-popover {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
 	min-width: 16rem;
 }
 
-.lazy-campaign-run-dice-config-row {
+.strong-start-run-dice-config-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -1339,53 +1339,53 @@
 	min-height: 44px;
 }
 
-.lazy-campaign-run-dice-config-label {
+.strong-start-run-dice-config-label {
 	color: var(--text-muted);
 	font-size: var(--font-ui-small);
 }
 
-.lazy-campaign-run-dice-die-grid {
+.strong-start-run-dice-die-grid {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-run-dice-die {
+.strong-start-run-dice-die {
 	min-height: 44px;
 }
 
-.lazy-campaign-run-dice-die.is-selected {
+.strong-start-run-dice-die.is-selected {
 	background-color: var(--interactive-accent);
 	color: var(--text-on-accent);
 }
 
-.lazy-campaign-run-dice-roll {
+.strong-start-run-dice-roll {
 	width: 100%;
 	min-height: 44px;
 }
 
-.lazy-campaign-run-dice-advrow {
+.strong-start-run-dice-advrow {
 	display: flex;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-run-dice-advrow button {
+.strong-start-run-dice-advrow button {
 	flex: 1 1 0;
 	min-height: 44px;
 }
 
-.lazy-campaign-run-textsize-row {
+.strong-start-run-textsize-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
 /* Container on the shell, not the board — see the prep-board comment. */
-.lazy-campaign-run-shell {
+.strong-start-run-shell {
 	container-type: inline-size;
 }
 
-.lazy-campaign-run-board {
+.strong-start-run-board {
 	display: flex;
 	flex: 1 1 auto;
 	gap: var(--size-4-5);
@@ -1394,7 +1394,7 @@
 	overflow-y: auto;
 }
 
-.lazy-campaign-run-main {
+.strong-start-run-main {
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
@@ -1402,7 +1402,7 @@
 	min-width: 0;
 }
 
-.lazy-campaign-run-glance {
+.strong-start-run-glance {
 	display: flex;
 	flex: 0 0 auto;
 	flex-direction: column;
@@ -1412,28 +1412,28 @@
 
 /* The focus pane earns a wider column — 18rem list chrome is too narrow for
    rendered note prose. */
-.lazy-campaign-run-glance.is-detail {
+.strong-start-run-glance.is-detail {
 	width: 24rem;
 }
 
 @container (max-width: 700px) {
-	.lazy-campaign-run-board {
+	.strong-start-run-board {
 		flex-direction: column;
 	}
 
-	.lazy-campaign-run-glance,
-	.lazy-campaign-run-glance.is-detail {
+	.strong-start-run-glance,
+	.strong-start-run-glance.is-detail {
 		width: 100%;
 	}
 
 	/* Narrow pane (not just phones): let the top bar wrap instead of clipping
 	   the End button behind a horizontal scrollbar. */
-	.lazy-campaign-run-topbar {
+	.strong-start-run-topbar {
 		flex-wrap: wrap;
 	}
 }
 
-.lazy-campaign-run-section-label {
+.strong-start-run-section-label {
 	margin-bottom: var(--size-4-1);
 	color: var(--text-muted);
 	font-variant: small-caps;
@@ -1441,33 +1441,33 @@
 	text-transform: lowercase;
 }
 
-.lazy-campaign-run-strong-start-body {
+.strong-start-run-strong-start-body {
 	font-size: 1.25em;
 }
 
 /* The main column's Scenes/Secrets collapsible headers keep the muted
    small-caps section-label look. */
-.lazy-campaign-run-section .lazy-campaign-collapsible-label {
+.strong-start-run-section .strong-start-collapsible-label {
 	color: var(--text-muted);
 	font-variant: small-caps;
 	font-size: 0.8em;
 	text-transform: lowercase;
 }
 
-.lazy-campaign-run-scene-list,
-.lazy-campaign-run-secret-list {
+.strong-start-run-scene-list,
+.strong-start-run-secret-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-run-scene-row {
+.strong-start-run-scene-row {
 	display: flex;
 	align-items: stretch;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-run-scene-toggle {
+.strong-start-run-scene-toggle {
 	display: flex;
 	flex: 1 1 auto;
 	align-items: center;
@@ -1483,7 +1483,7 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-run-scene-expand {
+.strong-start-run-scene-expand {
 	flex: 0 0 auto;
 	min-width: 44px;
 	color: var(--text-muted);
@@ -1494,37 +1494,37 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-run-scene-detail {
+.strong-start-run-scene-detail {
 	margin: 0 0 var(--size-4-1) var(--size-4-6);
 }
 
-.lazy-campaign-run-scene-detail > :first-child {
+.strong-start-run-scene-detail > :first-child {
 	margin-top: 0;
 }
 
-.lazy-campaign-run-scene-detail > :last-child {
+.strong-start-run-scene-detail > :last-child {
 	margin-bottom: 0;
 }
 
-.lazy-campaign-run-scene-check {
+.strong-start-run-scene-check {
 	display: flex;
 	flex: 0 0 auto;
 	color: var(--text-accent);
 }
 
-.lazy-campaign-run-scene-row.is-done {
+.strong-start-run-scene-row.is-done {
 	opacity: 0.6;
 }
 
-.lazy-campaign-run-scene-row.is-done .lazy-campaign-run-scene-text {
+.strong-start-run-scene-row.is-done .strong-start-run-scene-text {
 	text-decoration: line-through;
 }
 
-.lazy-campaign-run-scene-row.is-done .lazy-campaign-run-scene-check {
+.strong-start-run-scene-row.is-done .strong-start-run-scene-check {
 	color: var(--text-success);
 }
 
-.lazy-campaign-run-secret-card {
+.strong-start-run-secret-card {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
@@ -1537,41 +1537,41 @@
 
 /* Hidden and revealed secrets are compact one-line rows; only the peeked
    state expands into a column (text + Mark revealed). */
-.lazy-campaign-run-secret-card.is-hidden,
-.lazy-campaign-run-secret-card.is-revealed {
+.strong-start-run-secret-card.is-hidden,
+.strong-start-run-secret-card.is-revealed {
 	flex-direction: row;
 	align-items: center;
 }
 
-.lazy-campaign-run-secret-card.is-revealed .lazy-campaign-run-secret-text {
+.strong-start-run-secret-card.is-revealed .strong-start-run-secret-text {
 	flex: 1 1 auto;
 }
 
-.lazy-campaign-run-secret-card.is-revealed {
+.strong-start-run-secret-card.is-revealed {
 	cursor: default;
 	border-left: 2px solid var(--text-success);
 }
 
-.lazy-campaign-run-secret-card.is-peeked {
+.strong-start-run-secret-card.is-peeked {
 	border-left: 2px solid var(--interactive-accent);
 }
 
-.lazy-campaign-run-secret-icon {
+.strong-start-run-secret-icon {
 	display: flex;
 	color: var(--text-muted);
 }
 
-.lazy-campaign-run-secret-text {
+.strong-start-run-secret-text {
 	color: var(--text-normal);
 	white-space: pre-wrap;
 }
 
-.lazy-campaign-run-secret-mask {
+.strong-start-run-secret-mask {
 	display: flex;
 	flex: 1 1 auto;
 }
 
-.lazy-campaign-run-secret-mask-bar {
+.strong-start-run-secret-mask-bar {
 	width: 100%;
 	height: 0.8em;
 	background: repeating-linear-gradient(
@@ -1584,37 +1584,37 @@
 	border-radius: var(--radius-s);
 }
 
-.lazy-campaign-run-secret-mark,
-.lazy-campaign-run-secret-undo {
+.strong-start-run-secret-mark,
+.strong-start-run-secret-undo {
 	align-self: flex-start;
 	min-height: 44px;
 }
 
-.lazy-campaign-run-glance-list {
+.strong-start-run-glance-list {
 	margin: 0;
 	padding-left: var(--size-4-4);
 }
 
-.lazy-campaign-run-glance-item {
+.strong-start-run-glance-item {
 	color: var(--text-normal);
 }
 
-.lazy-campaign-run-glance-link {
+.strong-start-run-glance-link {
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-run-glance-role {
+.strong-start-run-glance-role {
 	color: var(--text-muted);
 }
 
-.lazy-campaign-run-entity-header {
+.strong-start-run-entity-header {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
 	min-height: 44px;
 }
 
-.lazy-campaign-run-entity-title {
+.strong-start-run-entity-title {
 	flex: 1 1 auto;
 	min-width: 0;
 	overflow: hidden;
@@ -1623,26 +1623,26 @@
 	white-space: nowrap;
 }
 
-.lazy-campaign-run-entity-fields {
+.strong-start-run-entity-fields {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	gap: var(--size-2-2) var(--size-4-3);
 	margin: var(--size-4-2) 0;
 }
 
-.lazy-campaign-run-entity-field-label {
+.strong-start-run-entity-field-label {
 	color: var(--text-muted);
 	font-size: var(--font-ui-small);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 }
 
-.lazy-campaign-run-entity-body {
+.strong-start-run-entity-body {
 	overflow-y: auto;
 	min-height: 0;
 }
 
-.lazy-campaign-run-overlay {
+.strong-start-run-overlay {
 	position: absolute;
 	inset: 0;
 	z-index: 10;
@@ -1653,13 +1653,13 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-run-safety-card {
+.strong-start-run-safety-card {
 	max-width: 32em;
 	padding: var(--size-4-6);
 	cursor: default;
 }
 
-.lazy-campaign-run-bottom {
+.strong-start-run-bottom {
 	display: flex;
 	flex: 0 0 auto;
 	flex-direction: column;
@@ -1668,29 +1668,29 @@
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-run-bottom-tabs {
+.strong-start-run-bottom-tabs {
 	display: none;
 	align-items: center;
 }
 
-.lazy-campaign-run-bottom.is-open .lazy-campaign-run-bottom-tabs {
+.strong-start-run-bottom.is-open .strong-start-run-bottom-tabs {
 	display: flex;
 }
 
-.lazy-campaign-run-bottom-collapse {
+.strong-start-run-bottom-collapse {
 	margin-left: auto;
 }
 
-.lazy-campaign-run-bottom-body {
+.strong-start-run-bottom-body {
 	display: none;
 	min-height: 0;
 }
 
-.lazy-campaign-run-bottom.is-open .lazy-campaign-run-bottom-body {
+.strong-start-run-bottom.is-open .strong-start-run-bottom-body {
 	display: block;
 }
 
-.lazy-campaign-run-log-history {
+.strong-start-run-log-history {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-2-2);
@@ -1699,21 +1699,21 @@
 	padding-right: var(--size-4-1);
 }
 
-.lazy-campaign-run-bottom.is-tab-notes .lazy-campaign-run-log-history {
+.strong-start-run-bottom.is-tab-notes .strong-start-run-log-history {
 	display: none;
 }
 
-.lazy-campaign-run-log-row {
+.strong-start-run-log-row {
 	font-size: 0.9em;
 }
 
-.lazy-campaign-run-log-time {
+.strong-start-run-log-time {
 	margin-right: var(--size-4-1);
 	color: var(--text-muted);
 	font-variant-numeric: tabular-nums;
 }
 
-.lazy-campaign-run-notes-input {
+.strong-start-run-notes-input {
 	display: none;
 	width: 100%;
 	max-height: 35cqh;
@@ -1722,30 +1722,30 @@
 	font-size: inherit;
 }
 
-.lazy-campaign-run-bottom.is-tab-notes .lazy-campaign-run-notes-input {
+.strong-start-run-bottom.is-tab-notes .strong-start-run-notes-input {
 	display: block;
 }
 
-.lazy-campaign-run-bottom-inputrow {
+.strong-start-run-bottom-inputrow {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-run-bottom.is-open.is-tab-notes .lazy-campaign-run-bottom-inputrow {
+.strong-start-run-bottom.is-open.is-tab-notes .strong-start-run-bottom-inputrow {
 	display: none;
 }
 
-.lazy-campaign-run-bottom.is-open .lazy-campaign-run-bottom-expand {
+.strong-start-run-bottom.is-open .strong-start-run-bottom-expand {
 	display: none;
 }
 
-.lazy-campaign-run-log-input {
+.strong-start-run-log-input {
 	width: 100%;
 	min-height: 44px;
 }
 
-.lazy-campaign-run-dice-toast {
+.strong-start-run-dice-toast {
 	position: absolute;
 	inset: 0;
 	z-index: 5;
@@ -1761,37 +1761,37 @@
 	border-radius: var(--radius-l);
 	box-shadow: var(--shadow-s);
 	pointer-events: none;
-	animation: lazy-campaign-run-dice-pop 200ms ease-out;
+	animation: strong-start-run-dice-pop 200ms ease-out;
 	transition: opacity 300ms ease;
 }
 
-.lazy-campaign-run-dice-toast-total {
+.strong-start-run-dice-toast-total {
 	font-size: 3em;
 	font-weight: var(--font-bold);
 	line-height: 1.1;
 }
 
-.lazy-campaign-run-dice-toast-detail {
+.strong-start-run-dice-toast-detail {
 	max-width: 18rem;
 	font-size: 1.1em;
 	text-align: center;
 }
 
-.lazy-campaign-run-dice-toast.is-nat20 {
+.strong-start-run-dice-toast.is-nat20 {
 	box-shadow: 0 0 0 4px var(--color-yellow);
 }
 
-.lazy-campaign-run-dice-toast.is-nat1 {
+.strong-start-run-dice-toast.is-nat1 {
 	animation:
-		lazy-campaign-run-dice-pop 200ms ease-out,
-		lazy-campaign-run-shake 400ms ease-in-out;
+		strong-start-run-dice-pop 200ms ease-out,
+		strong-start-run-shake 400ms ease-in-out;
 }
 
-.lazy-campaign-run-dice-toast.is-leaving {
+.strong-start-run-dice-toast.is-leaving {
 	opacity: 0;
 }
 
-@keyframes lazy-campaign-run-dice-pop {
+@keyframes strong-start-run-dice-pop {
 	from {
 		transform: scale(0.6);
 		opacity: 0;
@@ -1802,7 +1802,7 @@
 	}
 }
 
-@keyframes lazy-campaign-run-shake {
+@keyframes strong-start-run-shake {
 	0%,
 	100% {
 		transform: translateX(0);
@@ -1822,7 +1822,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.lazy-campaign-run-dice-toast {
+	.strong-start-run-dice-toast {
 		animation: none !important;
 		transition: none !important;
 	}
@@ -1830,20 +1830,20 @@
 
 /* ---- Settings: About -------------------------------------------------------- */
 
-.lazy-campaign-settings-about p {
+.strong-start-settings-about p {
 	color: var(--text-muted);
 }
 
 /* ---- Home: Dashboard/Foundation/Session zero sub-tabs (M8) ------------------ */
 
-.lazy-campaign-home-shell {
+.strong-start-home-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-3);
 	height: 100%;
 }
 
-.lazy-campaign-home-body {
+.strong-start-home-body {
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 auto;
@@ -1852,35 +1852,35 @@
 	overflow-y: auto;
 }
 
-.lazy-campaign-home-wizard-mount {
+.strong-start-home-wizard-mount {
 	height: 100%;
 }
 
 /* ---- Fronts: shared pip control (Dashboard card + Foundation checkboxes) ---- */
 
-.lazy-campaign-fronts-card-list {
+.strong-start-fronts-card-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-fronts-card-row {
+.strong-start-fronts-card-row {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-fronts-card-name {
+.strong-start-fronts-card-name {
 	font-weight: var(--font-semibold);
 }
 
-.lazy-campaign-fronts-card-pips {
+.strong-start-fronts-card-pips {
 	display: flex;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-fronts-pip {
+.strong-start-fronts-pip {
 	flex: 0 0 auto;
 	width: var(--size-4-4);
 	height: var(--size-4-4);
@@ -1892,38 +1892,38 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-fronts-pip:hover {
+.strong-start-fronts-pip:hover {
 	background-color: var(--text-faint);
 }
 
-.lazy-campaign-fronts-pip.is-done {
+.strong-start-fronts-pip.is-done {
 	background-color: var(--color-orange);
 }
 
 /* ---- Foundation sub-tab (M8) ------------------------------------------------ */
 
-.lazy-campaign-foundation-shell {
+.strong-start-foundation-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-4);
 }
 
-.lazy-campaign-foundation-card-header {
+.strong-start-foundation-card-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-foundation-card-header h3 {
+.strong-start-foundation-card-header h3 {
 	margin: 0;
 }
 
-.lazy-campaign-foundation-pitch-prose {
+.strong-start-foundation-pitch-prose {
 	color: var(--text-normal);
 }
 
-.lazy-campaign-front-card {
+.strong-start-front-card {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
@@ -1934,56 +1934,56 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-front-name-input {
+.strong-start-front-name-input {
 	font-weight: var(--font-semibold);
 }
 
-.lazy-campaign-front-name-input,
-.lazy-campaign-front-goal-input,
-.lazy-campaign-front-doom-input,
-.lazy-campaign-front-portent-input {
+.strong-start-front-name-input,
+.strong-start-front-goal-input,
+.strong-start-front-doom-input,
+.strong-start-front-portent-input {
 	width: 100%;
 }
 
-.lazy-campaign-front-portents {
+.strong-start-front-portents {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-front-portent-row {
+.strong-start-front-portent-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-front-portent-row .lazy-campaign-front-portent-input {
+.strong-start-front-portent-row .strong-start-front-portent-input {
 	flex: 1 1 auto;
 }
 
-.lazy-campaign-front-actions {
+.strong-start-front-actions {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-wizard-field-row {
+.strong-start-wizard-field-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-wizard-field-row input {
+.strong-start-wizard-field-row input {
 	flex: 1 1 auto;
 }
 
-.lazy-campaign-list-row-dice {
+.strong-start-list-row-dice {
 	flex: 0 0 auto;
 }
 
 /* ---- Campaign creation wizard (M8) ------------------------------------------ */
 
-.lazy-campaign-wizard-shell {
+.strong-start-wizard-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-4);
@@ -1992,76 +1992,76 @@
 	margin: 0 auto;
 }
 
-.lazy-campaign-wizard-dots {
+.strong-start-wizard-dots {
 	justify-content: center;
 }
 
-.lazy-campaign-progress-dot.is-active {
+.strong-start-progress-dot.is-active {
 	background-color: var(--interactive-accent);
 	box-shadow: 0 0 0 2px var(--background-secondary), 0 0 0 3px var(--interactive-accent);
 }
 
-.lazy-campaign-wizard-content {
+.strong-start-wizard-content {
 	flex: 1 1 auto;
 	overflow-y: auto;
 }
 
-.lazy-campaign-wizard-textarea {
+.strong-start-wizard-textarea {
 	width: 100%;
 	resize: vertical;
 }
 
-.lazy-campaign-wizard-error {
+.strong-start-wizard-error {
 	color: var(--text-error);
 }
 
-.lazy-campaign-wizard-quick-create {
+.strong-start-wizard-quick-create {
 	margin-top: var(--size-4-4);
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-wizard-truths {
+.strong-start-wizard-truths {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-wizard-truth-row {
+.strong-start-wizard-truth-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-wizard-truth-number {
+.strong-start-wizard-truth-number {
 	flex: 0 0 auto;
 	width: 1.5em;
 	color: var(--text-muted);
 	text-align: right;
 }
 
-.lazy-campaign-wizard-truth-input {
+.strong-start-wizard-truth-input {
 	flex: 1 1 auto;
 }
 
-.lazy-campaign-wizard-party-row {
+.strong-start-wizard-party-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 	margin-bottom: var(--size-4-1);
 }
 
-.lazy-campaign-wizard-party-input {
+.strong-start-wizard-party-input {
 	flex: 1 1 auto;
 }
 
-.lazy-campaign-wizard-summary {
+.strong-start-wizard-summary {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-wizard-nav {
+.strong-start-wizard-nav {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -2071,44 +2071,44 @@
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-wizard-nav-right {
+.strong-start-wizard-nav-right {
 	display: flex;
 	gap: var(--size-4-2);
 }
 
 /* ---- Dashboard: session-zero nudge (M9) ------------------------------------- */
 
-.lazy-campaign-session-zero-nudge {
+.strong-start-session-zero-nudge {
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
 
 /* ---- Home: Session zero sub-tab (M9) ---------------------------------------- */
 
-.lazy-campaign-session-zero-shell {
+.strong-start-session-zero-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-3);
 }
 
-.lazy-campaign-session-zero-progress {
+.strong-start-session-zero-progress {
 	color: var(--text-muted);
 	font-weight: var(--font-medium);
 }
 
-.lazy-campaign-session-zero-pitch-prose {
+.strong-start-session-zero-pitch-prose {
 	margin-bottom: var(--size-4-2);
 	color: var(--text-normal);
 }
 
-.lazy-campaign-session-zero-items {
+.strong-start-session-zero-items {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 	margin-top: var(--size-4-2);
 }
 
-.lazy-campaign-session-zero-item {
+.strong-start-session-zero-item {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--size-4-2);
@@ -2118,11 +2118,11 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-session-zero-item:hover {
+.strong-start-session-zero-item:hover {
 	background-color: var(--background-modifier-hover);
 }
 
-.lazy-campaign-session-zero-check {
+.strong-start-session-zero-check {
 	display: flex;
 	flex: 0 0 auto;
 	align-items: center;
@@ -2134,69 +2134,69 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-session-zero-check.is-done {
+.strong-start-session-zero-check.is-done {
 	color: var(--text-success);
 }
 
-.lazy-campaign-session-zero-item-text {
+.strong-start-session-zero-item-text {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 	min-width: 0;
 }
 
-.lazy-campaign-session-zero-item-label {
+.strong-start-session-zero-item-label {
 	color: var(--text-normal);
 	font-weight: var(--font-medium);
 }
 
-.lazy-campaign-session-zero-item.is-done .lazy-campaign-session-zero-item-label {
+.strong-start-session-zero-item.is-done .strong-start-session-zero-item-label {
 	color: var(--text-muted);
 	text-decoration: line-through;
 }
 
-.lazy-campaign-session-zero-item-detail {
+.strong-start-session-zero-item-detail {
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-session-zero-safety-copy h4 {
+.strong-start-session-zero-safety-copy h4 {
 	margin: var(--size-4-3) 0 var(--size-4-1);
 }
 
-.lazy-campaign-session-zero-safety-copy p {
+.strong-start-session-zero-safety-copy p {
 	margin: 0;
 	color: var(--text-muted);
 }
 
 /* ---- Roster level stepper (Characters step, M10) ---------------------------- */
 
-.lazy-campaign-roster-row {
+.strong-start-roster-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-3);
 }
 
-.lazy-campaign-roster-level {
+.strong-start-roster-level {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
 	color: var(--text-muted);
 }
 
-.lazy-campaign-roster-level-label {
+.strong-start-roster-level-label {
 	font-size: var(--font-ui-smaller);
 }
 
 /* ---- Stepper control (panel-kit.ts renderStepper, M10) ---------------------- */
 
-.lazy-campaign-stepper {
+.strong-start-stepper {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-stepper-btn {
+.strong-start-stepper-btn {
 	display: flex;
 	flex: 0 0 auto;
 	align-items: center;
@@ -2206,7 +2206,7 @@
 	padding: 0;
 }
 
-.lazy-campaign-stepper-value {
+.strong-start-stepper-value {
 	min-width: 1.5em;
 	text-align: center;
 	color: var(--text-normal);
@@ -2215,7 +2215,7 @@
 
 /* ---- 5e module (M10): benchmark card, DC/damage/stats tables, dials --------- */
 
-.lazy-campaign-dnd5e-benchmark-card {
+.strong-start-dnd5e-benchmark-card {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
@@ -2224,20 +2224,20 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-dnd5e-benchmark-summary {
+.strong-start-dnd5e-benchmark-summary {
 	font-weight: var(--font-semibold);
 	color: var(--text-normal);
 }
 
-.lazy-campaign-dnd5e-benchmark-readout {
+.strong-start-dnd5e-benchmark-readout {
 	color: var(--text-normal);
 }
 
-.lazy-campaign-dnd5e-benchmark-manual h4 {
+.strong-start-dnd5e-benchmark-manual h4 {
 	margin: var(--size-4-2) 0 0;
 }
 
-.lazy-campaign-dnd5e-benchmark-manual-row {
+.strong-start-dnd5e-benchmark-manual-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -2245,13 +2245,13 @@
 	max-width: 16em;
 }
 
-.lazy-campaign-dnd5e-dc-row {
+.strong-start-dnd5e-dc-row {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-dnd5e-dc-band {
+.strong-start-dnd5e-dc-band {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -2262,47 +2262,47 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-dnd5e-dc-value {
+.strong-start-dnd5e-dc-value {
 	font-weight: var(--font-semibold);
 	font-size: var(--font-ui-larger);
 }
 
-.lazy-campaign-dnd5e-dc-name {
+.strong-start-dnd5e-dc-name {
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-dnd5e-table {
+.strong-start-dnd5e-table {
 	width: 100%;
 	border-collapse: collapse;
 }
 
-.lazy-campaign-dnd5e-table th,
-.lazy-campaign-dnd5e-table td {
+.strong-start-dnd5e-table th,
+.strong-start-dnd5e-table td {
 	padding: var(--size-4-1) var(--size-4-2);
 	text-align: left;
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-dnd5e-dials-list {
+.strong-start-dnd5e-dials-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-dnd5e-dial-name {
+.strong-start-dnd5e-dial-name {
 	font-weight: var(--font-semibold);
 	color: var(--text-normal);
 }
 
-.lazy-campaign-dnd5e-dial-desc {
+.strong-start-dnd5e-dial-desc {
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
 
 /* ---- Run mode: 5e drawer (M10) ---------------------------------------------- */
 
-.lazy-campaign-run-dnd5e-drawer {
+.strong-start-run-dnd5e-drawer {
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -2320,17 +2320,17 @@
 	transition: transform 200ms ease;
 }
 
-.lazy-campaign-run-dnd5e-drawer.is-open {
+.strong-start-run-dnd5e-drawer.is-open {
 	transform: translateX(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.lazy-campaign-run-dnd5e-drawer {
+	.strong-start-run-dnd5e-drawer {
 		transition: none;
 	}
 }
 
-.lazy-campaign-run-dnd5e-drawer-header {
+.strong-start-run-dnd5e-drawer-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -2338,11 +2338,11 @@
 	margin-bottom: var(--size-4-3);
 }
 
-.lazy-campaign-run-dnd5e-drawer-header h3 {
+.strong-start-run-dnd5e-drawer-header h3 {
 	margin: 0;
 }
 
-.lazy-campaign-run-dnd5e-drawer-body {
+.strong-start-run-dnd5e-drawer-body {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
@@ -2350,7 +2350,7 @@
 
 /* ---- Dismissible hints (M11) ------------------------------------------------- */
 
-.lazy-campaign-hint-row {
+.strong-start-hint-row {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--size-4-2);
@@ -2362,19 +2362,19 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-hint-row-icon {
+.strong-start-hint-row-icon {
 	display: flex;
 	flex: 0 0 auto;
 	margin-top: 2px;
 	color: var(--text-accent);
 }
 
-.lazy-campaign-hint-row-text {
+.strong-start-hint-row-text {
 	flex: 1 1 auto;
 	min-width: 0;
 }
 
-.lazy-campaign-hint-row-close {
+.strong-start-hint-row-close {
 	display: flex;
 	flex: 0 0 auto;
 	align-items: center;
@@ -2389,24 +2389,24 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-hint-row-close:hover {
+.strong-start-hint-row-close:hover {
 	color: var(--text-normal);
 }
 
 /* ---- Welcome modal (M11) ----------------------------------------------------- */
 
-.lazy-campaign-welcome-modal .lazy-campaign-welcome-tagline {
+.strong-start-welcome-modal .strong-start-welcome-tagline {
 	color: var(--text-muted);
 }
 
-.lazy-campaign-welcome-grid {
+.strong-start-welcome-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
 	gap: var(--size-4-3);
 	margin: var(--size-4-4) 0;
 }
 
-.lazy-campaign-welcome-card {
+.strong-start-welcome-card {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
@@ -2416,29 +2416,29 @@
 	border-radius: var(--radius-m);
 }
 
-.lazy-campaign-welcome-card-icon {
+.strong-start-welcome-card-icon {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	color: var(--text-accent);
 }
 
-.lazy-campaign-welcome-card-label {
+.strong-start-welcome-card-label {
 	font-weight: var(--font-semibold);
 	color: var(--text-normal);
 }
 
-.lazy-campaign-welcome-card-desc {
+.strong-start-welcome-card-desc {
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-welcome-attribution {
+.strong-start-welcome-attribution {
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-welcome-buttons {
+.strong-start-welcome-buttons {
 	display: flex;
 	justify-content: flex-end;
 	margin-top: var(--size-4-4);
@@ -2446,56 +2446,56 @@
 
 /* ---- Help panel (M11) --------------------------------------------------------- */
 
-.lazy-campaign-help-shell {
+.strong-start-help-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-4);
 }
 
-.lazy-campaign-help-loop-list {
+.strong-start-help-loop-list {
 	margin: 0;
 	padding-left: var(--size-4-4);
 }
 
-.lazy-campaign-help-steps-list {
+.strong-start-help-steps-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-1);
 }
 
-.lazy-campaign-help-step-row {
+.strong-start-help-step-row {
 	display: flex;
 	align-items: baseline;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-help-step-label {
+.strong-start-help-step-label {
 	flex: 0 0 auto;
 	width: 12rem;
 	font-weight: var(--font-medium);
 	color: var(--text-normal);
 }
 
-.lazy-campaign-help-shortcuts-list {
+.strong-start-help-shortcuts-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-help-shortcut-row {
+.strong-start-help-shortcut-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-help-shortcut-row kbd {
+.strong-start-help-shortcut-row kbd {
 	padding: var(--size-4-1) var(--size-4-2);
 	color: var(--text-normal);
 	background-color: var(--background-secondary);
 	border-radius: var(--radius-s);
 }
 
-.lazy-campaign-help-links-row {
+.strong-start-help-links-row {
 	display: flex;
 	gap: var(--size-4-3);
 	margin-top: var(--size-4-2);
@@ -2503,12 +2503,12 @@
 
 /* ---- Home / Sessions list (M13) ------------------------------------------------ */
 
-.lazy-campaign-session-list {
+.strong-start-session-list {
 	display: flex;
 	flex-direction: column;
 }
 
-.lazy-campaign-session-row {
+.strong-start-session-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-3);
@@ -2518,11 +2518,11 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-session-row:hover {
+.strong-start-session-row:hover {
 	background-color: var(--background-modifier-hover);
 }
 
-.lazy-campaign-session-row-title {
+.strong-start-session-row-title {
 	flex: 1 1 auto;
 	min-width: 0;
 	overflow: hidden;
@@ -2530,15 +2530,15 @@
 	text-overflow: ellipsis;
 }
 
-.lazy-campaign-session-row-number {
+.strong-start-session-row-number {
 	font-weight: var(--font-medium);
 }
 
-.lazy-campaign-session-row-name {
+.strong-start-session-row-name {
 	color: var(--text-muted);
 }
 
-.lazy-campaign-session-row-meta {
+.strong-start-session-row-meta {
 	display: flex;
 	flex: 0 0 auto;
 	align-items: center;
@@ -2547,18 +2547,18 @@
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-session-status {
+.strong-start-session-status {
 	padding: 1px var(--size-4-2);
 	border-radius: var(--radius-s);
 	background-color: var(--background-modifier-hover);
 }
 
-.lazy-campaign-session-status.is-played {
+.strong-start-session-status.is-played {
 	color: var(--text-on-accent);
 	background-color: var(--interactive-accent);
 }
 
-.lazy-campaign-session-recap {
+.strong-start-session-recap {
 	color: var(--text-faint);
 }
 
@@ -2566,20 +2566,20 @@
    Prep timer, dice tumble, secret reveal flip. Motion is garnish: every
    animation here is disabled under prefers-reduced-motion. */
 
-.lazy-campaign-prep-timer {
+.strong-start-prep-timer {
 	color: var(--text-faint);
 	font-size: var(--font-ui-smaller);
 	font-variant-numeric: tabular-nums;
 	white-space: nowrap;
 }
 
-.lazy-campaign-roll-chip-die {
+.strong-start-roll-chip-die {
 	display: inline-flex;
 	color: var(--text-accent);
-	animation: lazy-campaign-dice-tumble 300ms ease-out;
+	animation: strong-start-dice-tumble 300ms ease-out;
 }
 
-@keyframes lazy-campaign-dice-tumble {
+@keyframes strong-start-dice-tumble {
 	0% {
 		transform: rotate(-140deg) scale(0.6);
 	}
@@ -2591,12 +2591,12 @@
 	}
 }
 
-.lazy-campaign-run-secret-card.is-flipping {
-	animation: lazy-campaign-secret-flip 260ms ease-out;
+.strong-start-run-secret-card.is-flipping {
+	animation: strong-start-secret-flip 260ms ease-out;
 	transform-style: preserve-3d;
 }
 
-@keyframes lazy-campaign-secret-flip {
+@keyframes strong-start-secret-flip {
 	0% {
 		transform: rotateX(-90deg);
 		opacity: 0.4;
@@ -2608,26 +2608,26 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.lazy-campaign-roll-chip-die,
-	.lazy-campaign-run-secret-card.is-flipping {
+	.strong-start-roll-chip-die,
+	.strong-start-run-secret-card.is-flipping {
 		animation: none;
 	}
 }
 
 /* ---- Home / World entity list + entity editor (M17) ----------------------------- */
 
-.lazy-campaign-world-shell {
+.strong-start-world-shell {
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
 }
 
-.lazy-campaign-world-list {
+.strong-start-world-list {
 	display: flex;
 	flex-direction: column;
 }
 
-.lazy-campaign-world-row {
+.strong-start-world-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -2637,11 +2637,11 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-world-row:hover {
+.strong-start-world-row:hover {
 	background-color: var(--background-modifier-hover);
 }
 
-.lazy-campaign-world-row-title {
+.strong-start-world-row-title {
 	flex: 1 1 auto;
 	min-width: 0;
 	overflow: hidden;
@@ -2649,21 +2649,21 @@
 	text-overflow: ellipsis;
 }
 
-.lazy-campaign-world-row-name {
+.strong-start-world-row-name {
 	font-weight: var(--font-medium);
 }
 
-.lazy-campaign-world-row-meta {
+.strong-start-world-row-meta {
 	color: var(--text-muted);
 	font-size: var(--font-ui-small);
 }
 
-.lazy-campaign-world-row.is-quest-done .lazy-campaign-world-row-name {
+.strong-start-world-row.is-quest-done .strong-start-world-row-name {
 	color: var(--text-muted);
 	text-decoration: line-through;
 }
 
-.lazy-campaign-world-quest-toggle {
+.strong-start-world-quest-toggle {
 	display: flex;
 	flex: 0 0 auto;
 	align-items: center;
@@ -2678,57 +2678,57 @@
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-world-quest-toggle.is-done {
+.strong-start-world-quest-toggle.is-done {
 	color: var(--text-accent);
 }
 
-.lazy-campaign-world-new {
+.strong-start-world-new {
 	align-self: flex-start;
 	margin-top: var(--size-4-1);
 }
 
-.lazy-campaign-entity-editor-footer {
+.strong-start-entity-editor-footer {
 	display: flex;
 	justify-content: flex-start;
 	margin-top: var(--size-4-2);
 }
 
-.lazy-campaign-foundation-system-row {
+.strong-start-foundation-system-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-3);
 }
 
-.lazy-campaign-session-zero-section {
+.strong-start-session-zero-section {
 	position: relative;
 	margin-bottom: var(--size-4-2);
 }
 
-.lazy-campaign-session-zero-section > .lazy-campaign-icon-button {
+.strong-start-session-zero-section > .strong-start-icon-button {
 	position: absolute;
 	top: 0;
 	right: 0;
 }
 
-.lazy-campaign-session-zero-section-prose {
+.strong-start-session-zero-section-prose {
 	padding-right: var(--size-4-8);
 }
 
 /* Chip pencil (M17): compact inside the chip, but still a touch target. */
-.lazy-campaign-chip .lazy-campaign-chip-edit {
+.strong-start-chip .strong-start-chip-edit {
 	min-width: 28px;
 	min-height: 28px;
 	padding: 0;
 }
 
-body.is-phone .lazy-campaign-chip .lazy-campaign-chip-edit {
+body.is-phone .strong-start-chip .strong-start-chip-edit {
 	min-width: 40px;
 	min-height: 40px;
 }
 
 /* ---- End-session stars & wishes (M16) ------------------------------------------ */
 
-.lazy-campaign-end-session-feedback {
+.strong-start-end-session-feedback {
 	width: 100%;
 	margin-top: var(--size-4-2);
 }
@@ -2738,15 +2738,15 @@ body.is-phone .lazy-campaign-chip .lazy-campaign-chip-edit {
    nav-model.ts (PHONE_BAR / PHONE_MORE_SHEET). Hidden by default — desktop and
    tablet keep the rail. */
 
-.lazy-campaign-bottombar {
+.strong-start-bottombar {
 	display: none;
 }
 
-body.is-phone .lazy-campaign-rail {
+body.is-phone .strong-start-rail {
 	display: none;
 }
 
-body.is-phone .lazy-campaign-bottombar {
+body.is-phone .strong-start-bottombar {
 	display: flex;
 	align-items: stretch;
 	flex-shrink: 0;
@@ -2755,10 +2755,10 @@ body.is-phone .lazy-campaign-bottombar {
 	padding-bottom: env(safe-area-inset-bottom);
 	/* Lifted at runtime to sit flush above Obsidian's global mobile navbar
 	   (PhoneShell.alignAboveNavbar measures the overlap). */
-	margin-bottom: var(--lazy-campaign-navbar-lift, 0px);
+	margin-bottom: var(--strong-start-navbar-lift, 0px);
 }
 
-.lazy-campaign-bottombar-tab {
+.strong-start-bottombar-tab {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
@@ -2776,30 +2776,30 @@ body.is-phone .lazy-campaign-bottombar {
 /* Obsidian's mobile theme styles bare <button>s as rounded, filled capsules
    (`.is-mobile button` out-specifies a plain class). Override under
    body.is-phone so the tabs read as one flat bar, not pills on a rectangle. */
-body.is-phone .lazy-campaign-bottombar-tab,
-body.is-phone .lazy-campaign-bottombar-tab:hover,
-body.is-phone .lazy-campaign-bottombar-tab:focus {
+body.is-phone .strong-start-bottombar-tab,
+body.is-phone .strong-start-bottombar-tab:hover,
+body.is-phone .strong-start-bottombar-tab:focus {
 	background-color: transparent;
 	border: none;
 	border-radius: 0;
 	box-shadow: none;
 }
 
-body.is-phone .lazy-campaign-bottombar-tab:active {
+body.is-phone .strong-start-bottombar-tab:active {
 	background-color: var(--background-modifier-hover);
 }
 
-body.is-phone .lazy-campaign-bottombar-tab.is-active {
+body.is-phone .strong-start-bottombar-tab.is-active {
 	color: var(--text-accent);
 	box-shadow: inset 0 2px 0 0 var(--interactive-accent);
 }
 
-.lazy-campaign-bottombar-icon .svg-icon {
+.strong-start-bottombar-icon .svg-icon {
 	width: 20px;
 	height: 20px;
 }
 
-.lazy-campaign-bottombar-label {
+.strong-start-bottombar-label {
 	line-height: 1;
 }
 
@@ -2809,41 +2809,41 @@ body.is-phone .lazy-campaign-bottombar-tab.is-active {
    content height, leaving a keyboard-sized void. Absolute positioning resolves
    against the view's (correct) rect and dodges the bug. Phone-only: the rail
    is display:none there, so inset:0 overlays nothing. */
-body.is-phone .lazy-campaign-view {
+body.is-phone .strong-start-view {
 	position: relative;
 }
 
-body.is-phone .lazy-campaign-main {
+body.is-phone .strong-start-main {
 	position: absolute;
 	inset: 0;
 }
 
-/* KeyboardWatcher publishes --lazy-campaign-keyboard-inset + is-keyboard-open
+/* KeyboardWatcher publishes --strong-start-keyboard-inset + is-keyboard-open
    on the view. Obsidian itself shrinks the app container while an input is
    focused, so content isn't covered — but the bottom bar staying in the flex
    column (with its navbar lift) squeezes the content to nothing. While typing,
    the bar gets out of the way; tab-switching mid-edit isn't a flow to protect. */
-body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-bottombar {
+body.is-phone .strong-start-view.is-keyboard-open .strong-start-bottombar {
 	display: none;
 }
 
 /* Header on narrow widths: the campaign selector takes the free space and
    truncates inside itself instead of pushing the ⋯ menu off-screen. */
-body.is-phone .lazy-campaign-header-selector {
+body.is-phone .strong-start-header-selector {
 	flex: 1 1 auto;
 	min-width: 0;
 }
 
-body.is-phone .lazy-campaign-header-selector select {
+body.is-phone .strong-start-header-selector select {
 	width: 100%;
 	max-width: 100%;
 }
 
 /* Form fields at ≥16px: sub-16px focused inputs trigger auto-zoom in mobile
    webviews (the "field takes over the screen" effect). */
-body.is-phone .lazy-campaign-view input[type="text"],
-body.is-phone .lazy-campaign-view textarea,
-body.is-phone .lazy-campaign-view select {
+body.is-phone .strong-start-view input[type="text"],
+body.is-phone .strong-start-view textarea,
+body.is-phone .strong-start-view select {
 	font-size: max(16px, var(--font-ui-medium));
 }
 
@@ -2853,15 +2853,15 @@ body.is-phone .lazy-campaign-view select {
    the screen; the @container narrow rules above are overridden here (a phone
    is always under the 700px container threshold). */
 
-.lazy-campaign-phone-back-header {
+.strong-start-phone-back-header {
 	display: none;
 }
 
-body.is-phone .lazy-campaign-prep-board {
+body.is-phone .strong-start-prep-board {
 	flex-direction: column;
 }
 
-body.is-phone .lazy-campaign-prep-master {
+body.is-phone .strong-start-prep-master {
 	flex-direction: column;
 	width: 100%;
 	overflow-x: visible;
@@ -2870,24 +2870,24 @@ body.is-phone .lazy-campaign-prep-master {
 	border-bottom: none;
 }
 
-body.is-phone .lazy-campaign-step-row {
+body.is-phone .strong-start-step-row {
 	min-height: 44px;
 }
 
-body.is-phone .lazy-campaign-prep-workspace {
+body.is-phone .strong-start-prep-workspace {
 	display: none;
 	padding-left: 0;
 }
 
-body.is-phone .lazy-campaign-prep-board.is-phone-detail .lazy-campaign-prep-master {
+body.is-phone .strong-start-prep-board.is-phone-detail .strong-start-prep-master {
 	display: none;
 }
 
-body.is-phone .lazy-campaign-prep-board.is-phone-detail .lazy-campaign-prep-workspace {
+body.is-phone .strong-start-prep-board.is-phone-detail .strong-start-prep-workspace {
 	display: block;
 }
 
-body.is-phone .lazy-campaign-phone-back-header {
+body.is-phone .strong-start-phone-back-header {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -2896,7 +2896,7 @@ body.is-phone .lazy-campaign-phone-back-header {
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.lazy-campaign-phone-back-button {
+.strong-start-phone-back-button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -2910,7 +2910,7 @@ body.is-phone .lazy-campaign-phone-back-header {
 	cursor: var(--cursor-link);
 }
 
-.lazy-campaign-phone-back-title {
+.strong-start-phone-back-title {
 	font-weight: var(--font-semibold);
 }
 
@@ -2918,27 +2918,27 @@ body.is-phone .lazy-campaign-phone-back-header {
    The container query already stacks the board single-column; this compacts
    the sticky top bar so the timer, dice, safety, and End all fit one row. */
 
-body.is-phone .lazy-campaign-run-topbar {
+body.is-phone .strong-start-run-topbar {
 	flex-wrap: nowrap;
 	gap: var(--size-4-1);
 }
 
-body.is-phone .lazy-campaign-run-session-label {
+body.is-phone .strong-start-run-session-label {
 	flex: 0 0 auto;
 	font-size: var(--font-ui-small);
 }
 
 /* The header above already names the campaign — drop the duplicate here. */
-body.is-phone .lazy-campaign-run-session-campaign {
+body.is-phone .strong-start-run-session-campaign {
 	display: none;
 }
 
-body.is-phone .lazy-campaign-run-icon-button {
+body.is-phone .strong-start-run-icon-button {
 	min-width: 40px;
 	min-height: 40px;
 }
 
-body.is-phone .lazy-campaign-run-end-button {
+body.is-phone .strong-start-run-end-button {
 	padding: var(--size-4-1) var(--size-4-2);
 	font-size: var(--font-ui-small);
 }
@@ -2947,13 +2947,13 @@ body.is-phone .lazy-campaign-run-end-button {
    container, and with the bottom bar hidden while typing the flex column's
    natural bottom IS the keyboard top. Safe-area padding for the no-keyboard
    case. */
-body.is-phone .lazy-campaign-run-bottom {
+body.is-phone .strong-start-run-bottom {
 	padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* An expanded log history would squeeze the board to nothing behind the soft
    keyboard while typing a log line — hide it until the keyboard drops. */
-body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-history {
+body.is-phone .strong-start-view.is-keyboard-open .strong-start-run-log-history {
 	display: none;
 }
 
@@ -2961,27 +2961,27 @@ body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-histor
 
 /* Reference tables can outgrow the drawer/prep column — scroll inside their
    own wrapper, never the page. */
-.lazy-campaign-dnd5e-table-scroll {
+.strong-start-dnd5e-table-scroll {
 	overflow-x: auto;
 }
 
-.lazy-campaign-dnd5e-table-toggle {
+.strong-start-dnd5e-table-toggle {
 	display: inline-block;
 	margin-top: var(--size-4-1);
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-dnd5e-table-filter {
+.strong-start-dnd5e-table-filter {
 	width: 100%;
 	margin-bottom: var(--size-4-2);
 }
 
-.lazy-campaign-dnd5e-location-select {
+.strong-start-dnd5e-location-select {
 	margin-bottom: var(--size-4-2);
 }
 
-.lazy-campaign-run-dnd5e-build-row,
-.lazy-campaign-monster-build-row {
+.strong-start-run-dnd5e-build-row,
+.strong-start-monster-build-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -2990,23 +2990,23 @@ body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-histor
 }
 
 /* Builder modal */
-.lazy-campaign-monster-builder {
+.strong-start-monster-builder {
 	max-height: 80vh;
 	overflow-y: auto;
 }
 
-.lazy-campaign-monster-presets-row {
+.strong-start-monster-presets-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--size-4-1);
 	margin-bottom: var(--size-4-2);
 }
 
-.lazy-campaign-monster-preset {
+.strong-start-monster-preset {
 	font-size: var(--font-ui-smaller);
 }
 
-.lazy-campaign-monster-party-row {
+.strong-start-monster-party-row {
 	display: flex;
 	align-items: center;
 	gap: var(--size-4-2);
@@ -3014,34 +3014,34 @@ body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-histor
 	flex-wrap: wrap;
 }
 
-.lazy-campaign-monster-field-label {
+.strong-start-monster-field-label {
 	display: block;
 	font-size: var(--font-ui-small);
 	font-weight: var(--font-semibold);
 	margin-bottom: var(--size-4-1);
 }
 
-.lazy-campaign-monster-abilities {
+.strong-start-monster-abilities {
 	margin: var(--size-4-2) 0;
 }
 
-.lazy-campaign-monster-chip {
+.strong-start-monster-chip {
 	font-size: var(--font-ui-smaller);
 	margin-right: var(--size-4-1);
 	opacity: 0.7;
 }
 
-.lazy-campaign-monster-chip.is-active {
+.strong-start-monster-chip.is-active {
 	opacity: 1;
 	background-color: var(--interactive-accent);
 	color: var(--text-on-accent);
 }
 
-.lazy-campaign-monster-features {
+.strong-start-monster-features {
 	margin: var(--size-4-2) 0;
 }
 
-.lazy-campaign-monster-feature-row label {
+.strong-start-monster-feature-row label {
 	display: flex;
 	align-items: baseline;
 	gap: var(--size-4-1);
@@ -3049,7 +3049,7 @@ body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-histor
 	cursor: pointer;
 }
 
-.lazy-campaign-monster-preview {
+.strong-start-monster-preview {
 	border: 1px solid var(--background-modifier-border);
 	border-radius: var(--radius-s);
 	padding: var(--size-4-2);
@@ -3057,22 +3057,22 @@ body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-histor
 	background-color: var(--background-secondary);
 }
 
-.lazy-campaign-monster-preview-title {
+.strong-start-monster-preview-title {
 	font-weight: var(--font-semibold);
 }
 
-.lazy-campaign-monster-preview-flavor {
+.strong-start-monster-preview-flavor {
 	font-style: italic;
 	font-size: var(--font-ui-small);
 	color: var(--text-muted);
 }
 
-.lazy-campaign-monster-preview-stats {
+.strong-start-monster-preview-stats {
 	font-size: var(--font-ui-small);
 	margin-top: var(--size-4-1);
 }
 
-.lazy-campaign-monster-preview-feature {
+.strong-start-monster-preview-feature {
 	font-size: var(--font-ui-smaller);
 	color: var(--text-muted);
 	margin-top: var(--size-4-1);
@@ -3080,7 +3080,7 @@ body.is-phone .lazy-campaign-view.is-keyboard-open .lazy-campaign-run-log-histor
 
 /* The preview is a luxury on a phone-width modal — keep it, but compact. */
 @media (max-width: 500px) {
-	.lazy-campaign-monster-preview-feature {
+	.strong-start-monster-preview-feature {
 		display: none;
 	}
 }

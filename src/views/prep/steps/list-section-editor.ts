@@ -56,7 +56,7 @@ export interface ListSectionOptions {
 	withDetail?: boolean;
 }
 
-const ROW_INPUT_SELECTOR = ".lazy-campaign-list-row-input";
+const ROW_INPUT_SELECTOR = ".strong-start-list-row-input";
 
 /** Editing-surface row: `TaskRow` plus a transient open flag for the detail
  * textarea. The flag lives on the row (not an index set) so move/remove carry
@@ -112,8 +112,8 @@ export function renderListSectionEditor(
 	let rows: EditorRow[] = parsed.rows.length > 0 ? parsed.rows : [{ text: "", done: false }];
 	let focusIndex: number | null = null;
 
-	const listEl = container.createDiv({ cls: "lazy-campaign-list-rows" });
-	if (options.hint.length > 0) container.createEl("p", { cls: "lazy-campaign-hint", text: options.hint });
+	const listEl = container.createDiv({ cls: "strong-start-list-rows" });
+	if (options.hint.length > 0) container.createEl("p", { cls: "strong-start-hint", text: options.hint });
 
 	const debouncedCommit = debounce(() => commit(), 800, true);
 	ctx.registerDebounce(debouncedCommit);
@@ -126,10 +126,10 @@ export function renderListSectionEditor(
 		listEl.empty();
 
 		rows.forEach((row, index) => {
-			const rowEl = listEl.createDiv({ cls: "lazy-campaign-list-row" });
+			const rowEl = listEl.createDiv({ cls: "strong-start-list-row" });
 			const input = rowEl.createEl("input", {
 				type: "text",
-				cls: "lazy-campaign-list-row-input",
+				cls: "strong-start-list-row-input",
 				attr: { "data-key": `${options.stepId}-row-${index}`, placeholder: options.placeholder },
 			});
 			input.value = row.text;
@@ -149,10 +149,10 @@ export function renderListSectionEditor(
 				commit();
 			});
 
-			const controls = rowEl.createDiv({ cls: "lazy-campaign-list-row-controls" });
+			const controls = rowEl.createDiv({ cls: "strong-start-list-row-controls" });
 			if (withDetail) {
 				const detailBtn = controls.createEl("button", {
-					cls: `lazy-campaign-icon-button lazy-campaign-list-row-detail-toggle${
+					cls: `strong-start-icon-button strong-start-list-row-detail-toggle${
 						(row.detail ?? "").trim().length > 0 ? " has-detail" : ""
 					}`,
 					attr: {
@@ -199,7 +199,7 @@ export function renderListSectionEditor(
 
 			if (withDetail && row.detailOpen) {
 				const detailArea = listEl.createEl("textarea", {
-					cls: "lazy-campaign-list-row-detail",
+					cls: "strong-start-list-row-detail",
 					attr: {
 						rows: "3",
 						placeholder: "Detail shown in run mode — read-aloud, DCs, tactics…",
@@ -232,7 +232,7 @@ export function renderListSectionEditor(
 		onClick: () => void
 	): void {
 		const button = controlsEl.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": label, type: "button" },
 		});
 		setIcon(button, icon);
@@ -241,9 +241,9 @@ export function renderListSectionEditor(
 	}
 
 	function renderRowDice(rowEl: HTMLElement, dice: ListSectionDiceOptions, onInsert: (text: string) => void): void {
-		const chipMount = rowEl.createDiv({ cls: "lazy-campaign-list-row-dice" });
+		const chipMount = rowEl.createDiv({ cls: "strong-start-list-row-dice" });
 		const rollBtn = rowEl.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Roll for inspiration", type: "button" },
 		});
 		setIcon(rollBtn, "dices");
@@ -277,7 +277,7 @@ export function renderListSectionEditor(
 }
 
 function renderMalformedBanner(container: HTMLElement, ctx: SectionEditorCtx, heading: string): void {
-	const banner = container.createDiv({ cls: "lazy-campaign-malformed-banner" });
+	const banner = container.createDiv({ cls: "strong-start-malformed-banner" });
 	banner.createSpan({
 		text: `The ${heading} section was edited outside the board — open the note to fix it up by hand.`,
 	});

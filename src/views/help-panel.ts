@@ -51,7 +51,7 @@ export class HelpPanel {
 
 	render(): void {
 		this.containerEl.empty();
-		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-help-shell" });
+		const shell = this.containerEl.createDiv({ cls: "strong-start-help-shell" });
 
 		this.renderLoopCard(shell);
 		this.renderStepsCard(shell);
@@ -64,7 +64,7 @@ export class HelpPanel {
 	 * its three oracle tables live in the tables panel under the same
 	 * `solo5e` toggle. Condensed from the resource document (CC-BY 4.0). */
 	private renderSoloCard(shell: HTMLElement): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		const card = shell.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Solo play" });
 		card.createEl("p", {
 			// "Lazy Solo 5e" is the source document's own section title — keep
@@ -73,7 +73,7 @@ export class HelpPanel {
 			// eslint-disable-next-line obsidianmd/ui/sentence-case
 			text: "The Lazy Solo 5e rules: one character, a dungeon map of your choice, quests from the generators, oracles from the built-in tables.",
 		});
-		const list = card.createEl("ol", { cls: "lazy-campaign-help-loop-list" });
+		const list = card.createEl("ol", { cls: "strong-start-help-loop-list" });
 		const steps = [
 			"Build the quest: roll an NPC quest-giver, a quest, and a location from the generators. Pick a map with fifteen or more rooms and a sensible starting room. Start at 1st level.",
 			"Each chamber you enter, roll on “Solo — chamber events”. Every “quest progress” result advances the quest one step — your fourth is the final challenge; beat it and gain a level.",
@@ -86,37 +86,37 @@ export class HelpPanel {
 	}
 
 	private renderLoopCard(shell: HTMLElement): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		const card = shell.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "The weekly loop" });
-		const list = card.createEl("ol", { cls: "lazy-campaign-help-loop-list" });
+		const list = card.createEl("ol", { cls: "strong-start-help-loop-list" });
 		for (const line of WEEKLY_LOOP) list.createEl("li", { text: line });
 	}
 
 	private renderStepsCard(shell: HTMLElement): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		const card = shell.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "The eight steps" });
-		const list = card.createDiv({ cls: "lazy-campaign-help-steps-list" });
+		const list = card.createDiv({ cls: "strong-start-help-steps-list" });
 		for (const step of STEPS) {
-			const row = list.createDiv({ cls: "lazy-campaign-help-step-row" });
-			row.createSpan({ cls: "lazy-campaign-step-number", text: String(step.number) });
-			row.createSpan({ cls: "lazy-campaign-help-step-label", text: step.label });
-			row.createSpan({ cls: "lazy-campaign-hint", text: STEP_ONE_LINERS[step.id] ?? "" });
+			const row = list.createDiv({ cls: "strong-start-help-step-row" });
+			row.createSpan({ cls: "strong-start-step-number", text: String(step.number) });
+			row.createSpan({ cls: "strong-start-help-step-label", text: step.label });
+			row.createSpan({ cls: "strong-start-hint", text: STEP_ONE_LINERS[step.id] ?? "" });
 		}
 	}
 
 	private renderShortcutsCard(shell: HTMLElement): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		const card = shell.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Keyboard shortcuts" });
-		const list = card.createDiv({ cls: "lazy-campaign-help-shortcuts-list" });
+		const list = card.createDiv({ cls: "strong-start-help-shortcuts-list" });
 		for (const shortcut of KEYBOARD_SHORTCUTS) {
-			const row = list.createDiv({ cls: "lazy-campaign-help-shortcut-row" });
+			const row = list.createDiv({ cls: "strong-start-help-shortcut-row" });
 			row.createEl("kbd", { text: shortcut.keys });
 			row.createSpan({ text: shortcut.text });
 		}
 	}
 
 	private renderLinksCard(shell: HTMLElement): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		const card = shell.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "About" });
 		card.createEl("p", { text: ATTRIBUTION_TEXT });
 		card.createEl("a", {
@@ -131,7 +131,7 @@ export class HelpPanel {
 			attr: { target: "_blank", rel: "noopener" },
 		});
 
-		const linksRow = card.createDiv({ cls: "lazy-campaign-help-links-row" });
+		const linksRow = card.createDiv({ cls: "strong-start-help-links-row" });
 
 		const replayLink = linksRow.createEl("a", { text: "Replay welcome", attr: { href: "#" } });
 		this.view.registerDomEvent(replayLink, "click", (evt) => {

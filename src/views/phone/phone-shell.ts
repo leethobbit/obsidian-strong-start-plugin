@@ -21,7 +21,7 @@ export class PhoneShell {
 	setActive(mode: NavMode): void {
 		if (!this.bar) return;
 		const active = phoneTabForMode(mode);
-		this.bar.querySelectorAll<HTMLElement>(".lazy-campaign-bottombar-tab").forEach((el) => {
+		this.bar.querySelectorAll<HTMLElement>(".strong-start-bottombar-tab").forEach((el) => {
 			el.toggleClass("is-active", el.dataset.tab === active);
 		});
 	}
@@ -39,7 +39,7 @@ export class PhoneShell {
 		if (!bar) return;
 		const navbar = bar.ownerDocument.querySelector<HTMLElement>(".mobile-navbar");
 		if (!navbar) {
-			bar.setCssProps({ "--lazy-campaign-navbar-lift": "0px" });
+			bar.setCssProps({ "--strong-start-navbar-lift": "0px" });
 			return;
 		}
 		// Drive the lift through a CSS variable (the bar's margin-bottom reads
@@ -49,6 +49,6 @@ export class PhoneShell {
 		const current = parseFloat(getComputedStyle(bar).marginBottom) || 0;
 		const overlap = bar.getBoundingClientRect().bottom - navbar.getBoundingClientRect().top;
 		const next = Math.max(0, Math.round(current + overlap + GAP));
-		bar.setCssProps({ "--lazy-campaign-navbar-lift": `${next}px` });
+		bar.setCssProps({ "--strong-start-navbar-lift": `${next}px` });
 	}
 }

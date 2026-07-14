@@ -41,10 +41,10 @@ export function mountRollChip(options: RollChipOptions): void {
 		container.empty();
 
 		const result = options.roll();
-		const card = container.createDiv({ cls: "lazy-campaign-roll-chip" });
+		const card = container.createDiv({ cls: "strong-start-roll-chip" });
 
 		if (!result) {
-			card.createSpan({ cls: "lazy-campaign-empty-state", text: "Nothing to roll there yet." });
+			card.createSpan({ cls: "strong-start-empty-state", text: "Nothing to roll there yet." });
 			return;
 		}
 
@@ -52,13 +52,13 @@ export function mountRollChip(options: RollChipOptions): void {
 		// as each result lands. The animation lives on the icon, re-triggered
 		// naturally because every (re)roll rebuilds the chip's DOM; CSS turns
 		// it off under prefers-reduced-motion.
-		const tumble = card.createSpan({ cls: "lazy-campaign-roll-chip-die" });
+		const tumble = card.createSpan({ cls: "strong-start-roll-chip-die" });
 		setIcon(tumble, "dices");
 
-		card.createDiv({ cls: "lazy-campaign-roll-chip-text", text: result.text });
-		card.createDiv({ cls: "lazy-campaign-roll-chip-source", text: `From ${options.sourceLabel}` });
+		card.createDiv({ cls: "strong-start-roll-chip-text", text: result.text });
+		card.createDiv({ cls: "strong-start-roll-chip-source", text: `From ${options.sourceLabel}` });
 
-		const buttons = card.createDiv({ cls: "lazy-campaign-roll-chip-buttons" });
+		const buttons = card.createDiv({ cls: "strong-start-roll-chip-buttons" });
 
 		const insertBtn = buttons.createEl("button", { cls: "mod-cta", text: "Insert" });
 		options.registerDomEvent(insertBtn, "click", () => options.onInsert(result.text));
@@ -67,7 +67,7 @@ export function mountRollChip(options: RollChipOptions): void {
 		options.registerDomEvent(rerollBtn, "click", () => draw());
 
 		const dismissBtn = buttons.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Dismiss", type: "button" },
 		});
 		setIcon(dismissBtn, "x");
@@ -101,9 +101,9 @@ export function renderInspireControl(options: InspireControlOptions): void {
 	const { container, tableIds } = options;
 	if (tableIds.length === 0) return;
 
-	const wrap = container.createDiv({ cls: "lazy-campaign-inspire" });
-	const header = wrap.createDiv({ cls: "lazy-campaign-inspire-header" });
-	const chipMount = wrap.createDiv({ cls: "lazy-campaign-roll-chip-mount" });
+	const wrap = container.createDiv({ cls: "strong-start-inspire" });
+	const header = wrap.createDiv({ cls: "strong-start-inspire-header" });
+	const chipMount = wrap.createDiv({ cls: "strong-start-roll-chip-mount" });
 
 	let selectedId = tableIds[0];
 
@@ -123,15 +123,15 @@ export function renderInspireControl(options: InspireControlOptions): void {
 	}
 
 	if (tableIds.length > 1) {
-		const pillRow = header.createDiv({ cls: "lazy-campaign-inspire-pills" });
+		const pillRow = header.createDiv({ cls: "strong-start-inspire-pills" });
 		for (const id of tableIds) {
 			const pill = pillRow.createEl("button", {
-				cls: `lazy-campaign-inspire-pill${id === selectedId ? " is-active" : ""}`,
+				cls: `strong-start-inspire-pill${id === selectedId ? " is-active" : ""}`,
 				text: labelFor(id),
 				attr: { type: "button" },
 			});
 			options.registerDomEvent(pill, "click", () => {
-				pillRow.querySelectorAll<HTMLElement>(".lazy-campaign-inspire-pill").forEach((el) => {
+				pillRow.querySelectorAll<HTMLElement>(".strong-start-inspire-pill").forEach((el) => {
 					el.removeClass("is-active");
 				});
 				pill.addClass("is-active");
@@ -141,7 +141,7 @@ export function renderInspireControl(options: InspireControlOptions): void {
 	}
 
 	const rollBtn = header.createEl("button", {
-		cls: options.buttonText ? "lazy-campaign-inspire-button" : "lazy-campaign-icon-button lazy-campaign-inspire-button",
+		cls: options.buttonText ? "strong-start-inspire-button" : "strong-start-icon-button strong-start-inspire-button",
 		text: options.buttonText,
 		attr: { "aria-label": options.buttonText ?? "Roll for inspiration", type: "button" },
 	});

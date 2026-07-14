@@ -208,7 +208,7 @@ export class PrepPanel {
 		// BEFORE the typing guard: rolling mid-type is exactly the use case
 		// (the chip renders below; the caret never moves).
 		if (evt.altKey && !evt.ctrlKey && !evt.metaKey && evt.key.toLowerCase() === "r") {
-			const rollBtn = this.workspaceEl?.querySelector<HTMLElement>(".lazy-campaign-inspire-button");
+			const rollBtn = this.workspaceEl?.querySelector<HTMLElement>(".strong-start-inspire-button");
 			if (rollBtn) {
 				evt.preventDefault();
 				rollBtn.click();
@@ -248,7 +248,7 @@ export class PrepPanel {
 		this.disposeTransient();
 		this.containerEl.empty();
 
-		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-prep-shell" });
+		const shell = this.containerEl.createDiv({ cls: "strong-start-prep-shell" });
 		renderHint(
 			shell,
 			this.view,
@@ -256,11 +256,11 @@ export class PrepPanel {
 			"prep-board",
 			"Work top to bottom or skip around — mark a step done when it's done enough."
 		);
-		this.toolbarEl = shell.createDiv({ cls: "lazy-campaign-prep-toolbar" });
-		const board = shell.createDiv({ cls: "lazy-campaign-prep-board" });
+		this.toolbarEl = shell.createDiv({ cls: "strong-start-prep-toolbar" });
+		const board = shell.createDiv({ cls: "strong-start-prep-board" });
 		this.boardEl = board;
-		this.masterListEl = board.createDiv({ cls: "lazy-campaign-prep-master" });
-		this.workspaceEl = board.createDiv({ cls: "lazy-campaign-prep-workspace" });
+		this.masterListEl = board.createDiv({ cls: "strong-start-prep-master" });
+		this.workspaceEl = board.createDiv({ cls: "strong-start-prep-workspace" });
 
 		this.renderToolbar();
 		this.renderMasterList();
@@ -336,7 +336,7 @@ export class PrepPanel {
 		const session = this.session;
 		if (!campaign || !session) return;
 
-		const selectorEl = this.toolbarEl.createDiv({ cls: "lazy-campaign-prep-session-selector" });
+		const selectorEl = this.toolbarEl.createDiv({ cls: "strong-start-prep-session-selector" });
 		const dropdown = new DropdownComponent(selectorEl);
 		for (const s of this.sessions) {
 			dropdown.addOption(s.path, `Session ${s.session}${s.status === "played" ? " — played" : ""}`);
@@ -364,16 +364,16 @@ export class PrepPanel {
 			this.view.setMode("run");
 		});
 
-		this.prepTimerEl = this.toolbarEl.createSpan({ cls: "lazy-campaign-prep-timer" });
+		this.prepTimerEl = this.toolbarEl.createSpan({ cls: "strong-start-prep-timer" });
 		this.updatePrepTimerText();
 
 		this.toolbarEl.createSpan({
-			cls: "lazy-campaign-prep-progress",
+			cls: "strong-start-prep-progress",
 			text: `${session.stepsDone.length} of ${STEPS.length}`,
 		});
 
 		const overflowBtn = this.toolbarEl.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "More actions", type: "button" },
 		});
 		setIcon(overflowBtn, "ellipsis");
@@ -422,12 +422,12 @@ export class PrepPanel {
 			const state: "done" | "auto" | "empty" = isDone ? "done" : auto ? "auto" : "empty";
 
 			const row = this.masterListEl.createDiv({
-				cls: `lazy-campaign-step-row is-${state}${step.id === this.activeStepId ? " is-active" : ""}`,
+				cls: `strong-start-step-row is-${state}${step.id === this.activeStepId ? " is-active" : ""}`,
 				attr: { "data-key": `step-row-${step.id}` },
 			});
 
 			const circle = row.createEl("button", {
-				cls: `lazy-campaign-step-circle is-${state}`,
+				cls: `strong-start-step-circle is-${state}`,
 				attr: { "aria-label": isDone ? "Marked done — click to unmark" : "Mark step done", type: "button" },
 				text: state === "done" ? "✓" : state === "auto" ? "◐" : "○",
 			});
@@ -436,11 +436,11 @@ export class PrepPanel {
 				void this.toggleStepDone(step.id);
 			});
 
-			row.createSpan({ cls: "lazy-campaign-step-number", text: String(step.number) });
-			row.createSpan({ cls: "lazy-campaign-step-label", text: step.shortLabel });
+			row.createSpan({ cls: "strong-start-step-number", text: String(step.number) });
+			row.createSpan({ cls: "strong-start-step-label", text: step.shortLabel });
 
 			const summary = summaryFor(step, session, this.bodyText);
-			if (summary) row.createSpan({ cls: "lazy-campaign-step-summary", text: summary });
+			if (summary) row.createSpan({ cls: "strong-start-step-summary", text: summary });
 
 			this.view.registerDomEvent(row, "click", () => {
 				if (isPhone(this.view.app)) {
@@ -495,15 +495,15 @@ export class PrepPanel {
 		// desktop, where both panes are always visible.
 		if (isPhone(this.view.app)) {
 			const step = STEPS.find((s) => s.id === this.activeStepId);
-			const header = this.workspaceEl.createDiv({ cls: "lazy-campaign-phone-back-header" });
+			const header = this.workspaceEl.createDiv({ cls: "strong-start-phone-back-header" });
 			const backBtn = header.createEl("button", {
-				cls: "lazy-campaign-phone-back-button",
+				cls: "strong-start-phone-back-button",
 				attr: { "aria-label": "Back to steps", type: "button" },
 			});
 			setIcon(backBtn, "arrow-left");
 			this.view.registerDomEvent(backBtn, "click", () => this.closePhoneDetail());
 			header.createSpan({
-				cls: "lazy-campaign-phone-back-title",
+				cls: "strong-start-phone-back-title",
 				text: step ? `${step.number} · ${step.shortLabel}` : "Step",
 			});
 		}

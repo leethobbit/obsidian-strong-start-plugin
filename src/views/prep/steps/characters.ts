@@ -30,11 +30,11 @@ export function renderCharactersStep(container: HTMLElement, ctx: StepContext): 
 			"No player characters yet. Add them during session zero — or create notes with lazyCampaign.type: pc."
 		);
 	} else {
-		const list = container.createEl("ul", { cls: "lazy-campaign-roster-list" });
+		const list = container.createEl("ul", { cls: "strong-start-roster-list" });
 		for (const pc of pcs) {
-			const item = list.createEl("li", { cls: "lazy-campaign-roster-row" });
+			const item = list.createEl("li", { cls: "strong-start-roster-row" });
 			const label = pc.player ? `${pc.name} (${pc.player})` : pc.name;
-			const link = item.createEl("a", { cls: "lazy-campaign-session-link", text: label, attr: { href: "#" } });
+			const link = item.createEl("a", { cls: "strong-start-session-link", text: label, attr: { href: "#" } });
 			ctx.registerDomEvent(link, "click", (evt) => {
 				evt.preventDefault();
 				void ctx.openNote(pc.path);
@@ -43,8 +43,8 @@ export function renderCharactersStep(container: HTMLElement, ctx: StepContext): 
 			// M10: inline level edit (SCHEMA.md "pc" level, optional 1-20) — a
 			// stepper writing straight to that PC's own note, not the session's
 			// frontmatter (level is per-character, not per-session state).
-			const levelRow = item.createSpan({ cls: "lazy-campaign-roster-level" });
-			levelRow.createSpan({ cls: "lazy-campaign-roster-level-label", text: "Lv" });
+			const levelRow = item.createSpan({ cls: "strong-start-roster-level" });
+			levelRow.createSpan({ cls: "strong-start-roster-level-label", text: "Lv" });
 			renderStepper(levelRow, ctx, {
 				value: pc.level ?? MIN_LEVEL,
 				min: MIN_LEVEL,
@@ -56,7 +56,7 @@ export function renderCharactersStep(container: HTMLElement, ctx: StepContext): 
 			// M17: full in-plugin editing — the name link keeps opening the raw
 			// note; the pencil opens the entity editor (player/role/level/body).
 			const editBtn = item.createEl("button", {
-				cls: "lazy-campaign-icon-button",
+				cls: "strong-start-icon-button",
 				attr: { "aria-label": `Edit ${pc.name}`, type: "button" },
 			});
 			setIcon(editBtn, "pencil");

@@ -15,7 +15,7 @@ import { TablesPanel } from "./tables/tables-panel";
 import { SecretsPanel } from "./secrets/secrets-panel";
 import { HelpPanel } from "./help-panel";
 
-export const VIEW_TYPE_LAZY = "lazy-campaign";
+export const VIEW_TYPE_LAZY = "strong-start";
 
 interface Panel {
 	/** `changedPaths` is only passed on a campaign-store notification (never
@@ -64,7 +64,7 @@ export class LazyCampaignView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return "Lazy GM's campaign manager";
+		return "Strong Start";
 	}
 
 	getIcon(): string {
@@ -73,12 +73,12 @@ export class LazyCampaignView extends ItemView {
 
 	async onOpen(): Promise<void> {
 		this.contentEl.empty();
-		this.contentEl.addClass("lazy-campaign-view");
+		this.contentEl.addClass("strong-start-view");
 
-		this.railEl = this.contentEl.createDiv({ cls: "lazy-campaign-rail" });
-		const main = this.contentEl.createDiv({ cls: "lazy-campaign-main" });
-		this.headerEl = main.createDiv({ cls: "lazy-campaign-header" });
-		this.bodyEl = main.createDiv({ cls: "lazy-campaign-body" });
+		this.railEl = this.contentEl.createDiv({ cls: "strong-start-rail" });
+		const main = this.contentEl.createDiv({ cls: "strong-start-main" });
+		this.headerEl = main.createDiv({ cls: "strong-start-header" });
+		this.bodyEl = main.createDiv({ cls: "strong-start-body" });
 
 		this.buildPanels();
 
@@ -184,7 +184,7 @@ export class LazyCampaignView extends ItemView {
 
 	private buildPanels(): void {
 		for (const dest of DESTINATIONS) {
-			const el = this.bodyEl.createDiv({ cls: "lazy-campaign-panel" });
+			const el = this.bodyEl.createDiv({ cls: "strong-start-panel" });
 			el.hide();
 			const panel: Panel =
 				dest.mode === "home"
@@ -205,12 +205,12 @@ export class LazyCampaignView extends ItemView {
 	private renderRail(): void {
 		this.railEl.empty();
 		for (const group of RAIL_GROUP_ORDER) {
-			const groupEl = this.railEl.createDiv({ cls: "lazy-campaign-rail-group" });
+			const groupEl = this.railEl.createDiv({ cls: "strong-start-rail-group" });
 			for (const dest of DESTINATIONS.filter((d) => d.group === group)) {
 				this.renderRailButton(groupEl, dest);
 			}
 		}
-		const footerEl = this.railEl.createDiv({ cls: "lazy-campaign-rail-footer" });
+		const footerEl = this.railEl.createDiv({ cls: "strong-start-rail-footer" });
 		for (const dest of DESTINATIONS.filter((d) => d.group === "footer")) {
 			this.renderRailButton(footerEl, dest);
 		}
@@ -219,12 +219,12 @@ export class LazyCampaignView extends ItemView {
 	private renderRailButton(container: HTMLElement, dest: NavDestination): void {
 		const isActive = this.mode === dest.mode;
 		const button = container.createEl("button", {
-			cls: `lazy-campaign-rail-button${isActive ? " is-active" : ""}`,
+			cls: `strong-start-rail-button${isActive ? " is-active" : ""}`,
 			attr: { "aria-label": dest.label, type: "button" },
 		});
-		const iconEl = button.createSpan({ cls: "lazy-campaign-rail-icon" });
+		const iconEl = button.createSpan({ cls: "strong-start-rail-icon" });
 		setIcon(iconEl, dest.icon);
-		button.createSpan({ cls: "lazy-campaign-rail-label", text: dest.label });
+		button.createSpan({ cls: "strong-start-rail-label", text: dest.label });
 		this.registerDomEvent(button, "click", () => this.setMode(dest.mode));
 	}
 
@@ -234,7 +234,7 @@ export class LazyCampaignView extends ItemView {
 		const campaigns = plugin.store?.campaigns() ?? [];
 		const active = plugin.activeCampaign();
 
-		const selectorEl = this.headerEl.createDiv({ cls: "lazy-campaign-header-selector" });
+		const selectorEl = this.headerEl.createDiv({ cls: "strong-start-header-selector" });
 		const dropdown = new DropdownComponent(selectorEl);
 		for (const campaign of campaigns) {
 			dropdown.addOption(campaign.path, campaign.status === "archived" ? `${campaign.name} (archived)` : campaign.name);
@@ -256,7 +256,7 @@ export class LazyCampaignView extends ItemView {
 		});
 
 		const menuButton = this.headerEl.createEl("button", {
-			cls: "lazy-campaign-header-menu",
+			cls: "strong-start-header-menu",
 			attr: { "aria-label": "Campaign options", type: "button" },
 		});
 		setIcon(menuButton, "ellipsis");

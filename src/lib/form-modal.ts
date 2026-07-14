@@ -29,7 +29,7 @@ export abstract class FormModal extends Modal {
 	onOpen(): void {
 		this.submitting = false;
 		this.contentEl.empty();
-		this.contentEl.addClass("lazy-campaign-form-modal");
+		this.contentEl.addClass("strong-start-form-modal");
 		this.render();
 		this.firstInput?.focus();
 		this.firstInput?.select();
@@ -76,7 +76,7 @@ export abstract class FormModal extends Modal {
 
 	/** CTA + cancel button row. */
 	protected renderButtons(contentEl: HTMLElement, options: FormModalButtonsOptions): void {
-		const row = contentEl.createDiv({ cls: "lazy-campaign-form-modal-buttons" });
+		const row = contentEl.createDiv({ cls: "strong-start-form-modal-buttons" });
 		const cancel = row.createEl("button", { text: options.cancelText ?? "Cancel" });
 		cancel.addEventListener("click", () => this.close());
 		const cta = row.createEl("button", { text: options.ctaText, cls: "mod-cta" });

@@ -16,13 +16,13 @@ const prod = process.argv[2] === "production";
 // Deploy artifacts into a vault's plugin folder after every successful build
 // (dev watch rebuilds included). Defaults to the git-ignored dev scratch vault
 // in this repo — NEVER a real user vault (real vaults run the published store
-// build). Override the target vault root with LAZY_CAMPAIGN_VAULT.
+// build). Override the target vault root with STRONG_START_VAULT.
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)));
 // Folder is named lazy-dev-vault (not the template's dev-vault) so the vault
 // name is unambiguous in Obsidian's switcher/CLI on machines with several
 // plugin repos, each of which has its own scratch vault.
-const VAULT = process.env.LAZY_CAMPAIGN_VAULT || join(REPO_ROOT, "lazy-dev-vault");
-const PLUGIN_DIR = join(VAULT, ".obsidian", "plugins", "lazy-campaign");
+const VAULT = process.env.STRONG_START_VAULT || join(REPO_ROOT, "lazy-dev-vault");
+const PLUGIN_DIR = join(VAULT, ".obsidian", "plugins", "strong-start");
 const ARTIFACTS = ["main.js", "manifest.json", "styles.css"];
 
 const deployPlugin = {

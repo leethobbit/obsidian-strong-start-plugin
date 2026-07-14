@@ -22,26 +22,26 @@ export function phoneTabForMode(mode: NavMode): string {
  * `registerDomEvent`) is deliberate: the bar lives exactly as long as the
  * view's contentEl and is torn down with it — same lifetime either way. */
 export function buildBottomBar(parent: HTMLElement, handlers: BottomBarHandlers): HTMLElement {
-	const bar = parent.createDiv({ cls: "lazy-campaign-bottombar" });
+	const bar = parent.createDiv({ cls: "strong-start-bottombar" });
 
 	for (const mode of PHONE_BAR) {
 		const dest = destinationFor(mode);
 		if (!dest) continue;
 		const btn = bar.createEl("button", {
-			cls: "lazy-campaign-bottombar-tab",
+			cls: "strong-start-bottombar-tab",
 			attr: { type: "button", "aria-label": dest.label, "data-tab": dest.mode },
 		});
-		setIcon(btn.createSpan({ cls: "lazy-campaign-bottombar-icon" }), dest.icon);
-		btn.createSpan({ cls: "lazy-campaign-bottombar-label", text: dest.label });
+		setIcon(btn.createSpan({ cls: "strong-start-bottombar-icon" }), dest.icon);
+		btn.createSpan({ cls: "strong-start-bottombar-label", text: dest.label });
 		btn.onclick = () => handlers.onTab(dest.mode);
 	}
 
 	const more = bar.createEl("button", {
-		cls: "lazy-campaign-bottombar-tab",
+		cls: "strong-start-bottombar-tab",
 		attr: { type: "button", "aria-label": "More", "data-tab": "more" },
 	});
-	setIcon(more.createSpan({ cls: "lazy-campaign-bottombar-icon" }), "more-horizontal");
-	more.createSpan({ cls: "lazy-campaign-bottombar-label", text: "More" });
+	setIcon(more.createSpan({ cls: "strong-start-bottombar-icon" }), "more-horizontal");
+	more.createSpan({ cls: "strong-start-bottombar-label", text: "More" });
 	more.onclick = (evt) => handlers.onMore(evt);
 
 	return bar;

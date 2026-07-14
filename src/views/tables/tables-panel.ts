@@ -60,7 +60,7 @@ export class TablesPanel {
 	render(): void {
 		this.containerEl.empty();
 
-		const shell = this.containerEl.createDiv({ cls: "lazy-campaign-tables-shell" });
+		const shell = this.containerEl.createDiv({ cls: "strong-start-tables-shell" });
 		this.renderSubtabRow(shell);
 
 		if (this.subtab === "roll") {
@@ -80,9 +80,9 @@ export class TablesPanel {
 		}
 
 		const registry = this.view.plugin.tables;
-		const board = shell.createDiv({ cls: "lazy-campaign-tables-board" });
-		const listEl = board.createDiv({ cls: "lazy-campaign-tables-list" });
-		const detailEl = board.createDiv({ cls: "lazy-campaign-tables-detail" });
+		const board = shell.createDiv({ cls: "strong-start-tables-board" });
+		const listEl = board.createDiv({ cls: "strong-start-tables-list" });
+		const detailEl = board.createDiv({ cls: "strong-start-tables-detail" });
 
 		if (!registry) {
 			renderEmptyState(listEl, "Tables aren't ready yet.");
@@ -96,13 +96,13 @@ export class TablesPanel {
 	}
 
 	private renderSubtabRow(shell: HTMLElement): void {
-		const row = shell.createDiv({ cls: "lazy-campaign-tables-subtabs" });
+		const row = shell.createDiv({ cls: "strong-start-tables-subtabs" });
 		for (const [id, label] of [
 			["roll", "Roll"],
 			["generators", "Generators"],
 		] as const) {
 			const btn = row.createEl("button", {
-				cls: `lazy-campaign-tables-subtab${this.subtab === id ? " is-active" : ""}`,
+				cls: `strong-start-tables-subtab${this.subtab === id ? " is-active" : ""}`,
 				text: label,
 				attr: { type: "button" },
 			});
@@ -118,7 +118,7 @@ export class TablesPanel {
 			const inCategory = CORE_TABLES.filter((t) => t.category === category).sort((a, b) => a.name.localeCompare(b.name));
 			if (inCategory.length === 0) continue;
 
-			listEl.createEl("h4", { cls: "lazy-campaign-tables-category", text: CATEGORY_LABELS[category] });
+			listEl.createEl("h4", { cls: "strong-start-tables-category", text: CATEGORY_LABELS[category] });
 			for (const core of inCategory) {
 				this.renderCoreRow(listEl, registry, core);
 			}
@@ -134,11 +134,11 @@ export class TablesPanel {
 		if (shadowed) {
 			const isActive = this.selectedTableId === core.id && this.peekingShadowedCore;
 			const row = listEl.createEl("button", {
-				cls: `lazy-campaign-tables-row lazy-campaign-tables-row-shadowed${isActive ? " is-active" : ""}`,
+				cls: `strong-start-tables-row strong-start-tables-row-shadowed${isActive ? " is-active" : ""}`,
 				attr: { type: "button" },
 			});
 			row.createSpan({ text: core.name });
-			row.createSpan({ cls: "lazy-campaign-tables-shadowed-label", text: " hidden — replaced by your table" });
+			row.createSpan({ cls: "strong-start-tables-shadowed-label", text: " hidden — replaced by your table" });
 			this.view.registerDomEvent(row, "click", () => {
 				this.selectedTableId = core.id;
 				this.peekingShadowedCore = true;
@@ -149,7 +149,7 @@ export class TablesPanel {
 
 		const isActive = this.selectedTableId === core.id && !this.peekingShadowedCore;
 		const row = listEl.createEl("button", {
-			cls: `lazy-campaign-tables-row${isActive ? " is-active" : ""}`,
+			cls: `strong-start-tables-row${isActive ? " is-active" : ""}`,
 			text: core.name,
 			attr: { type: "button" },
 		});
@@ -161,10 +161,10 @@ export class TablesPanel {
 	}
 
 	private renderMyTables(listEl: HTMLElement, registry: TableRegistry): void {
-		const header = listEl.createDiv({ cls: "lazy-campaign-tables-mytables-header" });
-		header.createEl("h4", { cls: "lazy-campaign-tables-category", text: "My tables" });
+		const header = listEl.createDiv({ cls: "strong-start-tables-mytables-header" });
+		header.createEl("h4", { cls: "strong-start-tables-category", text: "My tables" });
 		const newBtn = header.createEl("button", {
-			cls: "lazy-campaign-tables-new-button",
+			cls: "strong-start-tables-new-button",
 			text: "New table",
 			attr: { type: "button" },
 		});
@@ -186,10 +186,10 @@ export class TablesPanel {
 
 	private renderUserRow(listEl: HTMLElement, table: RollTable): void {
 		const isActive = this.selectedTableId === table.id && !this.peekingShadowedCore;
-		const row = listEl.createDiv({ cls: `lazy-campaign-tables-user-row${isActive ? " is-active" : ""}` });
+		const row = listEl.createDiv({ cls: `strong-start-tables-user-row${isActive ? " is-active" : ""}` });
 
 		const nameBtn = row.createEl("button", {
-			cls: "lazy-campaign-tables-row-name",
+			cls: "strong-start-tables-row-name",
 			text: table.name,
 			attr: { type: "button" },
 		});
@@ -200,13 +200,13 @@ export class TablesPanel {
 		});
 
 		if (CORE_TABLES.some((c) => c.id === table.id)) {
-			row.createSpan({ cls: "lazy-campaign-tables-badge", text: "replaces built-in" });
+			row.createSpan({ cls: "strong-start-tables-badge", text: "replaces built-in" });
 		}
 
-		const actions = row.createDiv({ cls: "lazy-campaign-tables-user-row-actions" });
+		const actions = row.createDiv({ cls: "strong-start-tables-user-row-actions" });
 
 		const editBtn = actions.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Edit table", type: "button" },
 		});
 		setIcon(editBtn, "pencil");
@@ -216,7 +216,7 @@ export class TablesPanel {
 		});
 
 		const openBtn = actions.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Open note", type: "button" },
 		});
 		setIcon(openBtn, "external-link");
@@ -248,14 +248,14 @@ export class TablesPanel {
 
 		detailEl.createEl("h3", { text: table.name });
 		detailEl.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: `d${table.rows.length} · ${table.rows.length} ${table.rows.length === 1 ? "entry" : "entries"}`,
 		});
 
-		const rollBtn = detailEl.createEl("button", { cls: "mod-cta lazy-campaign-tables-roll-button", text: "Roll" });
+		const rollBtn = detailEl.createEl("button", { cls: "mod-cta strong-start-tables-roll-button", text: "Roll" });
 		this.view.registerDomEvent(rollBtn, "click", () => this.rollAndPush(table.id));
 
-		const stackEl = detailEl.createDiv({ cls: "lazy-campaign-tables-result-stack" });
+		const stackEl = detailEl.createDiv({ cls: "strong-start-tables-result-stack" });
 		const entries = this.stack.filter((e) => e.tableId === table.id);
 		if (entries.length === 0) {
 			renderEmptyState(stackEl, "No rolls yet this session.");
@@ -273,14 +273,14 @@ export class TablesPanel {
 	private renderShadowedCorePeek(detailEl: HTMLElement, core: RollTable): void {
 		detailEl.createEl("h3", { text: core.name });
 		detailEl.createDiv({
-			cls: "lazy-campaign-tables-shadow-banner",
+			cls: "strong-start-tables-shadow-banner",
 			text: "Hidden — replaced by your table. Delete or rename your table to restore the built-in.",
 		});
 		detailEl.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: `d${core.rows.length} · ${core.rows.length} ${core.rows.length === 1 ? "entry" : "entries"}`,
 		});
-		const list = detailEl.createEl("ul", { cls: "lazy-campaign-tables-peek-list" });
+		const list = detailEl.createEl("ul", { cls: "strong-start-tables-peek-list" });
 		for (const row of core.rows) {
 			list.createEl("li", { text: row.text });
 		}
@@ -298,10 +298,10 @@ export class TablesPanel {
 	}
 
 	private renderStackEntry(stackEl: HTMLElement, entry: StackEntry): void {
-		const card = stackEl.createDiv({ cls: "lazy-campaign-tables-result-card" });
-		card.createDiv({ cls: "lazy-campaign-tables-result-text", text: entry.result.text });
+		const card = stackEl.createDiv({ cls: "strong-start-tables-result-card" });
+		card.createDiv({ cls: "strong-start-tables-result-text", text: entry.result.text });
 
-		const buttons = card.createDiv({ cls: "lazy-campaign-tables-result-buttons" });
+		const buttons = card.createDiv({ cls: "strong-start-tables-result-buttons" });
 
 		const copyBtn = buttons.createEl("button", { text: "Copy" });
 		this.view.registerDomEvent(copyBtn, "click", () => void this.copyText(entry.result.text));
@@ -310,7 +310,7 @@ export class TablesPanel {
 		this.view.registerDomEvent(rerollBtn, "click", () => this.rerollEntry(entry));
 
 		if (entry.result.trace.length > 1) {
-			const details = card.createEl("details", { cls: "lazy-campaign-tables-trace" });
+			const details = card.createEl("details", { cls: "strong-start-tables-trace" });
 			details.createEl("summary", { text: "How this rolled" });
 			const list = details.createEl("ul");
 			for (const step of entry.result.trace) {
@@ -321,7 +321,7 @@ export class TablesPanel {
 	}
 
 	private renderFooter(shell: HTMLElement): void {
-		const footer = shell.createDiv({ cls: "lazy-campaign-tables-footer" });
+		const footer = shell.createDiv({ cls: "strong-start-tables-footer" });
 		footer.createSpan({ text: `${ATTRIBUTION_TEXT} ` });
 		footer.createEl("a", {
 			text: "Read the source document",

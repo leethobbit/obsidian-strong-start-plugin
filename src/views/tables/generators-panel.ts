@@ -42,7 +42,7 @@ export class GeneratorsPanel {
 	render(containerEl: HTMLElement): void {
 		this.mountEl = containerEl;
 		const registry = this.view.plugin.tables;
-		const shell = containerEl.createDiv({ cls: "lazy-campaign-generators-shell" });
+		const shell = containerEl.createDiv({ cls: "strong-start-generators-shell" });
 
 		if (!registry) {
 			renderEmptyState(shell, "Tables aren't ready yet.");
@@ -57,7 +57,7 @@ export class GeneratorsPanel {
 			"Every line of a result rerolls on its own — keep the good parts, reroll the rest."
 		);
 
-		const grid = shell.createDiv({ cls: "lazy-campaign-generators-grid" });
+		const grid = shell.createDiv({ cls: "strong-start-generators-grid" });
 		for (const generator of GENERATORS) {
 			this.renderCard(grid, registry, generator);
 		}
@@ -70,11 +70,11 @@ export class GeneratorsPanel {
 	}
 
 	private renderCard(grid: HTMLElement, registry: TableRegistry, generator: GeneratorDef): void {
-		const card = grid.createDiv({ cls: "lazy-campaign-generator-card" });
-		const header = card.createDiv({ cls: "lazy-campaign-generator-card-header" });
-		const iconEl = header.createSpan({ cls: "lazy-campaign-generator-card-icon" });
+		const card = grid.createDiv({ cls: "strong-start-generator-card" });
+		const header = card.createDiv({ cls: "strong-start-generator-card-header" });
+		const iconEl = header.createSpan({ cls: "strong-start-generator-card-icon" });
 		setIcon(iconEl, generator.icon);
-		header.createSpan({ cls: "lazy-campaign-generator-card-label", text: generator.label });
+		header.createSpan({ cls: "strong-start-generator-card-label", text: generator.label });
 
 		const generateBtn = header.createEl("button", { cls: "mod-cta", text: "Generate" });
 		this.view.registerDomEvent(generateBtn, "click", () => {
@@ -82,7 +82,7 @@ export class GeneratorsPanel {
 			this.rerender();
 		});
 
-		const resultEl = card.createDiv({ cls: "lazy-campaign-generator-card-result" });
+		const resultEl = card.createDiv({ cls: "strong-start-generator-card-result" });
 		const state = this.state.get(generator.id);
 		if (!state?.result) {
 			renderEmptyState(resultEl, "Nothing generated yet.");
@@ -98,17 +98,17 @@ export class GeneratorsPanel {
 		result: GeneratedResult
 	): void {
 		resultEl.createEl("h4", { text: result.title });
-		const list = resultEl.createDiv({ cls: "lazy-campaign-generator-lines" });
+		const list = resultEl.createDiv({ cls: "strong-start-generator-lines" });
 
 		result.lines.forEach((line, index) => {
-			const row = list.createDiv({ cls: "lazy-campaign-generator-line" });
-			row.createSpan({ cls: "lazy-campaign-generator-line-label", text: `${line.label}:` });
-			row.createSpan({ cls: "lazy-campaign-generator-line-text", text: line.text });
+			const row = list.createDiv({ cls: "strong-start-generator-line" });
+			row.createSpan({ cls: "strong-start-generator-line-label", text: `${line.label}:` });
+			row.createSpan({ cls: "strong-start-generator-line-text", text: line.text });
 
 			const tableId = line.tableId;
 			if (!tableId) return;
 			const rerollBtn = row.createEl("button", {
-				cls: "lazy-campaign-icon-button",
+				cls: "strong-start-icon-button",
 				attr: { "aria-label": `Reroll ${line.label}`, type: "button" },
 			});
 			setIcon(rerollBtn, "dices");
@@ -120,7 +120,7 @@ export class GeneratorsPanel {
 			});
 		});
 
-		const actions = resultEl.createDiv({ cls: "lazy-campaign-generator-actions" });
+		const actions = resultEl.createDiv({ cls: "strong-start-generator-actions" });
 
 		const copyBtn = actions.createEl("button", { text: "Copy" });
 		this.view.registerDomEvent(copyBtn, "click", () =>

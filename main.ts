@@ -76,7 +76,7 @@ export default class LazyCampaignPlugin extends Plugin {
 
 		this.registerView(VIEW_TYPE_LAZY, (leaf) => new LazyCampaignView(leaf, this));
 
-		this.addRibbonIcon("castle", "Open Lazy GM's campaign manager", () => {
+		this.addRibbonIcon("castle", "Open Strong Start", () => {
 			void this.openView("home");
 		});
 

@@ -20,7 +20,7 @@ export class RevealSecretModal extends FormModal {
 
 	protected render(): void {
 		this.setTitle("Reveal secret");
-		this.contentEl.createEl("p", { cls: "lazy-campaign-hint", text: this.secretText });
+		this.contentEl.createEl("p", { cls: "strong-start-hint", text: this.secretText });
 
 		const input = textField(this.contentEl, {
 			name: "How did they learn it?",

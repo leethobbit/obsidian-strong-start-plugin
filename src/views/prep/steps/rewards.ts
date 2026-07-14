@@ -18,9 +18,9 @@ export function renderRewardsStep(container: HTMLElement, ctx: StepContext): voi
 	// one-liner chip (docs/plan.md M7) — reuses the uniform roll-chip
 	// component directly (not `renderInspireControl`, which is keyed to a
 	// single core-table id and doesn't fit a multi-table generator).
-	const chipMount = container.createDiv({ cls: "lazy-campaign-roll-chip-mount" });
+	const chipMount = container.createDiv({ cls: "strong-start-roll-chip-mount" });
 	const rollBtn = container.createEl("button", {
-		cls: "lazy-campaign-inspire-button",
+		cls: "strong-start-inspire-button",
 		attr: { type: "button" },
 		text: "Roll treasure",
 	});

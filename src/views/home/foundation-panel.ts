@@ -129,7 +129,7 @@ export class FoundationPanel {
 		this.disposeTransient();
 		container.empty();
 
-		const shell = container.createDiv({ cls: "lazy-campaign-foundation-shell" });
+		const shell = container.createDiv({ cls: "strong-start-foundation-shell" });
 		renderHint(
 			shell,
 			this.view,
@@ -168,15 +168,15 @@ export class FoundationPanel {
 	// ---- Pitch card ---------------------------------------------------------
 
 	private renderPitchCard(shell: HTMLElement, campaign: CampaignModel): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card lazy-campaign-foundation-pitch-card" });
-		const header = card.createDiv({ cls: "lazy-campaign-foundation-card-header" });
+		const card = shell.createDiv({ cls: "strong-start-card strong-start-foundation-pitch-card" });
+		const header = card.createDiv({ cls: "strong-start-foundation-card-header" });
 		header.createEl("h3", { text: "Campaign pitch" });
 
 		const pitch = sectionContent(this.bodyText, PITCH_HEADING);
 
 		if (this.editingPitch) {
 			const textarea = card.createEl("textarea", {
-				cls: "lazy-campaign-strong-start-textarea",
+				cls: "strong-start-strong-start-textarea",
 				attr: { rows: "3", "data-key": "foundation-pitch-textarea" },
 			});
 			textarea.value = pitch;
@@ -210,7 +210,7 @@ export class FoundationPanel {
 		}
 
 		const pencil = header.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Edit pitch", type: "button" },
 		});
 		setIcon(pencil, "pencil");
@@ -233,7 +233,7 @@ export class FoundationPanel {
 			return;
 		}
 
-		const proseEl = card.createDiv({ cls: "lazy-campaign-foundation-pitch-prose" });
+		const proseEl = card.createDiv({ cls: "strong-start-foundation-pitch-prose" });
 		if (this.pitchMdComponent) this.view.removeChild(this.pitchMdComponent);
 		const component = this.view.addChild(new Component());
 		this.pitchMdComponent = component;
@@ -243,10 +243,10 @@ export class FoundationPanel {
 	// ---- Six truths card -----------------------------------------------------
 
 	private renderTruthsCard(shell: HTMLElement, campaign: CampaignModel): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		const card = shell.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Six truths" });
 		card.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: "What makes this world yours? Three is plenty to start.",
 		});
 
@@ -274,8 +274,8 @@ export class FoundationPanel {
 	// ---- Fronts card -----------------------------------------------------------
 
 	private renderFrontsCard(shell: HTMLElement, campaign: CampaignModel): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card" });
-		const header = card.createDiv({ cls: "lazy-campaign-foundation-card-header" });
+		const card = shell.createDiv({ cls: "strong-start-card" });
+		const header = card.createDiv({ cls: "strong-start-foundation-card-header" });
 		header.createEl("h3", { text: "Fronts" });
 
 		if (this.fronts.length === 0) {
@@ -295,11 +295,11 @@ export class FoundationPanel {
 
 	private renderFrontCard(container: HTMLElement, campaign: CampaignModel, index: number): void {
 		const front = this.fronts[index];
-		const frontCard = container.createDiv({ cls: "lazy-campaign-front-card" });
+		const frontCard = container.createDiv({ cls: "strong-start-front-card" });
 
 		const nameInput = frontCard.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-front-name-input",
+			cls: "strong-start-front-name-input",
 			attr: { "data-key": `front-${index}-name`, placeholder: "Front name" },
 		});
 		nameInput.value = front.name;
@@ -309,7 +309,7 @@ export class FoundationPanel {
 
 		const goalInput = frontCard.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-front-goal-input",
+			cls: "strong-start-front-goal-input",
 			attr: { "data-key": `front-${index}-goal`, placeholder: "Goal…" },
 		});
 		goalInput.value = front.goal;
@@ -317,7 +317,7 @@ export class FoundationPanel {
 			this.fronts[index] = { ...this.fronts[index], goal: value };
 		});
 
-		const portentsEl = frontCard.createDiv({ cls: "lazy-campaign-front-portents" });
+		const portentsEl = frontCard.createDiv({ cls: "strong-start-front-portents" });
 		// Every existing portent, plus one trailing empty slot to add another —
 		// never truncates a hand-edited front with more than three.
 		for (let p = 0; p <= front.portents.length; p++) {
@@ -326,7 +326,7 @@ export class FoundationPanel {
 
 		const doomInput = frontCard.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-front-doom-input",
+			cls: "strong-start-front-doom-input",
 			attr: { "data-key": `front-${index}-doom`, placeholder: "Doom — what happens if this front wins?" },
 		});
 		doomInput.value = front.doom;
@@ -340,17 +340,17 @@ export class FoundationPanel {
 	private renderPortentRow(portentsEl: HTMLElement, campaign: CampaignModel, frontIndex: number, portentIndex: number): void {
 		const front = this.fronts[frontIndex];
 		const portent = front.portents[portentIndex] ?? { text: "", done: false };
-		const row = portentsEl.createDiv({ cls: "lazy-campaign-front-portent-row" });
+		const row = portentsEl.createDiv({ cls: "strong-start-front-portent-row" });
 
 		const checkbox = row.createEl("button", {
-			cls: `lazy-campaign-fronts-pip${portent.done ? " is-done" : ""}`,
+			cls: `strong-start-fronts-pip${portent.done ? " is-done" : ""}`,
 			attr: { type: "button", "aria-label": portent.done ? "Mark not happened" : "Mark happened" },
 		});
 		this.view.registerDomEvent(checkbox, "click", () => this.togglePortent(campaign, frontIndex, portentIndex));
 
 		const input = row.createEl("input", {
 			type: "text",
-			cls: "lazy-campaign-front-portent-input",
+			cls: "strong-start-front-portent-input",
 			attr: { "data-key": `front-${frontIndex}-portent-${portentIndex}`, placeholder: "A grim portent…" },
 		});
 		input.value = portent.text;
@@ -363,10 +363,10 @@ export class FoundationPanel {
 	}
 
 	private renderDeleteControl(frontCard: HTMLElement, campaign: CampaignModel, index: number): void {
-		const actions = frontCard.createDiv({ cls: "lazy-campaign-front-actions" });
+		const actions = frontCard.createDiv({ cls: "strong-start-front-actions" });
 
 		if (this.confirmingDeleteIndex === index) {
-			actions.createSpan({ cls: "lazy-campaign-hint", text: "Remove this front?" });
+			actions.createSpan({ cls: "strong-start-hint", text: "Remove this front?" });
 			const confirmBtn = actions.createEl("button", { cls: "mod-warning", text: "Confirm remove" });
 			this.view.registerDomEvent(confirmBtn, "click", () => {
 				this.fronts = this.fronts.filter((_, i) => i !== index);
@@ -444,15 +444,15 @@ export class FoundationPanel {
 	 * body section without an in-plugin editor. No inspire control (there's no
 	 * house-rules table to roll on). */
 	private renderHouseRulesCard(shell: HTMLElement, campaign: CampaignModel): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card lazy-campaign-foundation-pitch-card" });
-		const header = card.createDiv({ cls: "lazy-campaign-foundation-card-header" });
+		const card = shell.createDiv({ cls: "strong-start-card strong-start-foundation-pitch-card" });
+		const header = card.createDiv({ cls: "strong-start-foundation-card-header" });
 		header.createEl("h3", { text: "House rules" });
 
 		const rules = sectionContent(this.bodyText, HOUSE_RULES_HEADING);
 
 		if (this.editingHouseRules) {
 			const textarea = card.createEl("textarea", {
-				cls: "lazy-campaign-strong-start-textarea",
+				cls: "strong-start-strong-start-textarea",
 				attr: { rows: "4", "data-key": "foundation-house-rules-textarea" },
 			});
 			textarea.value = rules;
@@ -476,7 +476,7 @@ export class FoundationPanel {
 		}
 
 		const pencil = header.createEl("button", {
-			cls: "lazy-campaign-icon-button",
+			cls: "strong-start-icon-button",
 			attr: { "aria-label": "Edit house rules", type: "button" },
 		});
 		setIcon(pencil, "pencil");
@@ -490,7 +490,7 @@ export class FoundationPanel {
 			return;
 		}
 
-		const proseEl = card.createDiv({ cls: "lazy-campaign-foundation-pitch-prose" });
+		const proseEl = card.createDiv({ cls: "strong-start-foundation-pitch-prose" });
 		if (this.houseRulesMdComponent) this.view.removeChild(this.houseRulesMdComponent);
 		const component = this.view.addChild(new Component());
 		this.houseRulesMdComponent = component;
@@ -500,14 +500,14 @@ export class FoundationPanel {
 	// ---- Campaign details card (M17: the `system` fm field) -------------------
 
 	private renderDetailsCard(shell: HTMLElement, campaign: CampaignModel): void {
-		const card = shell.createDiv({ cls: "lazy-campaign-card" });
+		const card = shell.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Campaign details" });
 		card.createEl("p", {
-			cls: "lazy-campaign-hint",
+			cls: "strong-start-hint",
 			text: "System is a free label, advisory only — the settings toggles decide which 5e features show.",
 		});
 
-		const row = card.createDiv({ cls: "lazy-campaign-foundation-system-row" });
+		const row = card.createDiv({ cls: "strong-start-foundation-system-row" });
 		row.createSpan({ text: "System" });
 		const input = row.createEl("input", {
 			type: "text",

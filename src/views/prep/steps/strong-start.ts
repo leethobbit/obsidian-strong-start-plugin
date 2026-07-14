@@ -16,14 +16,17 @@ const STRONG_START_TABLE_IDS = [
 ] as const;
 
 export function renderStrongStartStep(container: HTMLElement, ctx: StepContext): void {
+	// "strong start" here is the prep-step concept (Lazy GM's Resource
+	// Document, step 2), not the plugin brand — sentence case is correct.
+	// eslint-disable-next-line obsidianmd/ui/sentence-case
 	container.createEl("h3", { text: "Create a strong start" });
 	container.createEl("p", {
-		cls: "lazy-campaign-hint",
+		cls: "strong-start-hint",
 		text: "Where does the action start? Drop them in the middle of it.",
 	});
 
 	const textarea = container.createEl("textarea", {
-		cls: "lazy-campaign-strong-start-textarea",
+		cls: "strong-start-strong-start-textarea",
 		attr: { rows: "6", "data-key": "strong-start-textarea" },
 	});
 	textarea.value = sectionContent(ctx.body, HEADING);

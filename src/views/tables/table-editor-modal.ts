@@ -65,10 +65,10 @@ export class TableEditorModal extends FormModal {
 		if (this.existing) nameInput.disabled = true;
 		else this.registerFirstInput(nameInput);
 
-		const textareaWrap = this.contentEl.createDiv({ cls: "lazy-campaign-table-editor-textarea-wrap" });
-		textareaWrap.createEl("p", { cls: "lazy-campaign-hint", text: HELPER_TEXT });
+		const textareaWrap = this.contentEl.createDiv({ cls: "strong-start-table-editor-textarea-wrap" });
+		textareaWrap.createEl("p", { cls: "strong-start-hint", text: HELPER_TEXT });
 		const textarea = textareaWrap.createEl("textarea", {
-			cls: "lazy-campaign-table-editor-textarea",
+			cls: "strong-start-table-editor-textarea",
 			attr: { rows: "12" },
 		});
 		textarea.value = this.draft;
@@ -78,13 +78,13 @@ export class TableEditorModal extends FormModal {
 			this.updateFooter();
 		});
 
-		this.footerEl = textareaWrap.createDiv({ cls: "lazy-campaign-hint lazy-campaign-table-editor-footer" });
+		this.footerEl = textareaWrap.createDiv({ cls: "strong-start-hint strong-start-table-editor-footer" });
 		this.updateFooter();
 
-		const previewRow = this.contentEl.createDiv({ cls: "lazy-campaign-table-editor-preview-row" });
+		const previewRow = this.contentEl.createDiv({ cls: "strong-start-table-editor-preview-row" });
 		const previewBtn = previewRow.createEl("button", { text: "Preview roll" });
 		previewBtn.addEventListener("click", () => this.previewRoll());
-		this.previewMount = previewRow.createDiv({ cls: "lazy-campaign-table-editor-preview-result" });
+		this.previewMount = previewRow.createDiv({ cls: "strong-start-table-editor-preview-result" });
 
 		this.bindEnterToSubmit(nameInput, () => this.handleSubmit());
 		this.renderButtons(this.contentEl, {
