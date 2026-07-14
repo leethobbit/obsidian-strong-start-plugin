@@ -9,6 +9,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Added
 
+- Revealed secrets can be re-hidden after the undo window passes: run-mode cards carry a quiet eye-off button, and the Secrets ledger's revealed rows gain Hide and Retire actions. Re-hiding returns the secret to in-play (it carries forward again) and keeps any reveal note.
 - Funding link (GitHub Sponsors) in the plugin manifest and the repo sidebar.
 
 ### Changed

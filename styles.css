@@ -1569,6 +1569,7 @@
 }
 
 .strong-start-run-secret-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-4-2);
@@ -1577,6 +1578,36 @@
 	background-color: var(--background-secondary);
 	border-radius: var(--radius-m);
 	cursor: var(--cursor-link);
+}
+
+/* Persistent re-hide on revealed cards — same overlaid-icon treatment as the
+   scene-detail chevron. Text keeps clear of it via the padding below. */
+.strong-start-run-secret-card.is-revealed {
+	padding-right: 48px;
+}
+
+.strong-start-run-secret-hide {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 100%;
+	padding: 0;
+	color: var(--text-muted);
+	background-color: transparent;
+	border: none;
+	border-radius: 0 var(--radius-m) var(--radius-m) 0;
+	box-shadow: none;
+	cursor: var(--cursor-link);
+}
+
+.strong-start-run-secret-hide:hover {
+	color: var(--text-normal);
+	background-color: var(--background-modifier-hover);
 }
 
 /* Hidden and revealed secrets are compact one-line rows; only the peeked

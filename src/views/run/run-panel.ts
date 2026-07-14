@@ -717,6 +717,23 @@ export class RunPanel {
 				void this.undoReveal(secret.id);
 			});
 		}
+
+		// Once the transient Undo fades, revealed secrets keep a quiet re-hide
+		// affordance — a mis-tap or a "they didn't actually learn this" call
+		// shouldn't require leaving run mode. Same overlay pattern as the
+		// scene-detail chevron; hidden while Undo is showing (one affordance
+		// at a time).
+		if (revealed && this.undoVisibleForId !== secret.id) {
+			const hideBtn = card.createEl("button", {
+				cls: "strong-start-run-secret-hide clickable-icon",
+				attr: { type: "button", "aria-label": "Hide this secret again" },
+			});
+			setIcon(hideBtn, "eye-off");
+			this.view.registerDomEvent(hideBtn, "click", (evt) => {
+				evt.stopPropagation();
+				void this.undoReveal(secret.id);
+			});
+		}
 	}
 
 	private handleSecretTap(id: string): void {

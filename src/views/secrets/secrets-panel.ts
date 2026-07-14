@@ -1,6 +1,6 @@
 import { Notice, setIcon } from "obsidian";
 import { openSecrets, type DerivedSecret, type SecretState } from "../../sessions/carryover";
-import { archiveSecret, restoreSecret, revealSecret } from "../../sessions/secrets-ops";
+import { archiveSecret, restoreSecret, revealSecret, unrevealSecret } from "../../sessions/secrets-ops";
 import { patchSessionSecrets } from "../../sessions/session-files";
 import { tryFileOp } from "../../lib/notify";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
@@ -171,6 +171,17 @@ export class SecretsPanel {
 			this.view.registerDomEvent(retireBtn, "click", () => void this.handleRetire(secret));
 		}
 
+		if (secret.state === "revealed") {
+			// Re-hiding strips `revealed` but keeps the note (same semantics as
+			// run mode's Undo) — the secret goes back to in-play and carries
+			// forward again.
+			const hideBtn = actions.createEl("button", { text: "Hide" });
+			this.view.registerDomEvent(hideBtn, "click", () => void this.handleUnreveal(secret));
+
+			const retireBtn = actions.createEl("button", { text: "Retire" });
+			this.view.registerDomEvent(retireBtn, "click", () => void this.handleRetire(secret));
+		}
+
 		if (secret.state === "retired") {
 			const restoreBtn = actions.createEl("button", { text: "Restore" });
 			this.view.registerDomEvent(restoreBtn, "click", () => void this.handleRestore(secret));
@@ -195,6 +206,14 @@ export class SecretsPanel {
 			);
 			this.render();
 		}).open();
+	}
+
+	private async handleUnreveal(secret: DerivedSecret): Promise<void> {
+		await tryFileOp(
+			() => patchSessionSecrets(this.view.app, secret.authoritativeSessionPath, (secrets) => unrevealSecret(secrets, secret.id)),
+			"Couldn't hide that secret — check the console for details."
+		);
+		this.render();
 	}
 
 	private async handleRetire(secret: DerivedSecret): Promise<void> {
