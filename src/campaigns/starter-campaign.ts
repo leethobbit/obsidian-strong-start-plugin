@@ -3,8 +3,10 @@
 // a ready-to-run campaign — foundation filled from the village, a sample
 // party of four (clearly marked replace-me characters, so every prep surface
 // including the Characters step and the 5e benchmark lights up out of the
-// box), eight NPC notes, five location notes (aspects verbatim from the
-// source), the Night Blade quest, and session 1 prepped through all eight
+// box), eight NPC notes, five location notes (aspects faithful to the source
+// — verbatim for the Tangles/Cyclopean Palm, adapted-and-condensed for the
+// rest; 2026-07-14 licensing audit), the Night Blade quest, and session 1
+// prepped through all eight
 // steps. Unlike the demo campaign (synthetic, mid-campaign, for evaluating
 // the loop), this is content a GM can take to the table this week. Deleting
 // the campaign folder removes all of it.

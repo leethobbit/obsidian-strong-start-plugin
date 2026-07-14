@@ -71,7 +71,9 @@ export function baselineBuildFor(cr: number, role?: MonsterRoleId): MonsterBuild
 
 /**
  * The doc's "Using Averages" math: the average of one die is half its size
- * (dropping the .5, as the doc's own table does — 1d6 → 3, 3d4 → 7). Builds
+ * (the .5 dropped from the summed TOTAL, matching the doc's own table —
+ * 1d6 → 3, 3d4 → floor(3 × 2.5) = 7; per-die the code keeps the true
+ * (die + 1) / 2 so multi-die totals don't drift). Builds
  * "NdX + M" hitting the requested average exactly via the modifier.
  */
 export function diceForAverage(average: number, die: 4 | 6 | 8 | 10 | 12 = 6): string {
