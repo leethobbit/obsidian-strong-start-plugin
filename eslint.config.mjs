@@ -9,6 +9,10 @@ import obsidianmd from "eslint-plugin-obsidianmd";
 const STORE_BLOCKING_RULES = new Set([
   "@typescript-eslint/no-deprecated",
   "obsidianmd/no-unsupported-api",
+  // The 0.6.0 review (2026-07-14) rejected inline disables of this rule
+  // outright ("Disabling 'obsidianmd/ui/sentence-case' is not allowed") —
+  // exempt strings via brands/ignoreRegex in the rule options below instead.
+  "obsidianmd/ui/sentence-case",
 ]);
 
 const localPlugin = {
@@ -30,7 +34,7 @@ const localPlugin = {
                 if (STORE_BLOCKING_RULES.has(name)) {
                   context.report({
                     loc: comment.loc,
-                    message: `Disabling '${name}' is not allowed — the Obsidian community-store review rejects it. Fix the underlying issue (use a floor-safe API, or raise minAppVersion deliberately) instead of silencing the rule.`,
+                    message: `Disabling '${name}' is not allowed — the Obsidian community-store review rejects it. Fix the underlying issue instead of silencing the rule (API rules: use a floor-safe API or raise minAppVersion deliberately; sentence-case: extend brands/ignoreRegex in eslint.config.mjs).`,
                   });
                 }
               }
@@ -72,13 +76,18 @@ export default tseslint.config(
       "@typescript-eslint/ban-ts-comment": "off",
 
       // WARN, not error: no proper-noun dictionary by default, so it flags brand
-      // names and hotkeys. Extend brands/acronyms as they appear — never silence
-      // the rule. The store review does not gate on it, so it must not block a
-      // release; it still catches genuine Title Case slips.
+      // names and hotkeys. Extend brands/acronyms/ignoreRegex as they appear —
+      // NEVER an inline disable: the store review rejects those outright (seen
+      // in the 0.6.0 review), and local/no-disable-store-rules now errors on
+      // them. The review doesn't gate on the string violations themselves.
       "obsidianmd/ui/sentence-case": ["warn", {
-        brands: ["Strong Start", "Lazy GM's Resource Document", "Lazy GM's 5e Monster Builder Resource Document", "Obsidian", "NPCs", "NPC", "5e", "Whitesparrow"],
+        brands: ["Strong Start", "Lazy GM's Resource Document", "Lazy GM's 5e Monster Builder Resource Document", "Lazy Solo 5e", "Obsidian", "NPCs", "NPC", "5e", "Whitesparrow"],
         acronyms: ["X", "DC", "CR", "AC", "HP"], // X-card safety tool; 5e module (M10) terms
         ignoreWords: ["e.g.", "i.e."],
+        // The prep step 2 heading: "strong start" as the Lazy GM concept, not
+        // the plugin brand — the case-insensitive brand match would otherwise
+        // demand brand casing on it.
+        ignoreRegex: ["^Create a strong start$"],
       }],
     },
   }

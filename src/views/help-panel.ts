@@ -67,10 +67,9 @@ export class HelpPanel {
 		const card = shell.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Solo play" });
 		card.createEl("p", {
-			// "Lazy Solo 5e" is the source document's own section title — keep
-			// its capitalization (same policy as the attribution link in
-			// settings-tab.ts).
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
+			// "Lazy Solo 5e" is the source document's own section title — kept
+			// capitalized via the brands list in eslint.config.mjs (same policy
+			// as the attribution link in settings-tab.ts).
 			text: "The Lazy Solo 5e rules: one character, a dungeon map of your choice, quests from the generators, oracles from the built-in tables.",
 		});
 		const list = card.createEl("ol", { cls: "strong-start-help-loop-list" });

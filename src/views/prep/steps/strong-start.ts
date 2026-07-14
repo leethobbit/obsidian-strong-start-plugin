@@ -18,7 +18,8 @@ const STRONG_START_TABLE_IDS = [
 export function renderStrongStartStep(container: HTMLElement, ctx: StepContext): void {
 	// "strong start" here is the prep-step concept (Lazy GM's Resource
 	// Document, step 2), not the plugin brand — sentence case is correct.
-	// eslint-disable-next-line obsidianmd/ui/sentence-case
+	// Exempted via ignoreRegex in eslint.config.mjs (inline disables of
+	// sentence-case are rejected by the store review).
 	container.createEl("h3", { text: "Create a strong start" });
 	container.createEl("p", {
 		cls: "strong-start-hint",
