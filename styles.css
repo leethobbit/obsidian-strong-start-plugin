@@ -1421,6 +1421,12 @@
 		flex-direction: column;
 	}
 
+	/* Side-by-side Scenes/Secrets columns don't fit a narrow pane. */
+	.strong-start-run-sections-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
 	.strong-start-run-glance,
 	.strong-start-run-glance.is-detail {
 		width: 100%;
@@ -1445,13 +1451,17 @@
 	font-size: 1.25em;
 }
 
-/* The main column's Scenes/Secrets collapsible headers keep the muted
-   small-caps section-label look. */
-.strong-start-run-section .strong-start-collapsible-label {
-	color: var(--text-muted);
-	font-variant: small-caps;
-	font-size: 0.8em;
-	text-transform: lowercase;
+/* Scenes/Secrets sit side by side at full width (run UI pass, 2026-07-14) —
+   equal columns, collapsing back to a stack when the pane gets narrow. */
+.strong-start-run-sections-row {
+	display: flex;
+	gap: var(--size-4-2);
+	align-items: flex-start;
+}
+
+.strong-start-run-sections-row > .strong-start-run-section {
+	flex: 1 1 0;
+	min-width: 0;
 }
 
 .strong-start-run-scene-list,
@@ -1461,10 +1471,14 @@
 	gap: var(--size-4-1);
 }
 
+/* The row owns the pill (background + radius); the toggle and the detail
+   chevron are transparent children, so the chevron reads as part of the same
+   bar instead of a detached nub (run UI pass, 2026-07-14). */
 .strong-start-run-scene-row {
 	display: flex;
 	align-items: stretch;
-	gap: var(--size-4-1);
+	background-color: var(--background-secondary);
+	border-radius: var(--radius-m);
 }
 
 .strong-start-run-scene-toggle {
@@ -1476,20 +1490,23 @@
 	padding: var(--size-4-1) var(--size-4-2);
 	color: var(--text-normal);
 	text-align: left;
-	background-color: var(--background-secondary);
+	background-color: transparent;
 	border: none;
-	border-radius: var(--radius-m);
+	border-radius: var(--radius-m) 0 0 var(--radius-m);
 	box-shadow: none;
 	cursor: var(--cursor-link);
 }
 
 .strong-start-run-scene-expand {
 	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	min-width: 44px;
 	color: var(--text-muted);
-	background-color: var(--background-secondary);
+	background-color: transparent;
 	border: none;
-	border-radius: var(--radius-m);
+	border-radius: 0 var(--radius-m) var(--radius-m) 0;
 	box-shadow: none;
 	cursor: var(--cursor-link);
 }

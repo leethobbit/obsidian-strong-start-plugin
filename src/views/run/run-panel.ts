@@ -278,17 +278,19 @@ export class RunPanel {
 		// Scenes and Secrets are collapsible (run-screen redesign: they were
 		// the panel's biggest space hogs). The collapsible body is built once
 		// and CSS-toggled, so `renderScenes()`/`renderSecrets()` partial
-		// re-renders keep pointing at live elements.
+		// re-renders keep pointing at live elements. They share one row —
+		// equal-width columns on wide panes, stacking on narrow ones.
 		const state = this.sectionStateFor(session.path);
+		const sectionsRow = mainCol.createDiv({ cls: "strong-start-run-sections-row" });
 
-		const scenesSection = mainCol.createDiv({ cls: "strong-start-run-section" });
+		const scenesSection = sectionsRow.createDiv({ cls: "strong-start-run-section" });
 		renderCollapsibleSection(scenesSection, this.view, state, "scenes", "Scenes", (body) => {
 			this.scenesListEl = body.createDiv({ cls: "strong-start-run-scene-list" });
 			this.renderScenes();
 		});
 
 		const secretCount = session.secrets.filter((s) => !s.archived).length;
-		const secretsSection = mainCol.createDiv({ cls: "strong-start-run-section" });
+		const secretsSection = sectionsRow.createDiv({ cls: "strong-start-run-section" });
 		renderCollapsibleSection(
 			secretsSection,
 			this.view,
