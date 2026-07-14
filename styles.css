@@ -1229,6 +1229,15 @@
 	cursor: var(--cursor-link);
 }
 
+/* Small-caps reads a couple of sizes smaller than it measures — bump the
+   label so section headers hold their own against body text (run UI pass,
+   2026-07-14). Shared by every collapsible: run sections, glance sidebar,
+   World groups, session zero, the 5e drawer. */
+.strong-start-collapsible-label {
+	/* rem, not em — the run pane inherits a 13px base that em can't escape. */
+	font-size: 1.1rem;
+}
+
 .strong-start-collapsible-chevron {
 	display: flex;
 	align-items: center;
