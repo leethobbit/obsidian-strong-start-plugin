@@ -1,7 +1,7 @@
 {
   "name": "strong-start",
-  "version": "0.1.0",
-  "description": "Create and run TTRPG campaigns with the eight steps of lazy RPG prep, secrets that carry forward, and rollable random tables.",
+  "version": "0.5.0",
+  "description": "Create, manage, and run TTRPG campaigns with Sly Flourish's eight steps of lazy RPG prep.",
   "main": "main.js",
   "type": "module",
   "scripts": {
@@ -11,7 +11,8 @@
     "lint": "eslint src main.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "version": "node version-bump.mjs && git add manifest.json versions.json"
+    "version": "node version-bump.mjs && git add manifest.json versions.json",
+    "announce": "node scripts/gen-discord-announcement.mjs"
   },
   "keywords": [
     "obsidian"

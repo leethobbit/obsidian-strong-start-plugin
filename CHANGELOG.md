@@ -7,6 +7,10 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-14
+
+First public release (BRAT beta) — everything below shipped between M0 and this tag.
+
 ### Added
 
 - 5e Monster Builder (M18, with the 5e module): build a custom monster from the Lazy GM's 5e Monster Builder Resource Document's statistics-by-CR table — pick a CR (or let the party's levels suggest one), start from one of the seven general-use stat blocks (Minion through Champion), tune AC/HP/attacks with automatic damage re-splits, tag a tactical role, and toggle the document's ten monster features with a live stat-block preview. Saves as a new `type: monster` campaign note (readable markdown stat block, freeform notes section) with rename-safe editing from the World tab, the prep Monsters step (which links the new note as a chip), and the run-mode 5e drawer.
