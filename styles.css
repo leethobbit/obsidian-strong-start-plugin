@@ -1520,8 +1520,9 @@
 	cursor: var(--cursor-link);
 }
 
-/* Keep the scene text clear of the overlaid chevron. */
-.strong-start-run-scene-row:has(.strong-start-run-scene-expand) .strong-start-run-scene-toggle {
+/* Keep the scene text clear of the overlaid chevron. `has-detail` is set by
+   the panel when it creates the chevron (a :has() here trips the store lint). */
+.strong-start-run-scene-row.has-detail .strong-start-run-scene-toggle {
 	padding-right: 48px;
 }
 
@@ -1908,10 +1909,14 @@
 	}
 }
 
+/* Must stay AFTER the toast rules above: the bare selector outranks the base
+   rule by source order alone, and the .is-nat1 pair covers the shake variant's
+   higher specificity — that ordering is what lets this skip !important. */
 @media (prefers-reduced-motion: reduce) {
-	.strong-start-run-dice-toast {
-		animation: none !important;
-		transition: none !important;
+	.strong-start-run-dice-toast,
+	.strong-start-run-dice-toast.is-nat1 {
+		animation: none;
+		transition: none;
 	}
 }
 

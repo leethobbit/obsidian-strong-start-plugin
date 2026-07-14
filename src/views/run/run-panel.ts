@@ -592,7 +592,11 @@ export class RunPanel {
 			// A row wrapper, not one big <button> — the detail chevron is its
 			// own button, and nesting buttons is invalid HTML that breaks tap
 			// handling on mobile.
-			const wrap = container.createDiv({ cls: `strong-start-run-scene-row${row.done ? " is-done" : ""}` });
+			// `has-detail` stands in for a :has() selector (store lint: broad
+			// invalidation) — the chevron's presence is known right here.
+			const wrap = container.createDiv({
+				cls: `strong-start-run-scene-row${row.done ? " is-done" : ""}${row.detail ? " has-detail" : ""}`,
+			});
 			const toggle = wrap.createEl("button", {
 				cls: "strong-start-run-scene-toggle",
 				attr: { type: "button", "aria-pressed": row.done ? "true" : "false" },
