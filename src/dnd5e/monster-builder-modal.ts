@@ -56,6 +56,12 @@ export interface MonsterBuilderOptions {
 	onSaved?: (file: TFile, name: string) => void | Promise<void>;
 }
 
+/** Order-insensitive equality — manual chip toggles rebuild the array in
+ * ABILITY_IDS order, which may not match a role's suggestion order. */
+function sameAbilitySet(a: readonly string[], b: readonly string[]): boolean {
+	return a.length === b.length && b.every((ability) => a.includes(ability));
+}
+
 export async function openMonsterBuilder(app: App, options: MonsterBuilderOptions): Promise<void> {
 	let snapshot: MonsterSnapshot | null = null;
 
@@ -149,9 +155,16 @@ class MonsterBuilderModal extends FormModal {
 			value: this.build.role ?? "",
 			onChange: (value) => {
 				const role = MONSTER_ROLES.find((candidate) => candidate.id === value);
+				const outgoing = MONSTER_ROLES.find((candidate) => candidate.id === this.build.role);
 				this.build.role = role?.id;
-				if (role && this.build.abilities.length === 0) {
-					this.build.abilities = [...role.suggestedAbilities];
+				// Re-seed only while the chips are still un-customized: blank, or
+				// exactly the outgoing role's suggestion. A hand-edited set is the
+				// GM's ("pre-suggests ... never enforced") and survives role swaps.
+				const untouched =
+					this.build.abilities.length === 0 ||
+					(outgoing !== undefined && sameAbilitySet(this.build.abilities, outgoing.suggestedAbilities));
+				if (untouched) {
+					this.build.abilities = role ? [...role.suggestedAbilities] : [];
 					this.rerender();
 					return;
 				}

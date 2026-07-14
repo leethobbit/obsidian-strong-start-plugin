@@ -14,6 +14,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Fixed
 
+- Monster Builder: switching Role now re-suggests the proficient-ability chips (and clears them on None) as long as you haven't hand-edited them — previously the suggestion only ever applied once. A customized chip set still survives role swaps untouched.
 - Tables Roll view: the table list no longer jumps back to the top when you pick a table (and the result pane holds its place on Reroll), and long table names wrap instead of clipping — Obsidian's own button styling had been overriding the list's flat rows, rendering them as centered single-line pills.
 
 ### Changed
