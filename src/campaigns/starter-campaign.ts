@@ -1,17 +1,18 @@
 // Obsidian glue — the Whitesparrow starter campaign (docs/plan.md M16): one
 // command that builds the document's own CC-BY starter village + adventure as
-// a ready-to-run campaign — foundation filled from the village, eight NPC
-// notes, five location notes (aspects verbatim from the source), the Night
-// Blade quest, and session 1 prepped through every step except the party
-// (those chairs belong to the GM's real players). Unlike the demo campaign
-// (synthetic, mid-campaign, for evaluating the loop), this is content a GM
-// can take to the table this week. Deleting the campaign folder removes all
-// of it.
+// a ready-to-run campaign — foundation filled from the village, a sample
+// party of four (clearly marked replace-me characters, so every prep surface
+// including the Characters step and the 5e benchmark lights up out of the
+// box), eight NPC notes, five location notes (aspects verbatim from the
+// source), the Night Blade quest, and session 1 prepped through all eight
+// steps. Unlike the demo campaign (synthetic, mid-campaign, for evaluating
+// the loop), this is content a GM can take to the table this week. Deleting
+// the campaign folder removes all of it.
 
 import { normalizePath, type App, type TFile } from "obsidian";
 import { createCampaignNote } from "./create-campaign";
-import { createLocationNote, createNpcNote, createQuestNote } from "../roster/entity-files";
-import { writeNpcFm } from "../roster/entity-schema";
+import { createLocationNote, createNpcNote, createPcNote, createQuestNote } from "../roster/entity-files";
+import { writeNpcFm, writePcFm } from "../roster/entity-schema";
 import { sessionBodyScaffold, writeSessionFm, type SessionFm } from "../sessions/session-schema";
 import { replaceSection } from "../lib/sections";
 import { writeLazyFrontmatter } from "../lib/frontmatter";
@@ -23,6 +24,7 @@ import {
 	WHITESPARROW_LOCATIONS,
 	WHITESPARROW_NAME,
 	WHITESPARROW_NPCS,
+	WHITESPARROW_PARTY,
 	WHITESPARROW_PITCH,
 	WHITESPARROW_TRUTHS,
 } from "../content/whitesparrow";
@@ -55,6 +57,14 @@ export async function createStarterCampaign(app: App, campaignRoot: string): Pro
 		status: "active",
 	};
 
+	// Sample party — no player names on purpose (those ARE the GM's real
+	// players); role/level set so the Characters step and the 5e benchmark
+	// card light up immediately.
+	for (const pc of WHITESPARROW_PARTY) {
+		const file = await createPcNote(app, campaign, pc.name, "", pc.body);
+		await writeLazyFrontmatter(app, file, writePcFm({ campaign: `[[${name}]]`, role: pc.role, level: pc.level }));
+	}
+
 	for (const npc of WHITESPARROW_NPCS) {
 		const file = await createNpcNote(app, campaign, npc.name, npc.body);
 		await writeLazyFrontmatter(app, file, writeNpcFm({ campaign: `[[${name}]]`, role: npc.role, status: "alive" }));
@@ -67,8 +77,9 @@ export async function createStarterCampaign(app: App, campaignRoot: string): Pro
 
 	await createQuestNote(app, campaign, NIGHT_BLADE_QUEST.title, `${NIGHT_BLADE_QUEST.body}\n`);
 
-	// Session 1: prepped through every step except Characters — those chairs
-	// belong to the GM's real players.
+	// Session 1: prepped through all eight steps — Characters counts because
+	// the sample party above fills the roster (marked replace-me, but real
+	// enough to run).
 	const sessionsFolder = normalizePath(`${parentPath(campaign.path)}/Sessions`);
 	if (!app.vault.getFolderByPath(sessionsFolder)) await app.vault.createFolder(sessionsFolder);
 
@@ -83,7 +94,7 @@ export async function createStarterCampaign(app: App, campaignRoot: string): Pro
 		session: 1,
 		date: localIsoDate(),
 		status: "prep",
-		stepsDone: ["strong-start", "scenes", "secrets", "locations", "npcs", "monsters", "rewards"],
+		stepsDone: ["characters", "strong-start", "scenes", "secrets", "locations", "npcs", "monsters", "rewards"],
 		secrets: adventure.secrets.map((text) => ({ id: newId("s"), text })),
 		npcs: [...adventure.npcs],
 		locations: [...adventure.locations],

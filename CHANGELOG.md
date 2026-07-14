@@ -14,6 +14,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 - Run mode's glance sidebar is now master-detail: tapping an NPC, location, monster, or reward link opens a focus pane in the sidebar — key fields (NPC role/location/status, location aspects) plus the rendered note body — with back, edit-in-modal, and open-note actions, instead of leaving run mode for a new leaf. Inline `[[links]]` inside reward rows are tappable too.
 - Run mode's log bar grows into a collapsible Log/Notes pane: the `## Log` history is finally visible (rolling, timestamped, auto-scrolling) above the append input, and a Notes tab holds a free-form scratchpad saved to the session's `## Notes` section. Pinned, debounced writes — typing then instantly switching sessions can't lose keystrokes or write to the wrong note.
 - Session notes gain a `## Notes` scratchpad section (scaffolded on new sessions; older notes gain it on first write) — the home of run mode's Notes tab.
+- The Whitesparrow starter seeds a sample party of four (rogue/fighter/cleric/ranger, level 3, backstories hooked into the adventure) — the Characters prep step and the 5e benchmark card light up out of the box, and session 1 arrives with all eight steps done. Every sample body opens with a "swap in your table's real party" line.
 - The Whitesparrow starter campaign is now discoverable in the UI, not just the command palette: the no-campaign Dashboard empty state gains a "Start with Whitesparrow" button, and the campaign wizard's first step links to it.
 
 - Full in-plugin editing (M17) — prep a whole game without opening a raw note:
@@ -24,7 +25,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
   - Foundation gains a House rules editor and a campaign details card for the advisory `system` label.
   - Sessions list rows gain "Edit date" (the session number stays the stable key).
 
-- Starter campaign (M16): the "Create starter campaign" command builds the document's own CC-BY village of Whitesparrow and "The Night Blade" adventure — foundation, eight NPC notes, five location notes, a quest, and session 1 prepped through every step except your party.
+- Starter campaign (M16): the "Create starter campaign" command builds the document's own CC-BY village of Whitesparrow and "The Night Blade" adventure — foundation, a sample party of four (clearly marked replace-me characters, so the Characters step and 5e benchmark work out of the box), eight NPC notes, five location notes, a quest, and session 1 prepped through all eight steps.
 - Stress effects (M16, with the 5e module): the document's stress-check procedure in the run-mode 5e drawer — consent caveat first — plus rollable trigger and result tables.
 - Stars and wishes (M16): two optional prompts in the end-session flow, saved to their own section so player-facing recap exports never include table feedback.
 - Phone shell (M12): bottom tab bar (Run · Prep · Home · More) replacing the desktop rail on phones, a native "More" sheet (quick roll, Tables, Secrets, Help), prep as a step-list → full-screen step editor drill-down with a back header, soft-keyboard handling so the run-mode log bar rides above the keyboard, and a compact run top bar on narrow widths.

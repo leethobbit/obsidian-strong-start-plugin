@@ -236,7 +236,7 @@ export default class LazyCampaignPlugin extends Plugin {
 		if (!created) return false;
 		this.ui.lastCampaignId = created.id;
 		await this.persist();
-		new Notice("Whitesparrow is ready — session 1 is prepped; add your party and run it.");
+		new Notice("Whitesparrow is ready — session 1 is fully prepped; swap the sample party for your own.");
 		await this.openView("home");
 		return true;
 	}

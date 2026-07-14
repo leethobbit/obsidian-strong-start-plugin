@@ -4,6 +4,7 @@ import {
 	WHITESPARROW_FRONT,
 	WHITESPARROW_LOCATIONS,
 	WHITESPARROW_NPCS,
+	WHITESPARROW_PARTY,
 	WHITESPARROW_TRUTHS,
 } from "../src/content/whitesparrow";
 
@@ -14,6 +15,25 @@ describe("Whitesparrow starter content", () => {
 		expect(WHITESPARROW_FRONT.name.length).toBeGreaterThan(0);
 		expect(WHITESPARROW_FRONT.goal.length).toBeGreaterThan(0);
 		expect(WHITESPARROW_FRONT.doom.length).toBeGreaterThan(0);
+	});
+
+	it("seeds a playable sample party, every member clearly marked replaceable", () => {
+		expect(WHITESPARROW_PARTY.length).toBeGreaterThanOrEqual(3);
+		expect(WHITESPARROW_PARTY.length).toBeLessThanOrEqual(6);
+		const npcNames = new Set(WHITESPARROW_NPCS.map((n) => n.name));
+		const seen = new Set<string>();
+		for (const pc of WHITESPARROW_PARTY) {
+			expect(pc.name.length).toBeGreaterThan(0);
+			expect(pc.role.length).toBeGreaterThan(0);
+			expect(pc.level).toBeGreaterThanOrEqual(1);
+			expect(pc.level).toBeLessThanOrEqual(20);
+			// The whole point is a no-confusion roster: bodies open with the
+			// replace-me line, and no PC collides with an NPC name.
+			expect(pc.body).toMatch(/^\*Sample character/);
+			expect(npcNames.has(pc.name)).toBe(false);
+			expect(seen.has(pc.name)).toBe(false);
+			seen.add(pc.name);
+		}
 	});
 
 	it("gives every NPC a name, role, and body", () => {

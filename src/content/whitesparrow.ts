@@ -36,6 +36,46 @@ export const WHITESPARROW_FRONT = {
 	doom: "Whitesparrow bleeds until nothing is left to steal — or to save.",
 } as const;
 
+export interface StarterPc {
+	name: string;
+	/** Class-ish free text — lands in the PC note's `role` field. */
+	role: string;
+	level: number;
+	body: string;
+}
+
+/** A sample party of four (original content, not from the source document —
+ * its adventure only *suggests* tying PC backstories to Ralavaz/Gardren, so
+ * these do exactly that). They exist to light up the Characters prep step and
+ * the 5e benchmark card out of the box; every body opens with an explicit
+ * "sample — replace with your table" line so nobody mistakes them for canon. */
+export const WHITESPARROW_PARTY: readonly StarterPc[] = [
+	{
+		name: "Kessa Thornvale",
+		role: "rogue",
+		level: 3,
+		body: "*Sample character — swap in your table's real party (edit or delete freely).*\n\nGrew up poor on Whitesparrow's swamp side. Her father rode with the old Night Blades and died in the barn fire — a thing she has never told the sheriff, and never forgiven the village for.",
+	},
+	{
+		name: "Brann Oakhollow",
+		role: "fighter",
+		level: 3,
+		body: "*Sample character — swap in your table's real party (edit or delete freely).*\n\nA caravan guard whose last wagon was taken on the vale road — the drover died, and Brann didn't. He wants the goods back, the gang gone, and some way to stop replaying that morning.",
+	},
+	{
+		name: "Sister Callen",
+		role: "cleric",
+		level: 3,
+		body: "*Sample character — swap in your table's real party (edit or delete freely).*\n\nA junior priest of the Temple of Light, sent to \"assist\" Prelate Ivamis — who never asked for help and lets her know it. The nightmares villagers whisper about near the cyclopean palm are exactly the kind of thing her order was founded to face.",
+	},
+	{
+		name: "Wren Marshlight",
+		role: "ranger",
+		level: 3,
+		body: "*Sample character — swap in your table's real party (edit or delete freely).*\n\nA swamp guide who knows the Tangles better than anyone still breathing. Her grandmother taught her the boot trick that keeps the tangleweed off — and warned her the Lonely Torch was worth avoiding long before the new gang moved in.",
+	},
+];
+
 export interface StarterNpc {
 	name: string;
 	role: string;
