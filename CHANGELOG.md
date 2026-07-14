@@ -7,6 +7,10 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ## [Unreleased]
 
+### Added
+
+- Funding link (GitHub Sponsors) in the plugin manifest and the repo sidebar.
+
 ### Changed
 
 - Run mode UI pass: Scenes and Secrets sit side by side as equal-width columns (stacking again on narrow panes), their section headers match the glance sidebar's size, and a scene's detail chevron is part of the scene bar instead of a detached button beside it.
