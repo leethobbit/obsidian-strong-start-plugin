@@ -6,6 +6,10 @@ Built on the method from [Return of the Lazy Dungeon Master](https://slyflourish
 
 Everything the plugin creates is a plain markdown note in your vault — campaigns, sessions, NPCs, locations, quests, and tables stay yours, linkable and editable like any other note. The plugin's views are a lens over those notes, never a lock-in.
 
+## AI Disclosure
+
+> This application was written with extensive use of Claude Code.  I know some people in the TTRPG community will be turned away by this, and I totally understand.  This project is the result of a mandate at work to learn these tools, so learn them I have.  At least I can provide a hopefully interesting project for a community I love.
+
 ## The weekly loop
 
 1. **Create a campaign** — a guided wizard for the pitch, six truths, and a front or two, with inspiration rolls at every field. Fifteen minutes and you're ready for session zero.
@@ -60,8 +64,8 @@ Not yet in the community plugin store. Until then:
 
 This plugin includes content from the [Lazy GM's Resource Document](https://slyflourish.com/lazy_gm_resource_document.html) by Michael E. Shea of [SlyFlourish.com](https://slyflourish.com), released under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). Portions of that document are derived from the System Reference Document 5.1 by Wizards of the Coast LLC, also licensed under CC-BY 4.0.
 
-The 5e module's monster builder includes material taken from the [Lazy GM's 5e Monster Builder Resource Document](https://slyflourish.com/lazy_5e_monster_building_resource_document.html) written by Teos Abadía of [Alphastream.org](https://alphastream.org), Scott Fitzgerald Gray of [Insaneangel.com](https://insaneangel.com), and Michael E. Shea of [SlyFlourish.com](https://slyflourish.com), available under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/). That document likewise includes material from the SRD 5.1 (CC-BY 4.0).
+This work includes material taken from the [Lazy GM's 5e Monster Builder Resource Document](https://slyflourish.com/lazy_5e_monster_building_resource_document.html) written by Teos Abadía of [Alphastream.org](https://alphastream.org), Scott Fitzgerald Gray of [Insaneangel.com](https://insaneangel.com), and Michael E. Shea of [SlyFlourish.com](https://slyflourish.com), available under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/). (That document powers the 5e module's monster builder and its reference tables, and likewise includes material from the SRD 5.1, CC-BY 4.0.)
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Embedded Lazy GM's Resource Document content remains CC-BY 4.0 as noted above.
+MIT — see [LICENSE](LICENSE). Embedded content from the Lazy GM's Resource Document and the Lazy GM's 5e Monster Builder Resource Document remains CC-BY 4.0 as noted above.
