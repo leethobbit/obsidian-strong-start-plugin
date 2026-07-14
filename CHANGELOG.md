@@ -13,7 +13,7 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ### Changed
 
-- Run mode UI pass: Scenes and Secrets sit side by side as equal-width columns (stacking again on narrow panes), their section headers match the glance sidebar's size, and a scene's detail chevron is part of the scene bar instead of a detached button beside it.
+- Run mode UI pass: Scenes and Secrets sit side by side as equal-width columns (stacking again on narrow panes), their section headers match the glance sidebar's size, and a scene's detail chevron is overlaid on the scene bar itself — full pill height, no chrome of its own — instead of a detached button beside it.
 
 ## [0.5.0] - 2026-07-14
 

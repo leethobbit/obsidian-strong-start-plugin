@@ -606,8 +606,10 @@ export class RunPanel {
 			if (!detail) continue;
 
 			const expanded = this.expandedScenes.has(row.text);
+			// `clickable-icon` opts out of Obsidian's default button chrome
+			// (background + fixed height) so the chevron overlays the pill.
 			const expandBtn = wrap.createEl("button", {
-				cls: "strong-start-run-scene-expand",
+				cls: "strong-start-run-scene-expand clickable-icon",
 				attr: {
 					type: "button",
 					"aria-label": expanded ? "Hide scene detail" : "Show scene detail",

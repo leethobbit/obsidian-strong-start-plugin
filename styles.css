@@ -1471,10 +1471,12 @@
 	gap: var(--size-4-1);
 }
 
-/* The row owns the pill (background + radius); the toggle and the detail
-   chevron are transparent children, so the chevron reads as part of the same
-   bar instead of a detached nub (run UI pass, 2026-07-14). */
+/* The row owns the pill (background + radius); the toggle fills it and the
+   detail chevron is OVERLAID on the pill's right edge (absolute, full pill
+   height, no chrome of its own) so it can never read as a separate segment
+   (run UI pass, 2026-07-14). */
 .strong-start-run-scene-row {
+	position: relative;
 	display: flex;
 	align-items: stretch;
 	background-color: var(--background-secondary);
@@ -1492,23 +1494,39 @@
 	text-align: left;
 	background-color: transparent;
 	border: none;
-	border-radius: var(--radius-m) 0 0 var(--radius-m);
+	border-radius: var(--radius-m);
 	box-shadow: none;
 	cursor: var(--cursor-link);
 }
 
+/* Keep the scene text clear of the overlaid chevron. */
+.strong-start-run-scene-row:has(.strong-start-run-scene-expand) .strong-start-run-scene-toggle {
+	padding-right: 48px;
+}
+
 .strong-start-run-scene-expand {
-	flex: 0 0 auto;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 44px;
+	width: 44px;
+	height: 100%;
+	padding: 0;
 	color: var(--text-muted);
+	background: transparent;
 	background-color: transparent;
 	border: none;
 	border-radius: 0 var(--radius-m) var(--radius-m) 0;
 	box-shadow: none;
 	cursor: var(--cursor-link);
+}
+
+.strong-start-run-scene-expand:hover {
+	color: var(--text-normal);
+	background-color: var(--background-modifier-hover);
 }
 
 .strong-start-run-scene-detail {
