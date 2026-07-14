@@ -1,7 +1,7 @@
 {
   "id": "strong-start",
   "name": "Strong Start",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "minAppVersion": "1.7.4",
   "description": "Create, manage, and run TTRPG campaigns with Sly Flourish's eight steps of lazy RPG prep.",
   "author": "Daniel King",

@@ -7,6 +7,12 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-07-14
+
+### Fixed
+
+- Community-store review feedback, no visible changes: the scene-row `:has()` selector and the dice toast's reduced-motion `!important` declarations were replaced with equivalent CSS, and two inline lint-rule disables were removed in favor of lint-config exemptions.
+
 ## [0.6.0] - 2026-07-14
 
 ### Added
