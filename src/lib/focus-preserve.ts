@@ -77,7 +77,11 @@ export class DeferredRebuildQueue {
 	 * once `bind` returns them to the caller for registration. */
 	bind(registerFocusOut: (el: HTMLElement, cb: (evt: FocusEvent) => void) => void, registerInterval: (id: number) => number): void {
 		registerFocusOut(this.container, () => this.flushIfIdle());
-		const intervalId = window.setInterval(() => this.flushIfIdle(), this.safetyMs);
+		// Schedule on the container's own window (not the main window's
+		// global) so the safety tick keeps firing when the view lives in a
+		// popout — plain DOM, keeping this module `obsidian`-import-free.
+		const win = this.container.ownerDocument.defaultView ?? window;
+		const intervalId = win.setInterval(() => this.flushIfIdle(), this.safetyMs);
 		registerInterval(intervalId);
 	}
 

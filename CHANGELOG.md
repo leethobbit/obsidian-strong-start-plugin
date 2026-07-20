@@ -7,6 +7,27 @@ Every user-facing change adds a line under `[Unreleased]` **in the same commit**
 
 ## [Unreleased]
 
+### Fixed
+
+- Prep board: prose typed into a section editor (Scenes, Strong start, Rewards) no longer vanishes from the board — and could previously be erased from the note — after switching steps and back; the panel's cached body now stays in step with its own writes.
+- Dashboard: tapping a grim-portent pip now toggles it against the campaign note's current content instead of a cached copy, so a front or portent added on the Foundation tab (or by hand) is never silently deleted by the tap; the tapped pip is also re-located by name, not position.
+- Editing a managed note's body outside the plugin (a split-pane hand edit, a sync client) now refreshes open panels; previously only frontmatter changes did, and a stale panel's next write could revert the hand edit.
+- Hand-written or newer-version fields under `lazyCampaign` frontmatter are preserved when the plugin writes a note — previously any field a codec didn't recognize was silently deleted on the first write.
+- A retired (archived) secret hand-edited to an empty text no longer loses its tombstone — which previously let the next carry-over resurrect it.
+- Secrets ledger and session-zero checklist actions now read the note's current state at write time instead of a possibly stale cache, so two quick actions can't undo each other.
+- Managed section edits no longer mistake a `## heading` line inside a code fence for a real section boundary, which could corrupt the fence or write log entries into it.
+- 5e Monster Builder: setting "Attacks per round" away from the table default and back no longer corrupts damage-per-attack at CR 1/8, 9, 16, and 17; the preview title now updates as you type the name.
+- 5e benchmark card: fractional CRs render as 1/8, 1/4, 1/2, and the "single monster may be deadly" line rounds a mixed-level party's average to a real CR instead of printing "CR 3.5".
+- Campaign wizard: double-clicking "Create campaign" no longer creates duplicate campaigns.
+- The ribbon icon and commands now land on the requested tab even when the view was restored with the workspace (deferred views).
+- Custom tables: a disabled (`0x`-weighted) row survives an editor round-trip instead of silently reverting to weight 1; table notes with a BOM or an empty frontmatter block no longer lose their frontmatter when edited through the table editor.
+- Run mode: a log entry whose save fails is rolled back and its text handed back to the input instead of showing a phantom entry; timers (session clock, dice toasts, undo window, prep timer) now run on the view's own window so they keep working in a pop-out window.
+- Note names strip Obsidian link-breaking characters (`# ^ [ ]`), Windows-reserved names, and trailing dots, so `[[wikilink]]` joins can't silently break.
+- Fronts: a hand-added second `**Doom:**` line is preserved instead of dropped on the next full render.
+- "Create starter campaign" / "Create demo campaign" refuse to run when the campaign already exists instead of building a half-duplicated folder.
+- Long sessions no longer accumulate detached UI trees: re-rendered regions (header, prep board, run scenes/secrets, tables) release their old listeners instead of holding them until the view closes.
+- Help panel: the "Reset tips" link is now labeled "Reset tips and welcome" to match what it does.
+
 ## [0.6.1] - 2026-07-14
 
 ### Fixed

@@ -1,8 +1,9 @@
-import { DropdownComponent, ItemView, Menu, setIcon, TFile, type WorkspaceLeaf } from "obsidian";
+import { Component, DropdownComponent, ItemView, Menu, setIcon, TFile, type WorkspaceLeaf } from "obsidian";
 import type LazyCampaignPlugin from "../../main";
 import { RenameCampaignModal, setCampaignStatus } from "../campaigns/campaign-actions";
 import { tryFileOp } from "../lib/notify";
 import { isPhone } from "../lib/platform";
+import { RenderScopes } from "./panel-kit";
 import { RollTableSuggestModal } from "./tables/roll-table-modal";
 import { DESTINATIONS, type NavDestination, type NavGroup, type NavMode } from "./nav-model";
 import { PhoneShell } from "./phone/phone-shell";
@@ -49,6 +50,13 @@ export class LazyCampaignView extends ItemView {
 	private phone: PhoneShell | null = null;
 	private readonly panels = new Map<NavMode, { el: HTMLElement; panel: Panel }>();
 	private unsubscribe: (() => void) | null = null;
+	/** Per-render listener scopes for the header/rail chrome (panel-kit) —
+	 * without them every store notification's header rebuild pins the old
+	 * header tree on this view's cleanup list until the view closes. */
+	private readonly renderScopes = new RenderScopes(this);
+	/** Cheap change signature so unrelated notifications (a body edit in some
+	 * session note) don't tear the campaign dropdown down mid-interaction. */
+	private lastHeaderSig: string | null = null;
 	/** Set alongside `panels.get("home")` in `buildPanels()` — the header's
 	 * "New campaign…" dropdown option needs to reach past the `Panel`
 	 * interface to open the wizard, not just re-render. */
@@ -145,7 +153,7 @@ export class LazyCampaignView extends ItemView {
 		this.plugin.ui.lastMode = mode;
 		void this.plugin.persist();
 		if (mode === "home" && this.homePanel && isHomeSubtab(subtab)) {
-			this.homePanel.setSubtab(subtab);
+			this.homePanel.setSubtab(subtab, { skipRender: true }); // renderActivePanel below renders it
 		}
 		this.renderRail();
 		this.renderActivePanel();
@@ -203,20 +211,21 @@ export class LazyCampaignView extends ItemView {
 	}
 
 	private renderRail(): void {
+		const scope = this.renderScopes.next("rail");
 		this.railEl.empty();
 		for (const group of RAIL_GROUP_ORDER) {
 			const groupEl = this.railEl.createDiv({ cls: "strong-start-rail-group" });
 			for (const dest of DESTINATIONS.filter((d) => d.group === group)) {
-				this.renderRailButton(groupEl, dest);
+				this.renderRailButton(scope, groupEl, dest);
 			}
 		}
 		const footerEl = this.railEl.createDiv({ cls: "strong-start-rail-footer" });
 		for (const dest of DESTINATIONS.filter((d) => d.group === "footer")) {
-			this.renderRailButton(footerEl, dest);
+			this.renderRailButton(scope, footerEl, dest);
 		}
 	}
 
-	private renderRailButton(container: HTMLElement, dest: NavDestination): void {
+	private renderRailButton(scope: Component, container: HTMLElement, dest: NavDestination): void {
 		const isActive = this.mode === dest.mode;
 		const button = container.createEl("button", {
 			cls: `strong-start-rail-button${isActive ? " is-active" : ""}`,
@@ -225,14 +234,23 @@ export class LazyCampaignView extends ItemView {
 		const iconEl = button.createSpan({ cls: "strong-start-rail-icon" });
 		setIcon(iconEl, dest.icon);
 		button.createSpan({ cls: "strong-start-rail-label", text: dest.label });
-		this.registerDomEvent(button, "click", () => this.setMode(dest.mode));
+		scope.registerDomEvent(button, "click", () => this.setMode(dest.mode));
 	}
 
 	private renderHeader(): void {
-		this.headerEl.empty();
 		const plugin = this.plugin;
 		const campaigns = plugin.store?.campaigns() ?? [];
 		const active = plugin.activeCampaign();
+
+		// Skip the rebuild when nothing the header shows actually changed —
+		// a notification for e.g. a session-body edit would otherwise close
+		// the campaign dropdown under the user's pointer.
+		const sig = `${campaigns.map((c) => `${c.path}|${c.name}|${c.status ?? ""}`).join(";")}@${active?.path ?? ""}`;
+		if (sig === this.lastHeaderSig) return;
+		this.lastHeaderSig = sig;
+
+		const scope = this.renderScopes.next("header");
+		this.headerEl.empty();
 
 		const selectorEl = this.headerEl.createDiv({ cls: "strong-start-header-selector" });
 		const dropdown = new DropdownComponent(selectorEl);
@@ -260,7 +278,7 @@ export class LazyCampaignView extends ItemView {
 			attr: { "aria-label": "Campaign options", type: "button" },
 		});
 		setIcon(menuButton, "ellipsis");
-		this.registerDomEvent(menuButton, "click", (evt) => this.showCampaignMenu(evt));
+		scope.registerDomEvent(menuButton, "click", (evt) => this.showCampaignMenu(evt));
 	}
 
 	private showCampaignMenu(evt: MouseEvent): void {

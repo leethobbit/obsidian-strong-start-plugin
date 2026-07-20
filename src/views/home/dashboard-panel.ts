@@ -3,8 +3,8 @@ import { createNextSession } from "../../sessions/session-files";
 import { STEPS } from "../../sessions/steps";
 import { openSecrets, type DerivedSecret } from "../../sessions/carryover";
 import { tryFileOp } from "../../lib/notify";
-import { replaceSection, sectionContent } from "../../lib/sections";
-import { readCampaignBody, writeCampaignSection } from "../../campaigns/campaign-files";
+import { sectionContent } from "../../lib/sections";
+import { readCampaignBody, updateCampaignSection } from "../../campaigns/campaign-files";
 import { parseFronts, toggleFrontPortent } from "../../campaigns/fronts";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
 import { featureEnabled } from "../../features";
@@ -29,10 +29,11 @@ const FRONTS_HEADING = "Fronts";
  * recent-sessions list.
  */
 export class DashboardPanel {
-	/** Cached campaign-note body backing the fronts card, refetched whenever
-	 * the active campaign changes — `render()` itself stays synchronous
-	 * (matching every other card here), the async read just triggers one more
-	 * `render()` once it resolves. */
+	/** Cached campaign-note body backing the fronts card, re-read on every
+	 * render (`cachedRead` is memory-cheap) so Foundation edits and hand edits
+	 * show up — `render()` itself stays synchronous (matching every other card
+	 * here), the async read triggers one more `render()` only when the body
+	 * actually differs from the cache, so it converges instead of looping. */
 	private frontsBody = "";
 	private frontsBodyPath: string | null = null;
 	private frontsBodyLoading = false;
@@ -105,16 +106,24 @@ export class DashboardPanel {
 		const card = container.createDiv({ cls: "strong-start-card" });
 		card.createEl("h3", { text: "Fronts" });
 
-		if (this.frontsBodyPath !== campaign.path) {
-			if (!this.frontsBodyLoading) {
-				this.frontsBodyLoading = true;
-				void readCampaignBody(this.view.app, campaign.path).then((body) => {
+		const cacheValid = this.frontsBodyPath === campaign.path;
+		if (!this.frontsBodyLoading) {
+			this.frontsBodyLoading = true;
+			readCampaignBody(this.view.app, campaign.path)
+				.then((body) => {
+					this.frontsBodyLoading = false;
+					const changed = this.frontsBodyPath !== campaign.path || this.frontsBody !== body;
 					this.frontsBody = body;
 					this.frontsBodyPath = campaign.path;
+					if (changed) requestRerender();
+				})
+				.catch(() => {
+					// A failed read must not wedge the card in "Loading…"
+					// forever; the next render retries.
 					this.frontsBodyLoading = false;
-					requestRerender();
 				});
-			}
+		}
+		if (!cacheValid) {
 			renderEmptyState(card, "Loading…");
 			return;
 		}
@@ -131,7 +140,7 @@ export class DashboardPanel {
 		}
 
 		const list = card.createDiv({ cls: "strong-start-fronts-card-list" });
-		fronts.forEach((front, frontIndex) => {
+		fronts.forEach((front) => {
 			const row = list.createDiv({ cls: "strong-start-fronts-card-row" });
 			row.createSpan({ cls: "strong-start-fronts-card-name", text: front.name });
 
@@ -141,32 +150,38 @@ export class DashboardPanel {
 			}
 
 			const pips = row.createDiv({ cls: "strong-start-fronts-card-pips" });
-			front.portents.forEach((portent, portentIndex) => {
+			front.portents.forEach((portent) => {
 				const pip = pips.createEl("button", {
 					cls: `strong-start-fronts-pip${portent.done ? " is-done" : ""}`,
 					attr: { type: "button", "aria-label": portent.text, title: portent.text },
 				});
-				this.view.registerDomEvent(pip, "click", () => this.toggleFront(campaign, frontIndex, portentIndex, requestRerender));
+				this.view.registerDomEvent(pip, "click", () => this.toggleFront(campaign, front.name, portent.text, requestRerender));
 			});
 		});
 	}
 
 	/** Tap a grim-portent pip: docs/plan.md calls this the dashboard's only
-	 * editable element. Toggles the one targeted `- [ ]`/`- [x]` line via
-	 * `fronts.ts` (byte-preserving every other line) and refreshes the
-	 * in-memory cache directly rather than re-reading the file back.
-	 * Serialized through `frontsWriteQueue`: two quick taps otherwise both
-	 * read the pre-first-write body and the second tap silently reverts the
-	 * first (same lost-update race as the Foundation panel's fronts editors). */
-	private toggleFront(campaign: CampaignModel, frontIndex: number, portentIndex: number, requestRerender: () => void): void {
+	 * editable element. The mutation runs inside `vault.process` against the
+	 * note's CURRENT `## Fronts` section (never this panel's render-time
+	 * cache — a stale cache written back wholesale silently deleted fronts
+	 * added on Foundation since the last dashboard render), and the tapped
+	 * portent is re-located by front name + portent text for the same reason:
+	 * positional indices from a stale render can land on the wrong pip.
+	 * Serialized through `frontsWriteQueue`: two quick taps otherwise
+	 * interleave their read-modify-write cycles. */
+	private toggleFront(campaign: CampaignModel, frontName: string, portentText: string, requestRerender: () => void): void {
 		const task = async (): Promise<void> => {
-			const raw = sectionContent(this.frontsBody, FRONTS_HEADING);
-			const toggled = toggleFrontPortent(raw, frontIndex, portentIndex);
-			if (toggled === raw) return;
-
-			await writeCampaignSection(this.view.app, campaign.path, FRONTS_HEADING, toggled);
+			const fresh = await updateCampaignSection(this.view.app, campaign.path, FRONTS_HEADING, (raw) => {
+				const fronts = parseFronts(raw);
+				const frontIndex = fronts.findIndex((f) => f.name === frontName);
+				if (frontIndex === -1) return raw;
+				const portentIndex = fronts[frontIndex].portents.findIndex((p) => p.text === portentText);
+				if (portentIndex === -1) return raw;
+				return toggleFrontPortent(raw, frontIndex, portentIndex);
+			});
+			if (fresh === null) return;
 			if (this.frontsBodyPath === campaign.path) {
-				this.frontsBody = replaceSection(this.frontsBody, FRONTS_HEADING, toggled);
+				this.frontsBody = fresh;
 			}
 			requestRerender();
 		};

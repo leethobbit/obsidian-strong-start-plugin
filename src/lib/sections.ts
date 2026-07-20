@@ -20,8 +20,52 @@ export interface Section {
 // `##` followed by whitespace, not `###+` — multiline so `^`/`$` bind per line.
 const HEADING_RE = /^##[ \t]+(.+?)[ \t]*$/gm;
 
+// A fence line is up to 3 leading spaces then 3+ of the same backtick/tilde
+// (CommonMark's indented-code-block cutoff is 4 spaces, so 4+ never fences).
+const FENCE_LINE_RE = /^ {0,3}(`{3,}|~{3,})/;
+
+/** Byte spans `[start, end)` in `body` covered by fenced code blocks, so
+ * `parseSections` can ignore `##` lines that only look like headings inside
+ * a fence. An opener without a matching closer runs to end of body. */
+function findFenceSpans(body: string): Array<{ start: number; end: number }> {
+	const spans: Array<{ start: number; end: number }> = [];
+	let pos = 0;
+	let openStart = -1;
+	let openChar = "";
+	let openLen = 0;
+
+	while (pos <= body.length) {
+		const nl = body.indexOf("\n", pos);
+		const lineEnd = nl === -1 ? body.length : nl;
+		const line = body.slice(pos, lineEnd);
+		const fence = line.match(FENCE_LINE_RE);
+
+		if (openStart === -1) {
+			if (fence) {
+				openStart = pos;
+				openChar = fence[1][0];
+				openLen = fence[1].length;
+			}
+		} else if (fence && fence[1][0] === openChar && fence[1].length >= openLen) {
+			spans.push({ start: openStart, end: nl === -1 ? body.length : nl + 1 });
+			openStart = -1;
+		}
+
+		if (nl === -1) break;
+		pos = nl + 1;
+	}
+
+	if (openStart !== -1) spans.push({ start: openStart, end: body.length });
+	return spans;
+}
+
+function isFenced(offset: number, spans: Array<{ start: number; end: number }>): boolean {
+	return spans.some((s) => offset >= s.start && offset < s.end);
+}
+
 export function parseSections(body: string): Section[] {
-	const matches = Array.from(body.matchAll(HEADING_RE));
+	const fenceSpans = findFenceSpans(body);
+	const matches = Array.from(body.matchAll(HEADING_RE)).filter((m) => !isFenced(m.index ?? 0, fenceSpans));
 	const sections: Section[] = [];
 
 	for (let i = 0; i < matches.length; i++) {

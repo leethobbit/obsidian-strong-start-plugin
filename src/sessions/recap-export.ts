@@ -11,7 +11,9 @@ import type { SessionModel } from "./types";
 export interface RecapSource {
 	session: SessionModel;
 	/** The session note's raw content (frontmatter + body is fine —
-	 * `sectionContent` never matches inside frontmatter). */
+	 * frontmatter always precedes the first heading, so its span is never
+	 * inside a section's content; `sectionContent` also excludes any `##`
+	 * line that falls inside a fenced code block). */
 	body: string;
 }
 

@@ -24,7 +24,9 @@ export interface BottomPaneHost {
 	/** Flushed (awaited) by the run panel before every body re-read, and on
 	 * teardown — the flush-don't-drop contract `prep-panel.ts` documents. */
 	registerDebounce(debouncer: { cancel(): void; run(): unknown }): void;
-	appendLog(path: string, text: string): Promise<void>;
+	/** Resolves false when the vault write failed — the pane rolls back its
+	 * optimistic history row and hands the text back to the input. */
+	appendLog(path: string, text: string): Promise<boolean>;
 	writeSectionAt(path: string, heading: string, content: string): Promise<void>;
 	paneState(): { open: boolean; tab: BottomTab };
 	setPaneState(next: Partial<{ open: boolean; tab: BottomTab }>): void;
@@ -49,7 +51,7 @@ export function mountBottomPane(pane: HTMLElement, host: BottomPaneHost, session
 	const body = pane.createDiv({ cls: "strong-start-run-bottom-body" });
 	const history = body.createDiv({ cls: "strong-start-run-log-history" });
 	let emptyRow: HTMLElement | null = null;
-	const appendHistoryRow = (text: string): void => {
+	const appendHistoryRow = (text: string): HTMLElement => {
 		emptyRow?.remove();
 		emptyRow = null;
 		const row = history.createDiv({ cls: "strong-start-run-log-row" });
@@ -60,6 +62,7 @@ export function mountBottomPane(pane: HTMLElement, host: BottomPaneHost, session
 		} else {
 			row.setText(text);
 		}
+		return row;
 	};
 	const logRows = parseBulletSection(sectionContent(bodyText, "Log")).rows;
 	if (logRows.length === 0) {
@@ -112,10 +115,19 @@ export function mountBottomPane(pane: HTMLElement, host: BottomPaneHost, session
 		if (text.length === 0) return;
 		input.value = "";
 		// Optimistic: the panel's self-write soft path never re-reads the
-		// body, so the pane owns its history rows between full rebuilds.
-		appendHistoryRow(`${formatClockTime(new Date())} ${text}`);
+		// body, so the pane owns its history rows between full rebuilds. On a
+		// failed write, roll the row back and hand the text back — otherwise
+		// the pane shows an entry that isn't on disk and the typed text is
+		// unrecoverable (the Notice has already said why).
+		const row = appendHistoryRow(`${formatClockTime(new Date())} ${text}`);
 		scrollToLatest();
-		void host.appendLog(sessionPath, text).then(() => input.focus());
+		void host.appendLog(sessionPath, text).then((ok) => {
+			if (!ok) {
+				row.remove();
+				input.value = text;
+			}
+			input.focus();
+		});
 	});
 	const expandBtn = inputRow.createEl("button", {
 		cls: "strong-start-run-icon-button strong-start-run-bottom-expand",

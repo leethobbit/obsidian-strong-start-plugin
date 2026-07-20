@@ -8,9 +8,10 @@ General rules:
 
 - **Writes** go through `fileManager.processFrontMatter` (state) or the managed-section helper (prose). Panels never edit frontmatter ad hoc — every note type has exactly one codec module.
 - **Cleared = deleted.** Falsey flags and empty fields are removed on write; empty sub-objects are pruned. Absence is the false/empty state.
+- **Unknown keys under `lazyCampaign` are preserved on write.** The additive-only promise above isn't just "future codec versions may add fields" — it's enforced at the single write seam (`src/lib/frontmatter.ts`'s `writeLazyFrontmatter`/`mutateLazyFrontmatter`): any sibling key already on the note's `lazyCampaign` object that the writing codec doesn't itself own (e.g. a field a newer plugin version added) is merged back in rather than dropped when an older codec rewrites the namespace. A key a codec DOES own is still deleted when cleared — "unknown" means "this codec has never heard of it," not "missing from this write's payload."
 - **Wikilinks are join keys.** Child notes point at their campaign with `campaign: "[[<Campaign note>]]"`. Obsidian (≥1.4) rename-updates frontmatter links.
 - **Stable ids.** Machine identities are short random base36 strings with a type prefix (`c-` campaign, `s-` secret). Display text can be reworded freely; ids never change.
-- **Lenient readers, strict writers.** Codecs tolerate missing/extra/misordered fields on read and emit the canonical shape on write.
+- **Lenient readers, strict writers.** Codecs tolerate missing/extra/misordered fields on read and emit the canonical shape on write. An id-bearing row (e.g. a secret) is never dropped for a missing/non-string secondary field such as `text` — a tombstone (`archived: true`) with pruned-empty `text` reads back as `text: ""` with its flags intact, never as a deleted row (see "Secret carry-over semantics" below).
 
 ## Note types
 
@@ -189,6 +190,7 @@ Row text may contain `{{...}}` placeholders: a dice expression (`{{1d4}}`) or an
 - `carryForward(priorSessions)`: for each id take the authoritative version; carry `{id, text}` for every one that is neither `revealed` nor `archived`, ordered by first appearance. State flags never copy.
 - Carry runs at session creation and via "Sync carried secrets", which is **strictly additive** — it inserts missing ids and never removes or overwrites rows.
 - Deleting a carried secret writes `archived: true` (tombstone). True row removal is allowed only when the id appears in no earlier session (otherwise the prior copy would resurrect it).
+- A tombstone's `text` is typically empty and gets pruned from frontmatter on write ("cleared = deleted"); the reader never treats a missing/non-string `text` as a reason to drop the whole row — an id-bearing row always survives with `text: ""`. Dropping the row would silently un-tombstone the secret on the next carry-over sync.
 - Duplicate ids within one session: readers dedupe keep-first and report a notice.
 - Carried-count badges are derived at render time, never stored.
 

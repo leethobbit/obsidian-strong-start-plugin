@@ -54,10 +54,16 @@ function coerceSecrets(value: unknown): Secret[] {
 		if (typeof raw !== "object" || raw === null) continue;
 		const source = raw as Record<string, unknown>;
 		if (typeof source.id !== "string" || source.id.length === 0) continue;
-		if (typeof source.text !== "string") continue;
+		// A row with a valid id is never dropped for a missing/non-string
+		// `text` (M3 fix): "cleared = deleted" prunes `text: ""` from the
+		// frontmatter on write, but the row itself — and any tombstone flag
+		// like `archived: true` riding along with it — must survive. Losing
+		// the row here would let a later carry-over resurrect a retired
+		// secret (SCHEMA.md: archived tombstones never carry again).
+		const text = typeof source.text === "string" ? source.text : "";
 		secrets.push({
 			id: source.id,
-			text: source.text,
+			text,
 			revealed: source.revealed === true ? true : undefined,
 			note: typeof source.note === "string" && source.note.length > 0 ? source.note : undefined,
 			archived: source.archived === true ? true : undefined,

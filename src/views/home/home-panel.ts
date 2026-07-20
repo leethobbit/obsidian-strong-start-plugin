@@ -105,10 +105,12 @@ export class HomePanel {
 		if (this.subtab === "session-zero") this.sessionZero.render(this.sessionZeroEl, changedPaths);
 	}
 
-	setSubtab(subtab: HomeSubtab): void {
+	/** `skipRender` lets `lazy-view.setMode` avoid rendering the same panel
+	 * twice back-to-back (its own `renderActivePanel` immediately follows). */
+	setSubtab(subtab: HomeSubtab, options?: { skipRender?: boolean }): void {
 		this.subtab = subtab;
 		this.wizardActive = false;
-		this.render();
+		if (!options?.skipRender) this.render();
 	}
 
 	openWizard(): void {

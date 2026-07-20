@@ -128,6 +128,10 @@ class MonsterBuilderModal extends FormModal {
 			value: this.name,
 			onChange: (value) => {
 				this.name = value;
+				// The preview card titles itself with the name — without this
+				// it shows the stale/"Unnamed monster" title until some other
+				// field changes.
+				this.updatePreview();
 			},
 		});
 		this.registerFirstInput(nameInput);

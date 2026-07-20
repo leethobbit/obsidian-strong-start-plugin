@@ -56,6 +56,8 @@ export interface CampaignWizardOptions {
 export class CampaignWizardPanel {
 	private containerEl: HTMLElement | null = null;
 	private step = 0;
+	/** In-flight guard for Create — see the click handler in the footer. */
+	private creating = false;
 
 	private name = "";
 	private nameError: string | null = null;
@@ -154,10 +156,21 @@ export class CampaignWizardPanel {
 			});
 		}
 
-		// Available from step 1 on (docs/plan.md) — only the name is required,
+		// Available on every step (docs/plan.md) — only the name is required,
 		// so a GM can create after just the first step if they want to.
 		const createBtn = right.createEl("button", { cls: "mod-cta", text: "Create campaign" });
-		this.view.registerDomEvent(createBtn, "click", () => void this.handleCreate());
+		this.view.registerDomEvent(createBtn, "click", () => {
+			// Not a FormModal, so it doesn't inherit the base submit guard — a
+			// double-click (or an impatient tap on a slow vault) otherwise runs
+			// two concurrent creates that both pass the folder-exists check.
+			if (this.creating) return;
+			this.creating = true;
+			createBtn.disabled = true;
+			void this.handleCreate().finally(() => {
+				this.creating = false;
+				createBtn.disabled = false;
+			});
+		});
 	}
 
 	// ---- Step 1: name & pitch -----------------------------------------------

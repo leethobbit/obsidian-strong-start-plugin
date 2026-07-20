@@ -26,6 +26,43 @@ describe("parseSections", () => {
 	it("returns nothing for a body with no managed headings", () => {
 		expect(parseSections("just some prose")).toEqual([]);
 	});
+
+	it("ignores a heading-like line inside a backtick fence", () => {
+		const body = "## Fronts\n```\n## Fake\n```\ngoal line\n\n## House rules\n";
+		const sections = parseSections(body);
+		expect(sections.map((s) => s.heading)).toEqual(["Fronts", "House rules"]);
+	});
+
+	it("ignores a heading-like line inside a tilde fence", () => {
+		const body = "## Fronts\n~~~\n## Fake\n~~~\ngoal line\n\n## House rules\n";
+		const sections = parseSections(body);
+		expect(sections.map((s) => s.heading)).toEqual(["Fronts", "House rules"]);
+	});
+
+	it("treats an unclosed fence as running to end of body", () => {
+		const body = "## Fronts\n```\n## Fake\nstill fenced\n";
+		const sections = parseSections(body);
+		expect(sections.map((s) => s.heading)).toEqual(["Fronts"]);
+		expect(sections[0].content).toBe("```\n## Fake\nstill fenced\n");
+	});
+
+	it("still finds a real heading after a properly closed fence", () => {
+		const body = "## Fronts\n```\ncode\n```\n\n## House rules\nno flanking\n";
+		const sections = parseSections(body);
+		expect(sections.map((s) => s.heading)).toEqual(["Fronts", "House rules"]);
+	});
+
+	it("treats an indented (<=3 space) fence opener as a fence", () => {
+		const body = "## Fronts\n   ```\n## Fake\n   ```\n\n## House rules\n";
+		const sections = parseSections(body);
+		expect(sections.map((s) => s.heading)).toEqual(["Fronts", "House rules"]);
+	});
+
+	it("does not treat a 4-space-indented ``` as a fence opener", () => {
+		const body = "## Fronts\n    ```\n## Real\ntext\n";
+		const sections = parseSections(body);
+		expect(sections.map((s) => s.heading)).toEqual(["Fronts", "Real"]);
+	});
 });
 
 describe("replaceSection", () => {
@@ -55,6 +92,27 @@ describe("replaceSection", () => {
 
 	it("creates the heading in an empty body", () => {
 		expect(replaceSection("", "Pitch", "new")).toBe("## Pitch\nnew\n");
+	});
+
+	it("treats a fenced fake heading as section content, not a boundary — replacing spans past it to the real next section", () => {
+		// The fence belongs to Pitch's content, so replacing Pitch replaces it
+		// too; the win is that the span reaches the REAL next heading instead
+		// of stopping at (or corrupting) the fenced `## Fake` line.
+		const body = "## Pitch\nold\n```\n## Fake\n```\n\n## Truths\n- one\n";
+		const updated = replaceSection(body, "Pitch", "new");
+		expect(updated).toBe("## Pitch\nnew\n\n## Truths\n- one\n");
+	});
+
+	it("appends a new section rather than editing inside a fence when the target heading only exists fenced", () => {
+		const body = "## Pitch\nold\n```\n## Fake\n```\n";
+		const updated = replaceSection(body, "Fake", "x");
+		expect(updated).toBe("## Pitch\nold\n```\n## Fake\n```\n\n## Fake\nx\n");
+	});
+
+	it("leaves a fence inside an untouched section's content byte-for-byte when replacing a different section", () => {
+		const body = "## Pitch\nold\n\n## Truths\n```\n## Fake\ncode\n```\nkept\n";
+		const updated = replaceSection(body, "Pitch", "new");
+		expect(updated).toBe("## Pitch\nnew\n\n## Truths\n```\n## Fake\ncode\n```\nkept\n");
 	});
 });
 
@@ -90,6 +148,11 @@ describe("sectionContent", () => {
 
 	it("returns an empty string when the heading is missing", () => {
 		expect(sectionContent("## Other\ntext\n", "Strong start")).toBe("");
+	});
+
+	it("includes a fenced fake heading as part of the section's content", () => {
+		const body = "## Strong start\nintro\n```\n## Fake\ncode\n```\noutro\n";
+		expect(sectionContent(body, "Strong start")).toBe("intro\n```\n## Fake\ncode\n```\noutro");
 	});
 });
 

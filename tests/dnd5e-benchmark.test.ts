@@ -131,6 +131,18 @@ describe("deadlyBenchmark edge behavior", () => {
 		expect(bench.crThreshold).toBe(2); // 6/4 rounds to 2 (half rounds up)
 	});
 
+	it("rounds a fractional average level to a legal whole CR below 5th level (no CR 3.5)", () => {
+		const bench = deadlyBenchmark([3, 4]); // average 3.5, representativeLevel rounds to 4
+		expect(bench.averageLevel).toBe(3.5);
+		expect(bench.maxSingleMonsterCr).toBe(4); // Math.round(3.5), ties up — not the raw 3.5
+	});
+
+	it("renders sub-1 CRs in the description as conventional fractions, not decimals", () => {
+		const description = deadlyBenchmark([1, 1, 1, 1]).description;
+		expect(description).toContain("CR 1/2");
+		expect(description).not.toContain("CR 0.5");
+	});
+
 	it("includes a readable description with the 1st-level caution line only at 1st level", () => {
 		expect(deadlyBenchmark([1, 1, 1]).description).toContain("Be extra careful at 1st level");
 		expect(deadlyBenchmark([4, 4, 4]).description).not.toContain("Be extra careful");

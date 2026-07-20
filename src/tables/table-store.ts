@@ -30,6 +30,9 @@ interface CacheEntry {
 export class TableStore extends Component {
 	private readonly cache = new Map<string, CacheEntry>();
 	private onRefresh: (() => void) | null = null;
+	/** In-flight `refreshNow()` — see `ensureFresh` for the coalescing rule. */
+	private inflight: Promise<boolean> | null = null;
+	private rerunRequested = false;
 
 	constructor(
 		private readonly app: App,
@@ -58,8 +61,29 @@ export class TableStore extends Component {
 
 	/** Re-read every currently-indexed table note whose mtime moved since the
 	 * last read (or that's new), and drop anything no longer indexed. Returns
-	 * true if the resulting `userTables()` set changed at all. */
+	 * true if the resulting `userTables()` set changed at all.
+	 *
+	 * Coalesced: the scan awaits `cachedRead` per note, so two overlapping
+	 * runs could interleave (run A re-inserting a cache entry for a path run
+	 * B just deleted — a removed table briefly resurrecting). A call that
+	 * lands mid-scan queues exactly one re-run after the current one settles
+	 * instead of racing it. */
 	async ensureFresh(): Promise<boolean> {
+		if (this.inflight) {
+			this.rerunRequested = true;
+			return this.inflight;
+		}
+		this.inflight = this.refreshNow().finally(() => {
+			this.inflight = null;
+			if (this.rerunRequested) {
+				this.rerunRequested = false;
+				void this.ensureFresh();
+			}
+		});
+		return this.inflight;
+	}
+
+	private async refreshNow(): Promise<boolean> {
 		const notes = this.campaignStore.tableNotes();
 		const seenPaths = new Set<string>();
 		let changed = false;

@@ -1,5 +1,5 @@
 import { normalizePath, TFile, type App } from "obsidian";
-import { asLazy, writeLazyFrontmatter } from "../lib/frontmatter";
+import { mutateLazyFrontmatter, writeLazyFrontmatter } from "../lib/frontmatter";
 import { beginSelfWrite } from "../lib/self-write";
 import { replaceSection, sectionContent } from "../lib/sections";
 import { tryFileOp } from "../lib/notify";
@@ -73,6 +73,11 @@ export async function writeSessionZeroSection(app: App, path: string, heading: s
  * Patch the session-zero note at `path` — self-write marked, mirroring
  * `sessions/session-files.ts`'s `patchSessionSecrets`. Silently no-ops if the
  * file is gone or unreadable; callers wrap this in `tryFileOp`.
+ *
+ * Reads through `mutateLazyFrontmatter`, i.e. off the file's actual current
+ * frontmatter inside the `processFrontMatter` callback (M4 fix) — never
+ * `metadataCache`, which can lag a just-completed write and otherwise let two
+ * quick edits silently undo each other.
  */
 export async function patchSessionZero(
 	app: App,
@@ -82,14 +87,13 @@ export async function patchSessionZero(
 	const file = app.vault.getFileByPath(path);
 	if (!(file instanceof TFile)) return;
 
-	const cache = app.metadataCache.getFileCache(file);
-	const fm = readSessionZeroFm(asLazy(cache?.frontmatter));
-	if (!fm) return;
-
-	const next = mutate(fm);
 	const done = beginSelfWrite(path);
 	try {
-		await writeLazyFrontmatter(app, file, writeSessionZeroFm(next));
+		await mutateLazyFrontmatter(app, file, (current) => {
+			const fm = readSessionZeroFm(current);
+			if (!fm) return null;
+			return writeSessionZeroFm(mutate(fm));
+		});
 	} finally {
 		done();
 	}

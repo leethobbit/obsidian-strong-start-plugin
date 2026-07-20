@@ -99,12 +99,24 @@ export function withAttackCount(build: MonsterBuildFields, attacks: number): Mon
 	const line = statsForCr(build.cr);
 	const count = Math.max(1, Math.round(attacks));
 	if (!line) return { ...build, attacks: count };
+	// At the table's own attack count, restore its damagePerAttack verbatim —
+	// the table's damagePerRound isn't always exactly attacks × damagePerAttack
+	// (the doc's own rounding), so recomputing here would silently contradict
+	// both the table and the restored damageDice string.
+	if (count === line.attacks) {
+		return {
+			...build,
+			attacks: count,
+			damagePerAttack: line.damagePerAttack,
+			damageDice: line.damageDice,
+		};
+	}
 	const perAttack = Math.max(1, Math.round(line.damagePerRound / count));
 	return {
 		...build,
 		attacks: count,
 		damagePerAttack: perAttack,
-		damageDice: count === line.attacks ? line.damageDice : diceForAverage(perAttack),
+		damageDice: diceForAverage(perAttack),
 	};
 }
 

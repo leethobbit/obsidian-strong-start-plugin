@@ -47,4 +47,24 @@ describe("replaceBody", () => {
 		// the actual contract: a lone leading rule with no closing fence stays.
 		expect(stripFrontmatter(raw)).toBe(raw);
 	});
+
+	// Obsidian's cache accepts both of these as frontmatter — failing to match
+	// them here made replaceBody overwrite the block (un-managing the note).
+	it("tolerates a UTF-8 BOM before the opening fence", () => {
+		const raw = `\uFEFF${WITH_FM}`;
+		expect(stripFrontmatter(raw)).toBe("# Old name\n\n- one\n- two\n");
+		expect(replaceBody(raw, "# New\n")).toBe("\uFEFF---\nlazyCampaign:\n  type: table\n---\n# New\n");
+	});
+
+	it("tolerates an empty frontmatter block", () => {
+		const raw = "---\n---\n# Body\n";
+		expect(stripFrontmatter(raw)).toBe("# Body\n");
+		expect(replaceBody(raw, "# New\n")).toBe("---\n---\n# New\n");
+	});
+
+	it("tolerates CRLF line endings in the frontmatter block", () => {
+		const raw = "---\r\nlazyCampaign:\r\n  type: table\r\n---\r\n# Body\n";
+		expect(stripFrontmatter(raw)).toBe("# Body\n");
+		expect(replaceBody(raw, "# New\n")).toBe("---\r\nlazyCampaign:\r\n  type: table\r\n---\r\n# New\n");
+	});
 });

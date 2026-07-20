@@ -148,6 +148,12 @@ describe("renderTableBody", () => {
 		];
 		expect(parseUserTableBody(renderTableBody("Encounters", rows))).toEqual(rows);
 	});
+
+	it("round-trips a 0x (disabled) row instead of reviving it as weight 1", () => {
+		const rows: TableRow[] = [{ text: "Benched for now", weight: 0 }, { text: "Active" }];
+		expect(renderTableBody("Encounters", rows)).toBe("# Encounters\n\n- 0x Benched for now\n- Active\n");
+		expect(parseUserTableBody(renderTableBody("Encounters", rows))).toEqual(rows);
+	});
 });
 
 describe("parseWeightedLines / renderWeightedLines", () => {

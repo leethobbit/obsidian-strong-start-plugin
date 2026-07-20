@@ -60,7 +60,14 @@ export class CampaignStore extends Component {
 
 		this.registerEvent(
 			this.app.metadataCache.on("changed", (file) => {
-				if (this.indexFile(file)) this.notify(new Set([file.path]));
+				// Body-only edits matter too: prose is half the datastore
+				// (scenes, fronts, session notes), so any change to a note
+				// that is — or just stopped being — managed notifies.
+				// Subscribers already debounce rebuilds and use the
+				// self-write registry to skip their own echoes.
+				const wasManaged = this.index.has(file.path);
+				const fmChanged = this.indexFile(file);
+				if (fmChanged || wasManaged) this.notify(new Set([file.path]));
 			})
 		);
 

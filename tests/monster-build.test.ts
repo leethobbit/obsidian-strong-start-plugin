@@ -86,6 +86,27 @@ describe("withAttackCount", () => {
 		expect(roundTrip.damageDice).toBe("3d6 + 2");
 		expect(roundTrip.damagePerAttack).toBe(12);
 	});
+
+	// Regression: these CRs' damagePerRound isn't exactly attacks ×
+	// damagePerAttack (the vendored table's own rounding), so restoring must
+	// use the table's damagePerAttack verbatim, not recompute it from
+	// damagePerRound — otherwise the round trip silently contradicts both the
+	// table and the restored dice string.
+	it("restores the table's damagePerAttack verbatim at the default count, even where the table's own rounding means attacks x damagePerAttack != damagePerRound", () => {
+		const cases: ReadonlyArray<{ cr: number; damagePerAttack: number; damageDice: string }> = [
+			{ cr: 0.125, damagePerAttack: 4, damageDice: "1d6 + 1" },
+			{ cr: 9, damagePerAttack: 19, damageDice: "3d10 + 3" },
+			{ cr: 16, damagePerAttack: 21, damageDice: "4d8 + 3" },
+			{ cr: 17, damagePerAttack: 22, damageDice: "3d12 + 3" },
+		];
+		for (const { cr, damagePerAttack, damageDice } of cases) {
+			const base = baselineBuildFor(cr);
+			if (!base) throw new Error(`missing CR ${cr}`);
+			const roundTrip = withAttackCount(withAttackCount(base, base.attacks + 1), base.attacks);
+			expect(roundTrip.damagePerAttack, `CR ${cr}`).toBe(damagePerAttack);
+			expect(roundTrip.damageDice, `CR ${cr}`).toBe(damageDice);
+		}
+	});
 });
 
 describe("deriveMonster", () => {

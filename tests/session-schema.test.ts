@@ -61,12 +61,20 @@ describe("readSessionFm", () => {
 		]);
 	});
 
-	it("drops malformed secret entries (missing id/text)", () => {
+	it("drops secret entries missing an id, but keeps an id-bearing row with missing text as text: \"\" (M3)", () => {
 		const fm = readSessionFm({
 			campaign: "[[X]]",
 			secrets: [{ id: "s-1" }, { text: "no id" }, { id: "s-2", text: "kept" }],
 		});
-		expect(fm?.secrets).toEqual([{ id: "s-2", text: "kept" }]);
+		expect(fm?.secrets).toEqual([{ id: "s-1", text: "" }, { id: "s-2", text: "kept" }]);
+	});
+
+	it("keeps an archived tombstone row that lost its text to pruning (M3 regression)", () => {
+		const fm = readSessionFm({
+			campaign: "[[X]]",
+			secrets: [{ id: "s-x", archived: true }],
+		});
+		expect(fm?.secrets).toEqual([{ id: "s-x", text: "", archived: true }]);
 	});
 
 	it("returns null without a campaign link", () => {

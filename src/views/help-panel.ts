@@ -138,12 +138,14 @@ export class HelpPanel {
 			new WelcomeModal(this.view.app, this.view.plugin).open();
 		});
 
-		const resetLink = linksRow.createEl("a", { text: "Reset tips", attr: { href: "#" } });
+		// Clears the `welcome` flag too (dismissed is one list) — say so, same
+		// as the settings-tab twin ("tips and welcome").
+		const resetLink = linksRow.createEl("a", { text: "Reset tips and welcome", attr: { href: "#" } });
 		this.view.registerDomEvent(resetLink, "click", (evt) => {
 			evt.preventDefault();
 			this.view.plugin.hints.dismissed = [];
 			void this.view.plugin.persist();
-			new Notice("Tips reset — they'll show again as you use the plugin.");
+			new Notice("Tips reset — they'll show again as you use the plugin, and the welcome returns on the next launch.");
 		});
 	}
 }

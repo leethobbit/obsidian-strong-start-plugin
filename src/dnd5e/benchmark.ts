@@ -37,20 +37,35 @@ export interface DeadlyBenchmark {
 	 * levels) at 17th level and up. Undefined below 11th level, where the doc
 	 * doesn't offer this adjustment. */
 	higherCrThreshold?: number;
-	/** CR at which a *single* monster alone "might be deadly" (doc: equal to
-	 * average level below 5th level, 1.5× average level at 5th level and up).
-	 * Special-cased to CR 1/2 at 1st level to match the doc's own table
+	/** CR at which a *single* monster alone "might be deadly" (doc: "equal to
+	 * the average level of the characters or 1.5x the average level of the
+	 * characters if they're above 5th level" —
+	 * docs/lazy-gm-resource-document.md, "Lazy Combat Encounter Building for
+	 * 5e"). Special-cased to CR 1/2 at 1st level to match the doc's own table
 	 * exactly, rather than the plain formula's CR 1 — 1st-level characters
 	 * have too little HP cushion for the general rule to hold ("5e Quick
 	 * Encounter Building": "Be especially careful with potentially deadly
-	 * encounters when the characters are 1st level"). */
+	 * encounters when the characters are 1st level"). Below 5th level,
+	 * `averageLevel` itself is rounded to the nearest whole CR (ties up, same
+	 * convention as `crThreshold`) — the doc's "equal to average level" line
+	 * assumes a single uniform party level, but this plugin's averaging of a
+	 * mixed-level party can land between two whole levels (e.g. 3.5), and
+	 * every legal CR from 1 up is a whole number, so a fractional result here
+	 * would render a CR that doesn't exist. */
 	maxSingleMonsterCr: number;
 	/** Ready-to-render sentence for the benchmark card/drawer. */
 	description: string;
 }
 
 function formatCr(n: number): string {
-	return Number.isInteger(n) ? String(n) : n.toFixed(1);
+	if (Number.isInteger(n)) return String(n);
+	// Sub-1 CRs are conventionally written as fractions (1/8, 1/4, 1/2), never
+	// as decimals — matches crLabel's denominator logic in monster-build.ts.
+	if (n > 0 && n < 1) {
+		const denominator = Math.round(1 / n);
+		return `1/${denominator}`;
+	}
+	return n.toFixed(1);
 }
 
 function formatAverage(n: number): string {
@@ -80,7 +95,7 @@ export function deadlyBenchmark(partyLevels: readonly number[]): DeadlyBenchmark
 	}
 
 	const maxSingleMonsterCr =
-		representativeLevel <= 1 ? 0.5 : representativeLevel < 5 ? averageLevel : Math.round(averageLevel * 1.5);
+		representativeLevel <= 1 ? 0.5 : representativeLevel < 5 ? Math.round(averageLevel) : Math.round(averageLevel * 1.5);
 
 	const partyPhrase =
 		partyLevels.length === 1

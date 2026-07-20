@@ -1,5 +1,5 @@
 import { Component, MarkdownRenderer, Notice, setIcon, TFile } from "obsidian";
-import { renderEmptyState, renderEmptyStateAction, renderCollapsibleSection, SectionState } from "../panel-kit";
+import { renderEmptyState, renderEmptyStateAction, renderCollapsibleSection, RenderScopes, SectionState } from "../panel-kit";
 import { replaceSection, sectionContent } from "../../lib/sections";
 import { parseTaskBulletSection, renderTaskBulletRows, type TaskRow } from "../../sessions/bullet-list";
 import { toSessionFm, writeSessionFm } from "../../sessions/session-schema";
@@ -82,6 +82,8 @@ export class RunPanel {
 	private peekedSecretId: string | null = null;
 	private undoVisibleForId: string | null = null;
 	private undoTimeoutHandle: number | null = null;
+	/** Pending dice-toast leave/remove timeouts — cleared in `disposeDom`. */
+	private readonly diceToastHandles = new Set<number>();
 	/** One-shot card-flip garnish (docs/plan.md M13): set just before the
 	 * re-render that follows a reveal, consumed by that render, then cleared —
 	 * so later re-renders (undo timeout, store notifications) don't replay it. */
@@ -115,10 +117,18 @@ export class RunPanel {
 
 	private readonly rebuildQueue: DeferredRebuildQueue;
 
+	/** Per-render listener scopes (panel-kit): "shell" turns over on every
+	 * full rebuild, "scenes"/"secrets" on their own hot partial re-renders —
+	 * a multi-hour session of toggles/reveals otherwise pins every superseded
+	 * DOM tree on the view's cleanup list until close. */
+	private readonly renderScopes: RenderScopes;
+	private domScope: Component | null = null;
+
 	constructor(
 		private readonly view: LazyCampaignView,
 		private readonly containerEl: HTMLElement
 	) {
+		this.renderScopes = new RenderScopes(view);
 		this.textSize = this.view.plugin.ui.runTextSize ?? "md";
 		this.glancePane = new GlancePane(view, (path) => this.openInNewLeaf(path));
 
@@ -132,7 +142,10 @@ export class RunPanel {
 		this.view.registerDomEvent(containerEl.ownerDocument, "keydown", (evt) => {
 			if (evt.key === "Escape" && this.dnd5eOpen) this.setDnd5eOpen(false);
 		});
-		this.view.registerInterval(window.setInterval(() => this.updateTimerText(), 1000));
+		// All timers in this class schedule on the panel's own window (not the
+		// main window's global) so they keep working when the view is popped
+		// out — same rule keyboard-watch.ts follows.
+		this.view.registerInterval(containerEl.win.setInterval(() => this.updateTimerText(), 1000));
 		this.view.register(() => this.disposeDom());
 	}
 
@@ -238,8 +251,21 @@ export class RunPanel {
 		if (pending.length > 0) await Promise.allSettled(pending);
 	}
 
+	/** Render-time listener registration — routes to the current full
+	 * rebuild's scope (falling back to the view before the first rebuild).
+	 * Generic function, not an inline arrow, for the same type-unification
+	 * reason as prep-panel's pass-through. */
+	private reg = <K extends keyof HTMLElementEventMap>(
+		el: HTMLElement,
+		type: K,
+		cb: (evt: HTMLElementEventMap[K]) => void
+	): void => {
+		(this.domScope ?? this.view).registerDomEvent(el, type, cb);
+	};
+
 	private fullRebuild(): void {
 		this.disposeDom();
+		this.domScope = this.renderScopes.next("shell");
 		this.containerEl.empty();
 
 		const session = this.session;
@@ -314,6 +340,9 @@ export class RunPanel {
 
 	private disposeDom(): void {
 		this.closePopover();
+		this.clearUndo();
+		for (const handle of this.diceToastHandles) this.containerEl.win.clearTimeout(handle);
+		this.diceToastHandles.clear();
 		// Teardown safety net (view close, empty states): fire-and-forget
 		// flush. Rebuilds go through `flushDebouncers` first, which awaits.
 		for (const debouncer of this.debouncers) void debouncer.run();
@@ -350,14 +379,14 @@ export class RunPanel {
 			attr: { "aria-label": "Roll d20", type: "button" },
 		});
 		setIcon(diceBtn, "dices");
-		this.view.registerDomEvent(diceBtn, "click", () => this.rollD20Toast());
+		this.reg(diceBtn, "click", () => this.rollD20Toast());
 
 		const chevronBtn = diceAnchor.createEl("button", {
 			cls: "strong-start-run-icon-button strong-start-run-chevron",
 			attr: { "aria-label": "More roll options", type: "button" },
 		});
 		setIcon(chevronBtn, "chevron-down");
-		this.view.registerDomEvent(chevronBtn, "click", () =>
+		this.reg(chevronBtn, "click", () =>
 			this.togglePopover(diceAnchor, (el) => this.buildDicePopover(el))
 		);
 
@@ -366,7 +395,7 @@ export class RunPanel {
 			attr: { "aria-label": "Safety tools", type: "button" },
 		});
 		setIcon(safetyBtn, "shield");
-		this.view.registerDomEvent(safetyBtn, "click", () => this.openSafetyCard(campaign));
+		this.reg(safetyBtn, "click", () => this.openSafetyCard(campaign));
 
 		// 5e module (docs/plan.md M10) — zero UI when the feature is off.
 		if (featureEnabled(this.view.plugin.settings, "dnd5e")) {
@@ -376,7 +405,7 @@ export class RunPanel {
 			});
 			setIcon(dnd5eBtn, "swords");
 			this.dnd5eButtonEl = dnd5eBtn;
-			this.view.registerDomEvent(dnd5eBtn, "click", (evt) => {
+			this.reg(dnd5eBtn, "click", (evt) => {
 				evt.stopPropagation();
 				this.setDnd5eOpen(!this.dnd5eOpen);
 			});
@@ -391,7 +420,7 @@ export class RunPanel {
 		// Read `this.session` at click time — the top bar isn't rebuilt on the
 		// self-write soft path, so a captured `session` would predate any
 		// reveals/scene ticks made since it was built.
-		this.view.registerDomEvent(endBtn, "click", () => {
+		this.reg(endBtn, "click", () => {
 			if (this.session) this.openEndSessionModal(this.session);
 		});
 
@@ -401,7 +430,7 @@ export class RunPanel {
 			attr: { "aria-label": "More options", type: "button" },
 		});
 		setIcon(overflowBtn, "ellipsis");
-		this.view.registerDomEvent(overflowBtn, "click", () =>
+		this.reg(overflowBtn, "click", () =>
 			this.togglePopover(overflowAnchor, (el) => this.buildOverflowPopover(el))
 		);
 	}
@@ -461,7 +490,7 @@ export class RunPanel {
 		mountDicePopover(
 			el,
 			{
-				registerDomEvent: (target, type, cb) => this.view.registerDomEvent(target, type, cb),
+				registerDomEvent: (target, type, cb) => this.reg(target, type, cb),
 				rng: this.view.plugin.rng,
 				onRoll: (result, config) => {
 					// Garnish only a lone d20 (judged on the natural die, so
@@ -496,8 +525,8 @@ export class RunPanel {
 			text: "A+",
 			attr: { "aria-label": "Larger text", type: "button" },
 		});
-		this.view.registerDomEvent(minusBtn, "click", () => this.stepTextSize(-1));
-		this.view.registerDomEvent(plusBtn, "click", () => this.stepTextSize(1));
+		this.reg(minusBtn, "click", () => this.stepTextSize(-1));
+		this.reg(plusBtn, "click", () => this.stepTextSize(1));
 	}
 
 	private stepTextSize(direction: number): void {
@@ -539,13 +568,19 @@ export class RunPanel {
 		if (options?.detail) toast.createDiv({ cls: "strong-start-run-dice-toast-detail", text: options.detail });
 
 		// setTimeout handles get their own clearTimeout teardown —
-		// registerInterval's contract is for setInterval handles.
-		const leaveHandle = window.setTimeout(() => toast.addClass("is-leaving"), DICE_TOAST_LEAVE_MS);
-		const removeHandle = window.setTimeout(() => toast.remove(), DICE_TOAST_TOTAL_MS);
-		this.view.register(() => {
-			window.clearTimeout(leaveHandle);
-			window.clearTimeout(removeHandle);
-		});
+		// registerInterval's contract is for setInterval handles. Handles are
+		// pooled in `diceToastHandles` and cleared in `disposeDom` rather than
+		// one `view.register` closure per toast, which would grow the view's
+		// cleanup list unbounded over a long session of rolls.
+		const win = this.containerEl.win;
+		const leaveHandle = win.setTimeout(() => toast.addClass("is-leaving"), DICE_TOAST_LEAVE_MS);
+		const removeHandle = win.setTimeout(() => {
+			toast.remove();
+			this.diceToastHandles.delete(leaveHandle);
+			this.diceToastHandles.delete(removeHandle);
+		}, DICE_TOAST_TOTAL_MS);
+		this.diceToastHandles.add(leaveHandle);
+		this.diceToastHandles.add(removeHandle);
 	}
 
 	// ---- Strong start (read-aloud, rendered markdown) -------------------------
@@ -568,6 +603,7 @@ export class RunPanel {
 	private renderScenes(): void {
 		const container = this.scenesListEl;
 		if (!container) return;
+		const scope = this.renderScopes.next("scenes");
 		for (const component of this.sceneMdBucket) this.view.removeChild(component);
 		this.sceneMdBucket.length = 0;
 		container.empty();
@@ -576,7 +612,7 @@ export class RunPanel {
 			const banner = container.createDiv({ cls: "strong-start-malformed-banner" });
 			banner.createSpan({ text: "Scenes were edited outside the board — open the note to fix formatting." });
 			const openBtn = banner.createEl("button", { text: "Open note" });
-			this.view.registerDomEvent(openBtn, "click", () => void this.openInNewLeaf(this.session?.path));
+			scope.registerDomEvent(openBtn, "click", () => void this.openInNewLeaf(this.session?.path));
 			return;
 		}
 
@@ -604,7 +640,7 @@ export class RunPanel {
 			const icon = toggle.createSpan({ cls: "strong-start-run-scene-check" });
 			setIcon(icon, row.done ? "check-circle" : "circle");
 			toggle.createSpan({ cls: "strong-start-run-scene-text", text: row.text });
-			this.view.registerDomEvent(toggle, "click", () => void this.toggleScene(index));
+			scope.registerDomEvent(toggle, "click", () => void this.toggleScene(index));
 
 			const detail = row.detail;
 			if (!detail) continue;
@@ -621,7 +657,7 @@ export class RunPanel {
 				},
 			});
 			setIcon(expandBtn, expanded ? "chevron-down" : "chevron-right");
-			this.view.registerDomEvent(expandBtn, "click", () => {
+			scope.registerDomEvent(expandBtn, "click", () => {
 				if (!this.expandedScenes.delete(row.text)) this.expandedScenes.add(row.text);
 				this.renderScenes();
 			});
@@ -665,6 +701,7 @@ export class RunPanel {
 	private renderSecrets(): void {
 		const container = this.secretsListEl;
 		if (!container || !this.session) return;
+		const scope = this.renderScopes.next("secrets");
 		container.empty();
 
 		const secrets = this.session.secrets.filter((s) => !s.archived);
@@ -672,11 +709,11 @@ export class RunPanel {
 			renderEmptyState(container, "No secrets yet — add some in prep step 4.");
 			return;
 		}
-		for (const secret of secrets) this.renderSecretCard(container, secret);
+		for (const secret of secrets) this.renderSecretCard(scope, container, secret);
 		this.flipSecretId = null;
 	}
 
-	private renderSecretCard(container: HTMLElement, secret: Secret): void {
+	private renderSecretCard(scope: Component, container: HTMLElement, secret: Secret): void {
 		const revealed = secret.revealed === true;
 		const peeked = this.peekedSecretId === secret.id;
 
@@ -700,7 +737,7 @@ export class RunPanel {
 		}
 
 		if (!revealed) {
-			this.view.registerDomEvent(card, "click", (evt) => {
+			scope.registerDomEvent(card, "click", (evt) => {
 				evt.stopPropagation();
 				this.handleSecretTap(secret.id);
 			});
@@ -708,7 +745,7 @@ export class RunPanel {
 
 		if (!revealed && peeked) {
 			const markBtn = card.createEl("button", { cls: "mod-cta strong-start-run-secret-mark", text: "Mark revealed" });
-			this.view.registerDomEvent(markBtn, "click", (evt) => {
+			scope.registerDomEvent(markBtn, "click", (evt) => {
 				evt.stopPropagation();
 				void this.markRevealed(secret.id);
 			});
@@ -716,7 +753,7 @@ export class RunPanel {
 
 		if (revealed && this.undoVisibleForId === secret.id) {
 			const undoBtn = card.createEl("button", { cls: "strong-start-run-secret-undo", text: "Undo" });
-			this.view.registerDomEvent(undoBtn, "click", (evt) => {
+			scope.registerDomEvent(undoBtn, "click", (evt) => {
 				evt.stopPropagation();
 				void this.undoReveal(secret.id);
 			});
@@ -733,7 +770,7 @@ export class RunPanel {
 				attr: { type: "button", "aria-label": "Hide this secret again" },
 			});
 			setIcon(hideBtn, "eye-off");
-			this.view.registerDomEvent(hideBtn, "click", (evt) => {
+			scope.registerDomEvent(hideBtn, "click", (evt) => {
 				evt.stopPropagation();
 				void this.undoReveal(secret.id);
 			});
@@ -781,20 +818,21 @@ export class RunPanel {
 	private showUndoFor(id: string): void {
 		this.clearUndo();
 		this.undoVisibleForId = id;
-		const handle = window.setTimeout(() => {
+		// Torn down by `clearUndo` (next reveal, or `disposeDom`) — not
+		// `registerInterval`, whose contract is setInterval handles and whose
+		// entries would pile up one per reveal until the view closes.
+		this.undoTimeoutHandle = this.containerEl.win.setTimeout(() => {
 			this.undoTimeoutHandle = null;
 			if (this.undoVisibleForId === id) {
 				this.undoVisibleForId = null;
 				this.renderSecrets();
 			}
 		}, UNDO_WINDOW_MS);
-		this.undoTimeoutHandle = handle;
-		this.view.registerInterval(handle);
 	}
 
 	private clearUndo(): void {
 		if (this.undoTimeoutHandle !== null) {
-			window.clearTimeout(this.undoTimeoutHandle);
+			this.containerEl.win.clearTimeout(this.undoTimeoutHandle);
 			this.undoTimeoutHandle = null;
 		}
 		this.undoVisibleForId = null;
@@ -846,14 +884,14 @@ export class RunPanel {
 			attr: { "aria-label": "Close 5e reference", type: "button" },
 		});
 		setIcon(closeBtn, "x");
-		this.view.registerDomEvent(closeBtn, "click", () => this.setDnd5eOpen(false));
+		this.reg(closeBtn, "click", () => this.setDnd5eOpen(false));
 
 		const body = drawer.createDiv({ cls: "strong-start-run-dnd5e-drawer-body" });
 		const pcs = this.view.plugin.store?.pcsOf(campaign.path) ?? [];
 
 		const buildRow = body.createDiv({ cls: "strong-start-run-dnd5e-build-row" });
 		const buildBtn = buildRow.createEl("button", { text: "Build a monster" });
-		this.view.registerDomEvent(buildBtn, "click", () => {
+		this.reg(buildBtn, "click", () => {
 			void openMonsterBuilder(this.view.plugin.app, {
 				campaign,
 				partyLevels: pcs.map((pc) => pc.level).filter((level): level is number => level !== undefined),
@@ -926,7 +964,7 @@ export class RunPanel {
 			});
 		}
 
-		this.view.registerDomEvent(overlay, "click", () => overlay.remove());
+		this.reg(overlay, "click", () => overlay.remove());
 	}
 
 	// ---- Bottom pane (log history + notes scratchpad) ---------------------------
@@ -934,7 +972,7 @@ export class RunPanel {
 	private bottomPaneHost(): BottomPaneHost {
 		const plugin = this.view.plugin;
 		return {
-			registerDomEvent: (el, type, cb) => this.view.registerDomEvent(el, type, cb),
+			registerDomEvent: (el, type, cb) => this.reg(el, type, cb),
 			registerDebounce: (debouncer) => this.debouncers.push(debouncer),
 			appendLog: (path, text) => this.appendLog(path, text),
 			writeSectionAt: (path, heading, content) => this.writeSectionAt(path, heading, content),
@@ -947,20 +985,27 @@ export class RunPanel {
 		};
 	}
 
-	private async appendLog(path: string, text: string): Promise<void> {
+	/** Returns false when the write failed (the pane rolls its optimistic
+	 * history row back) — `tryFileOp` has already surfaced the Notice. */
+	private async appendLog(path: string, text: string): Promise<boolean> {
 		const file = this.view.app.vault.getFileByPath(path);
-		if (!(file instanceof TFile)) return;
+		if (!(file instanceof TFile)) return false;
 
 		const line = `- ${formatClockTime(new Date())} ${text}`;
 		const done = beginSelfWrite(file.path);
 		try {
-			await tryFileOp(async () => {
+			const ok = await tryFileOp(async () => {
 				await this.view.app.vault.process(file, (body) => {
 					const existing = sectionContent(body, "Log");
 					const next = existing.length > 0 ? `${existing}\n${line}` : line;
-					return replaceSection(body, "Log", next);
+					const updated = replaceSection(body, "Log", next);
+					// Keep the cached body in step — the self-write soft path
+					// never re-reads it (same sync prep-panel does).
+					if (this.bodyPath === path) this.bodyText = updated;
+					return updated;
 				});
 			}, "Couldn't save that log entry — check the console for details.");
+			return ok !== null;
 		} finally {
 			done();
 		}
@@ -977,7 +1022,11 @@ export class RunPanel {
 					// Section-level diff guard: skip the write entirely if
 					// nothing actually changed, preventing write loops.
 					if (sectionContent(body, heading) === content.replace(/\s+$/, "")) return body;
-					return replaceSection(body, heading, content);
+					const updated = replaceSection(body, heading, content);
+					// Keep the cached body in step — the self-write soft path
+					// never re-reads it (same sync prep-panel does).
+					if (this.bodyPath === path) this.bodyText = updated;
+					return updated;
 				});
 			}, "Couldn't save that section — check the console for details.");
 		} finally {

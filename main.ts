@@ -2,9 +2,10 @@ import { Notice, Plugin, TFile, type WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, type LazyCampaignPluginSettings } from "./src/settings/settings";
 import { LazyCampaignPluginSettingTab } from "./src/settings/settings-tab";
 import { CampaignStore } from "./src/campaigns/campaign-store";
-import { CreateCampaignModal } from "./src/campaigns/create-campaign";
-import { createDemoCampaign } from "./src/campaigns/demo-campaign";
+import { campaignFolderExists, CreateCampaignModal } from "./src/campaigns/create-campaign";
+import { createDemoCampaign, DEMO_CAMPAIGN_NAME } from "./src/campaigns/demo-campaign";
 import { createStarterCampaign } from "./src/campaigns/starter-campaign";
+import { WHITESPARROW_NAME } from "./src/content/whitesparrow";
 import type { CampaignModel } from "./src/campaigns/types";
 import { createNextSession } from "./src/sessions/session-files";
 import { buildSessionSheet } from "./src/sessions/session-sheet";
@@ -132,6 +133,14 @@ export default class LazyCampaignPlugin extends Plugin {
 			name: "Create demo campaign",
 			callback: () => {
 				void (async () => {
+					// Re-running mid-way through an existing copy would build a
+					// half-duplicated hybrid (disambiguated entity notes whose
+					// [[links]] resolve to the OLD campaign, then a throw on the
+					// fixed-name session file) — refuse instead.
+					if (campaignFolderExists(this.app, this.settings.campaignRoot, DEMO_CAMPAIGN_NAME)) {
+						new Notice(`${DEMO_CAMPAIGN_NAME} already exists — delete its folder first to recreate it.`);
+						return;
+					}
 					const created = await tryFileOp(
 						() => createDemoCampaign(this.app, this.settings.campaignRoot),
 						"Couldn't create the demo campaign — check the console for details."
@@ -229,6 +238,12 @@ export default class LazyCampaignPlugin extends Plugin {
 	 * creation failed (`tryFileOp` has already surfaced the Notice) so the
 	 * wizard knows not to close itself. */
 	async createStarterCampaignAndOpen(): Promise<boolean> {
+		// Same re-run refusal as the demo command: a second run would
+		// half-duplicate the folder and then throw on "Sessions/Session 1.md".
+		if (campaignFolderExists(this.app, this.settings.campaignRoot, WHITESPARROW_NAME)) {
+			new Notice(`${WHITESPARROW_NAME} already exists — delete or rename its folder to start fresh.`);
+			return false;
+		}
 		const created = await tryFileOp(
 			() => createStarterCampaign(this.app, this.settings.campaignRoot),
 			"Couldn't create the starter campaign — check the console for details."
@@ -379,6 +394,11 @@ export default class LazyCampaignPlugin extends Plugin {
 			await leaf.setViewState({ type: VIEW_TYPE_LAZY, active: true });
 		}
 		await this.app.workspace.revealLeaf(leaf);
+
+		// A leaf restored with the workspace holds a DeferredView until it's
+		// first shown — without materializing it here, the instanceof check
+		// silently skips the mode/subtab jump the caller asked for.
+		await leaf.loadIfDeferred();
 
 		if (leaf.view instanceof LazyCampaignView) {
 			leaf.view.setMode(mode, subtab);

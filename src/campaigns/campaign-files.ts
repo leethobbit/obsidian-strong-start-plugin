@@ -38,3 +38,39 @@ export async function writeCampaignSection(app: App, path: string, heading: stri
 		done();
 	}
 }
+
+/**
+ * Read-modify-write one managed section against the note's CURRENT content —
+ * `mutate` receives the section as it exists on disk at write time, never a
+ * panel's cached copy, so a toggle can't clobber edits made elsewhere since
+ * the panel last rendered (the Dashboard fronts card learned this the hard
+ * way). Returns the resulting whole body (frontmatter included) so the caller
+ * can refresh its cache from truth, or null when the note is missing or the
+ * write failed (`tryFileOp` has already surfaced the Notice).
+ */
+export async function updateCampaignSection(
+	app: App,
+	path: string,
+	heading: string,
+	mutate: (current: string) => string
+): Promise<string | null> {
+	const file = app.vault.getFileByPath(path);
+	if (!(file instanceof TFile)) return null;
+
+	const done = beginSelfWrite(file.path);
+	try {
+		let result: string | null = null;
+		const ok = await tryFileOp(async () => {
+			await app.vault.process(file, (body) => {
+				const current = sectionContent(body, heading);
+				const next = mutate(current);
+				const out = next === current ? body : replaceSection(body, heading, next);
+				result = out;
+				return out;
+			});
+		}, "Couldn't save that change — check the console for details.");
+		return ok === null ? null : result;
+	} finally {
+		done();
+	}
+}

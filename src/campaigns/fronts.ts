@@ -61,7 +61,11 @@ export function parseFronts(sectionContent: string): Front[] {
 
 		const doom = DOOM_RE.exec(line.trim());
 		if (doom) {
-			current.doom = doom[1].trim();
+			// First doom line wins the model slot; a hand-added second one is
+			// preserved verbatim in `extra` instead of silently replacing it
+			// (a full render would otherwise drop one of them).
+			if (current.doom.length === 0) current.doom = doom[1].trim();
+			else current.extra.push(line.trim());
 			continue;
 		}
 

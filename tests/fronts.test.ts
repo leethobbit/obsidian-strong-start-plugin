@@ -54,6 +54,19 @@ describe("parseFronts", () => {
 		expect(fronts[0].extra).toEqual(["Notes: they've gone quiet since session 3."]);
 	});
 
+	it("keeps the first doom line and preserves a hand-added second one as extra", () => {
+		const fronts = parseFronts(
+			["### Cult of the eclipse", "Blot out the sun", "**Doom:** Eternal night falls.", "**Doom:** The moon cracks."].join("\n")
+		);
+		expect(fronts[0].doom).toBe("Eternal night falls.");
+		expect(fronts[0].extra).toEqual(["**Doom:** The moon cracks."]);
+		// And a full render keeps both lines instead of dropping one.
+		const rendered = renderFronts(fronts);
+		expect(rendered).toContain("**Doom:** Eternal night falls.");
+		expect(rendered).toContain("**Doom:** The moon cracks.");
+		expect(parseFronts(rendered)).toEqual(fronts);
+	});
+
 	it("returns an empty array for an empty section", () => {
 		expect(parseFronts("")).toEqual([]);
 	});

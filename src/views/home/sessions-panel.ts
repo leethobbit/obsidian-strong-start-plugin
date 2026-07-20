@@ -11,8 +11,8 @@ import { textField } from "../../lib/form-fields";
 import { tryFileOp } from "../../lib/notify";
 import { isIsoDate } from "../../lib/date";
 import { beginSelfWrite } from "../../lib/self-write";
-import { writeLazyFrontmatter } from "../../lib/frontmatter";
-import { toSessionFm, writeSessionFm } from "../../sessions/session-schema";
+import { mutateLazyFrontmatter } from "../../lib/frontmatter";
+import { readSessionFm, toSessionFm, writeSessionFm } from "../../sessions/session-schema";
 import { renameSessionNote } from "../../sessions/session-files";
 import { renderEmptyState, renderEmptyStateAction } from "../panel-kit";
 import type { SessionModel } from "../../sessions/types";
@@ -203,11 +203,17 @@ class EditSessionDateModal extends FormModal {
 
 		// Self-write marked so an open prep panel on this session takes the
 		// soft path instead of a hard rebuild (same shape as appendSessionLink).
-		const next = { ...toSessionFm(this.session), date: value.length > 0 ? value : undefined };
+		// Read-modify-write against the note's CURRENT state, not the model
+		// snapshot taken when the modal opened — a reveal/edit landing while
+		// the modal sat open would otherwise be reverted wholesale.
 		const done = beginSelfWrite(file.path);
 		try {
 			const saved = await tryFileOp(
-				() => writeLazyFrontmatter(this.app, file, writeSessionFm(next)),
+				() =>
+					mutateLazyFrontmatter(this.app, file, (current) => {
+						const fm = readSessionFm(current) ?? toSessionFm(this.session);
+						return writeSessionFm({ ...fm, date: value.length > 0 ? value : undefined });
+					}),
 				"Couldn't save the date — check the console for details."
 			);
 			if (saved === null) return;

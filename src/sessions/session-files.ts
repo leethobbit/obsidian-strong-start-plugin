@@ -1,5 +1,5 @@
 import { Notice, normalizePath, TFile, type App } from "obsidian";
-import { asLazy, writeLazyFrontmatter } from "../lib/frontmatter";
+import { mutateLazyFrontmatter, writeLazyFrontmatter } from "../lib/frontmatter";
 import { beginSelfWrite } from "../lib/self-write";
 import { toSafeFilename } from "../lib/slug";
 import { carryForward } from "./carryover";
@@ -102,6 +102,11 @@ export async function renameSessionNote(app: App, sessionPath: string, newName: 
  * see `prep-panel.ts`). Silently no-ops if the file is gone or isn't a
  * readable session note — callers are UI entry points and should wrap this in
  * `tryFileOp` for user-facing failure surfacing.
+ *
+ * Reads through `mutateLazyFrontmatter`, i.e. off the file's actual current
+ * frontmatter inside the `processFrontMatter` callback (M4 fix) — never
+ * `metadataCache`, which can still be showing the pre-write state right after
+ * a quick prior edit and would otherwise silently undo it.
  */
 export async function patchSessionSecrets(
 	app: App,
@@ -111,14 +116,14 @@ export async function patchSessionSecrets(
 	const file = app.vault.getFileByPath(path);
 	if (!(file instanceof TFile)) return;
 
-	const cache = app.metadataCache.getFileCache(file);
-	const fm = readSessionFm(asLazy(cache?.frontmatter));
-	if (!fm) return;
-
-	const next: SessionFm = { ...fm, secrets: mutate(fm.secrets) };
 	const done = beginSelfWrite(path);
 	try {
-		await writeLazyFrontmatter(app, file, writeSessionFm(next));
+		await mutateLazyFrontmatter(app, file, (current) => {
+			const fm = readSessionFm(current);
+			if (!fm) return null;
+			const next: SessionFm = { ...fm, secrets: mutate(fm.secrets) };
+			return writeSessionFm(next);
+		});
 	} finally {
 		done();
 	}

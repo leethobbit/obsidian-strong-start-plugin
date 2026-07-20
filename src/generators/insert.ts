@@ -1,7 +1,7 @@
 // Obsidian glue for the Generators subtab's "Send to prep"/"Save as note"
 // actions (src/views/tables/generators-panel.ts) — reuses the same write
 // paths the prep board's step editors go through (self-write marking,
-// managed-section helpers, `writeLazyFrontmatter`) so a generator insert
+// managed-section helpers, `mutateLazyFrontmatter`) so a generator insert
 // looks identical to a GM typing it in by hand. Kept separate from the pure
 // `generators/*.ts` modules per AGENTS.md's purity split.
 
@@ -9,11 +9,11 @@ import { normalizePath, TFile, type App } from "obsidian";
 import { addLink } from "../sessions/link-list";
 import { parseBulletSection, renderBulletRows } from "../sessions/bullet-list";
 import { replaceSection, sectionContent } from "../lib/sections";
-import { writeLazyFrontmatter } from "../lib/frontmatter";
+import { mutateLazyFrontmatter } from "../lib/frontmatter";
 import { beginSelfWrite } from "../lib/self-write";
 import { toSafeFilename } from "../lib/slug";
 import { createLocationNote, createNpcNote, createQuestNote } from "../roster/entity-files";
-import { toSessionFm, writeSessionFm } from "../sessions/session-schema";
+import { readSessionFm, toSessionFm, writeSessionFm } from "../sessions/session-schema";
 import { bulletsForLines, renderMarkdown } from "./types";
 import type { CampaignModel } from "../campaigns/types";
 import type { SessionModel } from "../sessions/types";
@@ -39,8 +39,13 @@ export async function appendSessionLink(
 
 	const done = beginSelfWrite(file.path);
 	try {
-		const next = { ...toSessionFm(session), [fmKey]: addLink(session[fmKey], value) };
-		await writeLazyFrontmatter(app, file, writeSessionFm(next));
+		// Read-modify-write against the note's CURRENT state — the store model
+		// in hand can lag a write that landed moments ago (e.g. two quick
+		// "Send to prep" clicks), and writing it back wholesale would revert it.
+		await mutateLazyFrontmatter(app, file, (current) => {
+			const fm = readSessionFm(current) ?? toSessionFm(session);
+			return writeSessionFm({ ...fm, [fmKey]: addLink(fm[fmKey], value) });
+		});
 	} finally {
 		done();
 	}

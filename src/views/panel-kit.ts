@@ -1,4 +1,27 @@
-import { setIcon, type Component } from "obsidian";
+import { Component, setIcon } from "obsidian";
+
+/**
+ * Per-render child `Component` scopes. Registering a re-rendered region's DOM
+ * listeners on the long-lived view Component pins every superseded DOM tree
+ * (each unregister closure holds its element) until the view closes — hours
+ * of run-mode re-renders leak hundreds of detached trees that way. Calling
+ * `next(key)` at the top of a region's render unloads the previous render's
+ * scope (releasing its listeners and elements) and returns a fresh child to
+ * register this render's listeners on.
+ */
+export class RenderScopes {
+	private readonly scopes = new Map<string, Component>();
+
+	constructor(private readonly owner: Component) {}
+
+	next(key: string): Component {
+		const old = this.scopes.get(key);
+		if (old) this.owner.removeChild(old);
+		const scope = this.owner.addChild(new Component());
+		this.scopes.set(key, scope);
+		return scope;
+	}
+}
 
 /** A single muted line for a quiet empty state. */
 export function renderEmptyState(el: HTMLElement, text: string): void {

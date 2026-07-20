@@ -13,6 +13,21 @@ describe("toSafeFilename", () => {
 	it("collapses whitespace but preserves casing", () => {
 		expect(toSafeFilename("  Greenhollow   Reborn  ")).toBe("Greenhollow Reborn");
 	});
+
+	it("strips Obsidian link-syntax characters that break [[wikilink]] joins", () => {
+		expect(toSafeFilename("Adventure #2")).toBe("Adventure 2");
+		expect(toSafeFilename("The [Fallen] King^s")).toBe("The Fallen Kings");
+	});
+
+	it("strips trailing dots (Windows rejects them)", () => {
+		expect(toSafeFilename("To be continued...")).toBe("To be continued");
+	});
+
+	it("defuses Windows reserved device names", () => {
+		expect(toSafeFilename("CON")).toBe("CON note");
+		expect(toSafeFilename("nul")).toBe("nul note");
+		expect(toSafeFilename("Console")).toBe("Console"); // prefix only, not reserved
+	});
 });
 
 describe("slugify", () => {

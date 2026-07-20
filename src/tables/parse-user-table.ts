@@ -129,7 +129,9 @@ function renderRows(rows: readonly TableRow[], bulletPrefix: string): string[] {
 	return rows
 		.map((row) => ({ text: row.text.trim(), weight: row.weight ?? 1 }))
 		.filter((row) => row.text.length > 0)
-		.map((row) => `${bulletPrefix}${row.weight > 1 ? `${row.weight}x ` : ""}${row.text}`);
+		// `!== 1`, not `> 1`: a `0x` row is a deliberately disabled row and
+		// must survive an editor round-trip instead of reverting to weight 1.
+		.map((row) => `${bulletPrefix}${row.weight !== 1 ? `${row.weight}x ` : ""}${row.text}`);
 }
 
 /** Canonical on-disk body the create/edit flow saves for a custom table

@@ -1,5 +1,5 @@
-import { DropdownComponent, Menu, Notice, setIcon, TFile } from "obsidian";
-import { renderEmptyStateAction } from "../panel-kit";
+import { Component, DropdownComponent, Menu, Notice, setIcon, TFile } from "obsidian";
+import { renderEmptyStateAction, RenderScopes } from "../panel-kit";
 import { STEPS, type StepDef } from "../../sessions/steps";
 import { createNextSession } from "../../sessions/session-files";
 import { toSessionFm, writeSessionFm, type SessionFm } from "../../sessions/session-schema";
@@ -52,6 +52,13 @@ export class PrepPanel {
 	private readonly rebuildQueue: DeferredRebuildQueue;
 	private suggesters: Array<{ close(): void }> = [];
 	private debouncers: Array<{ cancel(): void; run(): unknown }> = [];
+	/** Per-render listener scopes (panel-kit): each region's re-render frees
+	 * the previous render's listeners instead of pinning the old DOM tree on
+	 * the view's cleanup list — the master list re-renders after every write. */
+	private readonly renderScopes: RenderScopes;
+	/** The current workspace render's scope — `registerDomEvent` (the pass-
+	 * through every step editor gets via StepContext) routes here. */
+	private workspaceScope: Component | null = null;
 
 	/** Prep timer (docs/plan.md M13): active prep minutes per session path,
 	 * in-memory only — it counts THIS sitting, not lifetime prep, and a stale
@@ -66,13 +73,16 @@ export class PrepPanel {
 		private readonly view: LazyCampaignView,
 		private readonly containerEl: HTMLElement
 	) {
+		this.renderScopes = new RenderScopes(view);
 		this.rebuildQueue = new DeferredRebuildQueue(containerEl, () => void this.doFullRebuildNow());
 		this.rebuildQueue.bind(
 			(el, cb) => this.view.registerDomEvent(el, "focusout", cb),
 			(id) => this.view.registerInterval(id)
 		);
 		this.view.registerDomEvent(containerEl, "keydown", (evt) => this.handleKeydown(evt));
-		this.view.registerInterval(window.setInterval(() => this.tickPrepTimer(), 5000));
+		// Panel's own window, not the main window's global — the tick must
+		// keep firing when the view is popped out (keyboard-watch.ts rule).
+		this.view.registerInterval(containerEl.win.setInterval(() => this.tickPrepTimer(), 5000));
 		this.view.register(() => this.disposeTransient());
 	}
 
@@ -331,6 +341,7 @@ export class PrepPanel {
 	// ---- Toolbar ------------------------------------------------------------
 
 	private renderToolbar(): void {
+		const scope = this.renderScopes.next("toolbar");
 		this.toolbarEl.empty();
 		const campaign = this.campaign;
 		const session = this.session;
@@ -356,10 +367,10 @@ export class PrepPanel {
 		});
 
 		const openNoteBtn = this.toolbarEl.createEl("button", { text: "Open note" });
-		this.view.registerDomEvent(openNoteBtn, "click", () => void this.openNote(session.path));
+		scope.registerDomEvent(openNoteBtn, "click", () => void this.openNote(session.path));
 
 		const runBtn = this.toolbarEl.createEl("button", { cls: "mod-cta", text: "Run" });
-		this.view.registerDomEvent(runBtn, "click", () => {
+		scope.registerDomEvent(runBtn, "click", () => {
 			this.setSession(session);
 			this.view.setMode("run");
 		});
@@ -377,7 +388,7 @@ export class PrepPanel {
 			attr: { "aria-label": "More actions", type: "button" },
 		});
 		setIcon(overflowBtn, "ellipsis");
-		this.view.registerDomEvent(overflowBtn, "click", (evt) => {
+		scope.registerDomEvent(overflowBtn, "click", (evt) => {
 			const menu = new Menu();
 			menu.addItem((item) =>
 				item
@@ -409,6 +420,7 @@ export class PrepPanel {
 	// ---- Master list ----------------------------------------------------------
 
 	private renderMasterList(): void {
+		const scope = this.renderScopes.next("master");
 		this.masterListEl.empty();
 		const session = this.session;
 		const campaign = this.campaign;
@@ -431,7 +443,7 @@ export class PrepPanel {
 				attr: { "aria-label": isDone ? "Marked done — click to unmark" : "Mark step done", type: "button" },
 				text: state === "done" ? "✓" : state === "auto" ? "◐" : "○",
 			});
-			this.view.registerDomEvent(circle, "click", (evt) => {
+			scope.registerDomEvent(circle, "click", (evt) => {
 				evt.stopPropagation();
 				void this.toggleStepDone(step.id);
 			});
@@ -442,7 +454,7 @@ export class PrepPanel {
 			const summary = summaryFor(step, session, this.bodyText);
 			if (summary) row.createSpan({ cls: "strong-start-step-summary", text: summary });
 
-			this.view.registerDomEvent(row, "click", () => {
+			scope.registerDomEvent(row, "click", () => {
 				if (isPhone(this.view.app)) {
 					this.openPhoneDetail(step.id);
 					return;
@@ -486,6 +498,7 @@ export class PrepPanel {
 	// ---- Workspace --------------------------------------------------------
 
 	private renderWorkspace(): void {
+		this.workspaceScope = this.renderScopes.next("workspace");
 		this.workspaceEl.empty();
 		const session = this.session;
 		const campaign = this.campaign;
@@ -501,7 +514,7 @@ export class PrepPanel {
 				attr: { "aria-label": "Back to steps", type: "button" },
 			});
 			setIcon(backBtn, "arrow-left");
-			this.view.registerDomEvent(backBtn, "click", () => this.closePhoneDetail());
+			this.workspaceScope.registerDomEvent(backBtn, "click", () => this.closePhoneDetail());
 			header.createSpan({
 				cls: "strong-start-phone-back-title",
 				text: step ? `${step.number} · ${step.shortLabel}` : "Step",
@@ -541,13 +554,16 @@ export class PrepPanel {
 	 * object-literal arrow) so TypeScript can unify its type parameter with
 	 * `Component.registerDomEvent`'s own generic across the call — an inline
 	 * arrow assigned contextually to `StepContext["registerDomEvent"]` widens
-	 * the event-name type and needs a cast; this doesn't. */
+	 * the event-name type and needs a cast; this doesn't. Routes to the
+	 * CURRENT workspace render's scope so each step re-render releases the
+	 * previous render's listeners (and the DOM they pin) instead of stacking
+	 * them on the view until it closes. */
 	private registerDomEvent = <K extends keyof HTMLElementEventMap>(
 		el: HTMLElement,
 		type: K,
 		cb: (evt: HTMLElementEventMap[K]) => void
 	): void => {
-		this.view.registerDomEvent(el, type, cb);
+		(this.workspaceScope ?? this.view).registerDomEvent(el, type, cb);
 	};
 
 	private buildStepContext(session: SessionModel, campaign: CampaignModel): StepContext {
@@ -618,6 +634,14 @@ export class PrepPanel {
 					return replaceSection(body, heading, content);
 				});
 			}, "Couldn't save that section — check the console for details.");
+			// Body-only writes never produce a store notification, so nothing
+			// else refreshes `bodyText` before the next renderWorkspace — a
+			// stale copy here re-renders (and then re-persists) pre-edit prose.
+			// A late flush for a previous session must not poison the body of
+			// the one now on screen (same guard as foundation-panel).
+			if (this.bodyPath === path) {
+				this.bodyText = replaceSection(this.bodyText, heading, content);
+			}
 		} finally {
 			done();
 		}

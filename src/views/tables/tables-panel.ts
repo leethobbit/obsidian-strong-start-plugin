@@ -1,11 +1,16 @@
-import { Notice, setIcon } from "obsidian";
+import { Notice, setIcon, type Component } from "obsidian";
 import { rollTable } from "../../tables/roll";
 import type { TableRegistry } from "../../tables/registry";
 import type { RollResult, RollTable, TableCategory } from "../../tables/types";
-import { ATTRIBUTION_TEXT, ATTRIBUTION_URL } from "../../content/attribution";
+import {
+	ATTRIBUTION_TEXT,
+	ATTRIBUTION_URL,
+	MONSTER_BUILDER_ATTRIBUTION_TEXT,
+	MONSTER_BUILDER_ATTRIBUTION_URL,
+} from "../../content/attribution";
 import { CORE_TABLES } from "../../content";
 import { tryFileOp } from "../../lib/notify";
-import { renderEmptyState } from "../panel-kit";
+import { renderEmptyState, RenderScopes } from "../panel-kit";
 import { renderHint } from "../../help/hint";
 import { TableEditorModal } from "./table-editor-modal";
 import { GeneratorsPanel } from "./generators-panel";
@@ -57,16 +62,31 @@ export class TablesPanel {
 	 * but rolling/rerolling stays put. */
 	private lastDetailKey: string | null = null;
 	private readonly generatorsPanel: GeneratorsPanel;
+	/** Per-render listener scope (panel-kit) — this panel rebuilds its whole
+	 * DOM on every store/table notification, and view-lifetime registrations
+	 * would pin each superseded tree until the view closes. */
+	private readonly renderScopes: RenderScopes;
+	private domScope: Component | null = null;
+
+	private reg = <K extends keyof HTMLElementEventMap>(
+		el: HTMLElement,
+		type: K,
+		cb: (evt: HTMLElementEventMap[K]) => void
+	): void => {
+		(this.domScope ?? this.view).registerDomEvent(el, type, cb);
+	};
 
 	constructor(
 		private readonly view: LazyCampaignView,
 		private readonly containerEl: HTMLElement
 	) {
 		this.generatorsPanel = new GeneratorsPanel(view);
+		this.renderScopes = new RenderScopes(view);
 	}
 
 	render(): void {
 		this.captureScroll();
+		this.domScope = this.renderScopes.next("shell");
 		this.containerEl.empty();
 
 		const shell = this.containerEl.createDiv({ cls: "strong-start-tables-shell" });
@@ -133,7 +153,7 @@ export class TablesPanel {
 				text: label,
 				attr: { type: "button" },
 			});
-			this.view.registerDomEvent(btn, "click", () => {
+			this.reg(btn, "click", () => {
 				this.subtab = id;
 				this.render();
 			});
@@ -166,7 +186,7 @@ export class TablesPanel {
 			});
 			row.createSpan({ text: core.name });
 			row.createSpan({ cls: "strong-start-tables-shadowed-label", text: " hidden — replaced by your table" });
-			this.view.registerDomEvent(row, "click", () => {
+			this.reg(row, "click", () => {
 				this.selectedTableId = core.id;
 				this.peekingShadowedCore = true;
 				this.render();
@@ -180,7 +200,7 @@ export class TablesPanel {
 			text: core.name,
 			attr: { type: "button" },
 		});
-		this.view.registerDomEvent(row, "click", () => {
+		this.reg(row, "click", () => {
 			this.selectedTableId = core.id;
 			this.peekingShadowedCore = false;
 			this.render();
@@ -195,7 +215,7 @@ export class TablesPanel {
 			text: "New table",
 			attr: { type: "button" },
 		});
-		this.view.registerDomEvent(newBtn, "click", () => new TableEditorModal(this.view.app, this.view.plugin).open());
+		this.reg(newBtn, "click", () => new TableEditorModal(this.view.app, this.view.plugin).open());
 
 		const userTables = registry
 			.all()
@@ -220,7 +240,7 @@ export class TablesPanel {
 			text: table.name,
 			attr: { type: "button" },
 		});
-		this.view.registerDomEvent(nameBtn, "click", () => {
+		this.reg(nameBtn, "click", () => {
 			this.selectedTableId = table.id;
 			this.peekingShadowedCore = false;
 			this.render();
@@ -237,7 +257,7 @@ export class TablesPanel {
 			attr: { "aria-label": "Edit table", type: "button" },
 		});
 		setIcon(editBtn, "pencil");
-		this.view.registerDomEvent(editBtn, "click", () => {
+		this.reg(editBtn, "click", () => {
 			if (!table.path) return;
 			new TableEditorModal(this.view.app, this.view.plugin, { path: table.path, name: table.name, rows: table.rows }).open();
 		});
@@ -247,7 +267,7 @@ export class TablesPanel {
 			attr: { "aria-label": "Open note", type: "button" },
 		});
 		setIcon(openBtn, "external-link");
-		this.view.registerDomEvent(openBtn, "click", () => void this.openNote(table.path));
+		this.reg(openBtn, "click", () => void this.openNote(table.path));
 	}
 
 	private renderDetail(detailEl: HTMLElement, registry: TableRegistry): void {
@@ -280,7 +300,7 @@ export class TablesPanel {
 		});
 
 		const rollBtn = detailEl.createEl("button", { cls: "mod-cta strong-start-tables-roll-button", text: "Roll" });
-		this.view.registerDomEvent(rollBtn, "click", () => this.rollAndPush(table.id));
+		this.reg(rollBtn, "click", () => this.rollAndPush(table.id));
 
 		const stackEl = detailEl.createDiv({ cls: "strong-start-tables-result-stack" });
 		const entries = this.stack.filter((e) => e.tableId === table.id);
@@ -331,10 +351,10 @@ export class TablesPanel {
 		const buttons = card.createDiv({ cls: "strong-start-tables-result-buttons" });
 
 		const copyBtn = buttons.createEl("button", { text: "Copy" });
-		this.view.registerDomEvent(copyBtn, "click", () => void this.copyText(entry.result.text));
+		this.reg(copyBtn, "click", () => void this.copyText(entry.result.text));
 
 		const rerollBtn = buttons.createEl("button", { text: "Reroll" });
-		this.view.registerDomEvent(rerollBtn, "click", () => this.rerollEntry(entry));
+		this.reg(rerollBtn, "click", () => this.rerollEntry(entry));
 
 		if (entry.result.trace.length > 1) {
 			const details = card.createEl("details", { cls: "strong-start-tables-trace" });
@@ -353,6 +373,14 @@ export class TablesPanel {
 		footer.createEl("a", {
 			text: "Read the source document",
 			href: ATTRIBUTION_URL,
+			attr: { target: "_blank", rel: "noopener" },
+		});
+		// attribution.ts's invariant: the Monster Builder line renders
+		// everywhere ATTRIBUTION_TEXT renders.
+		footer.createSpan({ text: ` ${MONSTER_BUILDER_ATTRIBUTION_TEXT} ` });
+		footer.createEl("a", {
+			text: "Read the monster builder document",
+			href: MONSTER_BUILDER_ATTRIBUTION_URL,
 			attr: { target: "_blank", rel: "noopener" },
 		});
 	}
